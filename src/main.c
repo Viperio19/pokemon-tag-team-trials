@@ -197,6 +197,9 @@ static void CallCallbacks(void)
 
     if (gMain.callback2)
         gMain.callback2();
+    
+    if (gMain.callback3)
+        gMain.callback3();
 }
 
 void SetMainCallback2(MainCallback callback)

@@ -33,6 +33,20 @@
 // don't update gTimeBlend
 #define HOURS_FREEZE_BLEND 26
 
+enum Player2Command
+{
+    P2_CMD_NONE = 0,
+};
+
+enum Player2MovementAction
+{
+    P2_MOVEMENT_ACTION_NONE = 0,
+    P2_MOVEMENT_ACTION_FACE_DIRECTION,
+    P2_MOVEMENT_ACTION_WALK_IN_PLACE,
+    P2_MOVEMENT_ACTION_WALK_NORMAL,
+    P2_MOVEMENT_ACTION_WALK_FAST
+};
+
 struct InitialPlayerAvatarState
 {
     u8 transitionFlags;
@@ -68,6 +82,7 @@ extern u16 *gOverworldTilemapBuffer_Bg2;
 extern u16 *gOverworldTilemapBuffer_Bg1;
 extern u16 *gOverworldTilemapBuffer_Bg3;
 extern u16 gHeldKeyCodeToSend;
+extern u16 gPlayer2CommandToSend;
 extern void (*gFieldCallback)(void);
 extern bool8 (*gFieldCallback2)(void);
 extern u8 gLocalLinkPlayerId;
@@ -157,6 +172,7 @@ enum MapBattleScene GetCurrentMapBattleScene(void);
 void CleanupOverworldWindowsAndTilemaps(void);
 bool32 IsOverworldLinkActive(void);
 void CB1_Overworld(void);
+void CB1_OverworldLink(void);
 void CB2_OverworldBasic(void);
 void UpdateTimeOfDay(void);
 bool32 MapHasNaturalLight(enum MapType mapType);
@@ -165,6 +181,7 @@ void UpdateAltBgPalettes(u16 palettes);
 void UpdatePalettesWithTime(u32);
 void CB2_Overworld(void);
 void SetMainCallback1(void (*cb)(void));
+void SetMainCallback3(void (*cb)(void));
 void CB2_NewGame(void);
 void CB2_WhiteOut(void);
 void CB2_LoadMap(void);
@@ -178,6 +195,7 @@ void CB2_ReturnToFieldContinueScriptPlayMapMusic(void);
 void CB2_ReturnToFieldFadeFromBlack(void);
 void CB2_ContinueSavedGame(void);
 void ResetAllMultiplayerState(void);
+void TrySetPlayer2DirectionCommand(enum Direction direction, u16 command);
 u32 GetCableClubPartnersReady(void);
 u16 SetInCableClubSeat(void);
 u16 SetLinkWaitingForScript(void);
