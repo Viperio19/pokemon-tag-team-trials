@@ -71,7 +71,6 @@ static void Task_DoFieldMove_Init(u8 taskId)
         else
         {
             // Do field move pose
-            gPlayer2CommandToSend = P2_CMD_USE_FIELD_MOVE;
             SetPlayerAvatarFieldMove();
             ObjectEventSetHeldMovement(&gObjectEvents[objEventId], MOVEMENT_ACTION_START_ANIM_IN_DIRECTION);
             gTasks[taskId].func = Task_DoFieldMove_ShowMonAfterPose;

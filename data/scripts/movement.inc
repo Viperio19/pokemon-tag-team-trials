@@ -215,6 +215,38 @@ Common_Movement_RunDown::
 	player_run_down
 	step_end
 
+Common_Movement_RideWaterCurrentDown::
+	ride_water_current_down
+	step_end
+
+Common_Movement_RideWaterCurrentUp::
+	ride_water_current_up
+	step_end
+
+Common_Movement_RideWaterCurrentLeft::
+	ride_water_current_left
+	step_end
+
+Common_Movement_RideWaterCurrentRight::
+	ride_water_current_right
+	step_end
+
+Common_Movement_JumpSpecialDown::
+	jump_special_down
+	step_end
+
+Common_Movement_JumpSpecialUp::
+	jump_special_up
+	step_end
+
+Common_Movement_JumpSpecialLeft::
+	jump_special_left
+	step_end
+
+Common_Movement_JumpSpecialRight::
+	jump_special_right
+	step_end
+
 Common_Movement_RockSmashBreak::
 	rock_smash_break
 	step_end

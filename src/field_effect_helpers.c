@@ -1253,9 +1253,12 @@ static u8 GetSurfBlob_HasPlayerOffset(struct Sprite *sprite)
 
 void UpdateSurfBlobFieldEffect(struct Sprite *sprite)
 {
+    u8 objId = GetObjectEventIdByLocalId(OBJ_EVENT_ID_PLAYER_2);
+    struct ObjectEvent *objEvent = &gObjectEvents[objId];
+
     sprite->invisible = GetSurfBlob_BobState(sprite) == BOB_JUST_PLAYER
                      || FlagGet(FLAG_HIDE_SURF_BLOBS)
-                     || (!IS_PLAYER_ONE && (abs(gSaveBlock1Ptr->pos.x - gSaveBlock2Ptr->player2Pos.x) > 10 || abs(gSaveBlock1Ptr->pos.y - gSaveBlock2Ptr->player2Pos.y) > 7));
+                     || (!IS_PLAYER_ONE && (abs(gSaveBlock1Ptr->pos.x - (objEvent->currentCoords.x - MAP_OFFSET)) > 10 || abs(gSaveBlock1Ptr->pos.y - (objEvent->currentCoords.y - MAP_OFFSET)) > 7));
 
     struct ObjectEvent *playerObj = &gObjectEvents[sprite->sPlayerObjId];
     struct Sprite *playerSprite = &gSprites[playerObj->spriteId];

@@ -2960,6 +2960,8 @@ static const u8 *const sPlayer2CommandToMovement[][4] =
     [P2_CMD_WALK_NORMAL] = {Common_Movement_WalkDown, Common_Movement_WalkUp, Common_Movement_WalkLeft, Common_Movement_WalkRight},
     [P2_CMD_WALK_FAST] = {Common_Movement_WalkDownFast, Common_Movement_WalkUpFast, Common_Movement_WalkLeftFast, Common_Movement_WalkRightFast},
     [P2_CMD_RUN] = {Common_Movement_RunDown, Common_Movement_RunUp, Common_Movement_RunLeft, Common_Movement_RunRight},
+    [P2_CMD_RIDE_WATER_CURRENT] = {Common_Movement_RideWaterCurrentDown, Common_Movement_RideWaterCurrentUp, Common_Movement_RideWaterCurrentLeft, Common_Movement_RideWaterCurrentRight},
+    [P2_CMD_STOP_SURFING] = {Common_Movement_JumpSpecialDown, Common_Movement_JumpSpecialUp, Common_Movement_JumpSpecialLeft, Common_Movement_JumpSpecialRight},
 };
 
 static void StartPlayer2Movement(const u8 *movementScript)
@@ -3019,8 +3021,8 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
 
     if (command == P2_CMD_NONE)
     {
-        if (gPreviousPlayer2Command == P2_CMD_RUN) // fix player standing still in running position
-            StartPlayer2Movement(sPlayer2CommandToMovement[P2_CMD_FACE_DIRECTION][gObjectEvents[objId].facingDirection - 1]);
+        if (gPreviousPlayer2Command == P2_CMD_RUN || gPreviousPlayer2Command == P2_CMD_END_USE_SURF) // fix player standing still in running or jumping position
+            StartPlayer2Movement(sPlayer2CommandToMovement[P2_CMD_FACE_DIRECTION][objEvent->facingDirection - 1]);
         return;
     }
 
@@ -3035,16 +3037,17 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
     case P2_CMD_WALK_NORMAL:
     case P2_CMD_WALK_FAST:
     case P2_CMD_RUN:
+    case P2_CMD_RIDE_WATER_CURRENT:
         StartPlayer2Movement(sPlayer2CommandToMovement[command][arg1 - 1]);
         break;
     case P2_CMD_USE_FIELD_MOVE:
-        ObjectEventSetGraphicsId(&gObjectEvents[objId], GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_FIELD_MOVE, gSaveBlock2Ptr->player2Gender));
-        StartSpriteAnim(&gSprites[gObjectEvents[objId].spriteId], ANIM_FIELD_MOVE);
-        ObjectEventSetHeldMovement(&gObjectEvents[objId], MOVEMENT_ACTION_START_ANIM_IN_DIRECTION);
+        ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_FIELD_MOVE, gSaveBlock2Ptr->player2Gender));
+        StartSpriteAnim(&gSprites[objEvent->spriteId], ANIM_FIELD_MOVE);
+        ObjectEventSetHeldMovement(objEvent, MOVEMENT_ACTION_START_ANIM_IN_DIRECTION);
         break;
     case P2_CMD_END_FIELD_MOVE:
-        ObjectEventSetGraphicsId(&gObjectEvents[objId], GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
-        StartSpriteAnim(&gSprites[gObjectEvents[objId].spriteId], arg1);
+        ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
+        StartSpriteAnim(&gSprites[objEvent->spriteId], arg1);
         break;
     case P2_CMD_PUSH_BOULDER:
         StartStrengthAnim(GetObjectEventIdByLocalId(arg1), arg2);
@@ -3053,9 +3056,35 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
         ScriptMovement_StartObjectMovementScript(arg2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, Common_Movement_RockSmashBreak);
         break;
     case P2_CMD_END_ROCK_SMASH:
-        ObjectEventSetGraphicsId(&gObjectEvents[objId], GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
-        StartSpriteAnim(&gSprites[gObjectEvents[objId].spriteId], arg1);
+        ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
+        StartSpriteAnim(&gSprites[objEvent->spriteId], arg1);
         RemoveObjectEventByLocalIdAndMap(arg2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
+        break;
+    case P2_CMD_USE_SURF:
+        ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_SURFING, gSaveBlock2Ptr->player2Gender));
+        ObjectEventClearHeldMovementIfFinished(objEvent);
+        ObjectEventSetHeldMovement(objEvent, GetJumpSpecialMovementAction(arg1));
+
+        s16 x = objEvent->currentCoords.x;
+        s16 y = objEvent->currentCoords.y;
+        MoveCoords(arg1, &x, &y);
+    
+        gFieldEffectArguments[0] = x;
+        gFieldEffectArguments[1] = y;
+        gFieldEffectArguments[2] = objId;
+        objEvent->fieldEffectSpriteId = FieldEffectStart(FLDEFF_SURF_BLOB);
+        break;
+    case P2_CMD_END_USE_SURF:
+        SetSurfBlob_BobState(objEvent->fieldEffectSpriteId, BOB_PLAYER_AND_MON);
+        break;
+    case P2_CMD_STOP_SURFING:
+        SetSurfBlob_BobState(objEvent->fieldEffectSpriteId, BOB_JUST_MON);
+        StartPlayer2Movement(sPlayer2CommandToMovement[P2_CMD_STOP_SURFING][arg1 - 1]);
+        break;
+    case P2_CMD_END_STOP_SURFING:
+        ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
+        StartPlayer2Movement(sPlayer2CommandToMovement[P2_CMD_FACE_DIRECTION][arg1 - 1]);
+        DestroySprite(&gSprites[objEvent->fieldEffectSpriteId]);
         break;
     case P2_CMD_NONE:
     default:

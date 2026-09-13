@@ -1349,6 +1349,7 @@ void PlayerWalkFast(enum Direction direction)
 
 void PlayerRideWaterCurrent(enum Direction direction)
 {
+    TrySetPlayer2DirectionCommand(P2_CMD_RIDE_WATER_CURRENT, direction);
     PlayerSetAnimId(GetRideWaterCurrentMovementAction(direction), COPY_MOVE_WALK);
 }
 
@@ -1882,6 +1883,7 @@ void SetPlayerInvisibility(bool8 invisible)
 
 void SetPlayerAvatarFieldMove(void)
 {
+    gPlayer2CommandToSend = P2_CMD_USE_FIELD_MOVE;
     EndORASDowsing();
     ObjectEventSetGraphicsId(&gObjectEvents[gPlayerAvatar.objectEventId], GetPlayerAvatarGraphicsIdByStateId(PLAYER_AVATAR_STATE_FIELD_MOVE));
     StartSpriteAnim(&gSprites[gPlayerAvatar.spriteId], ANIM_FIELD_MOVE);
@@ -2215,6 +2217,7 @@ static void Task_StopSurfingInit(u8 taskId)
         if (!ObjectEventClearHeldMovementIfFinished(playerObjEvent))
             return;
     }
+    TrySetPlayer2DirectionCommand(P2_CMD_STOP_SURFING, gTasks[taskId].data[0]);
     SetSurfBlob_BobState(playerObjEvent->fieldEffectSpriteId, BOB_JUST_MON);
     ObjectEventSetHeldMovement(playerObjEvent, GetJumpSpecialMovementAction((u8)gTasks[taskId].data[0]));
     gTasks[taskId].func = Task_WaitStopSurfing;
@@ -2226,6 +2229,7 @@ static void Task_WaitStopSurfing(u8 taskId)
 
     if (ObjectEventClearHeldMovementIfFinished(playerObjEvent))
     {
+        TrySetPlayer2DirectionCommand(P2_CMD_END_STOP_SURFING, playerObjEvent->facingDirection);
         ObjectEventSetGraphicsId(playerObjEvent, GetPlayerAvatarGraphicsIdByStateId(PLAYER_AVATAR_STATE_NORMAL));
         ObjectEventSetHeldMovement(playerObjEvent, GetFaceDirectionMovementAction(playerObjEvent->facingDirection));
         gPlayerAvatar.preventStep = FALSE;
