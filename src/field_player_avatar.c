@@ -136,7 +136,6 @@ static void PlayerApplyTileForcedMovement(u8 metatileBehavior);
 
 static void HideShowWarpArrow(struct ObjectEvent *);
 
-static void StartStrengthAnim(u8, enum Direction);
 static void Task_PushBoulder(u8);
 static bool8 PushBoulder_Start(struct Task *, struct ObjectEvent *, struct ObjectEvent *);
 static bool8 PushBoulder_Move(struct Task *, struct ObjectEvent *, struct ObjectEvent *);
@@ -1100,6 +1099,9 @@ static bool8 TryPushBoulder(s16 x, s16 y, enum Direction direction)
              && MetatileBehavior_IsNonAnimDoor(MapGridGetMetatileBehaviorAt(x, y)) == FALSE
              && MapGridGetMetatileBehaviorAt(x, y) != MB_GEM)
             {
+                gPlayer2CommandToSend = P2_CMD_PUSH_BOULDER;
+                gPlayer2CommandArgToSend = gObjectEvents[objectEventId].localId;
+                gPlayer2CommandArg2ToSend = direction;
                 StartStrengthAnim(objectEventId, direction);
                 return TRUE;
             }
@@ -1936,7 +1938,7 @@ static void HideShowWarpArrow(struct ObjectEvent *objectEvent)
 #define tBoulderObjId data[1]
 #define tDirection    data[2]
 
-static void StartStrengthAnim(u8 objectEventId, enum Direction direction)
+void StartStrengthAnim(u8 objectEventId, enum Direction direction)
 {
     u8 taskId = CreateTask(Task_PushBoulder, 0xFF);
 
@@ -1948,7 +1950,7 @@ static void StartStrengthAnim(u8 objectEventId, enum Direction direction)
 static void Task_PushBoulder(u8 taskId)
 {
     while (sPushBoulderFuncs[gTasks[taskId].tState](&gTasks[taskId],
-                                                     &gObjectEvents[gPlayerAvatar.objectEventId],
+                                                     &gObjectEvents[IS_PLAYER_ONE ? gPlayerAvatar.objectEventId : GetObjectEventIdByLocalId(OBJ_EVENT_ID_PLAYER_2)],
                                                      &gObjectEvents[gTasks[taskId].tBoulderObjId]))
         ;
 }
@@ -2010,6 +2012,9 @@ static bool8 PushBoulder_End(struct Task *task, struct ObjectEvent *player, stru
 
 void UpdateStrengthBoulderPositions(void)
 {
+    if (IS_MULTIPLAYER)
+        return;
+
     struct BoulderPos *pos;
     if (FlagGet(FLAG_DOING_PLAYER_SWITCH))
     {

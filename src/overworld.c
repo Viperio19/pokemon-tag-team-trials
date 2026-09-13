@@ -211,6 +211,8 @@ COMMON_DATA bool8 (*gFieldCallback2)(void) = NULL;
 COMMON_DATA u8 gLocalLinkPlayerId = 0; // This is our player id in a multiplayer mode.
 COMMON_DATA u8 gFieldLinkPlayerCount = 0;
 COMMON_DATA u16 gPlayer2CommandToSend = 0;
+COMMON_DATA u16 gPlayer2CommandArgToSend = 0;
+COMMON_DATA u16 gPlayer2CommandArg2ToSend = 0;
 
 u8 gTimeOfDay;
 struct TimeBlendSettings gTimeBlend;
@@ -2954,12 +2956,57 @@ static void StartPlayer2Movement(const u8 *movementScript)
     ScriptMovement_StartObjectMovementScript(LOCALID_PLAYER_2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, movementScript);
 }
 
+void RemovePlayer2RockSmashRock(void)
+{
+    if (IS_MULTIPLAYER)
+    {
+        gPlayer2CommandToSend = P2_CMD_END_ROCK_SMASH;
+        gPlayer2CommandArgToSend = gFieldEffectArguments[2];
+        gPlayer2CommandArg2ToSend = VarGet(VAR_LAST_TALKED);
+    }
+}
+
 static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
 {
     u8 key = keys[GetMultiplayerId() ^ 1];
     enum Direction dir = DIR_NONE;
-    // u16 *command = &gPlayer2Commands[GetMultiplayerId() ^ 1];
+    u16 command = gPlayer2Commands[GetMultiplayerId() ^ 1];
+    u16 arg = gPlayer2CommandArgs[GetMultiplayerId() ^ 1];
+    u16 arg2 = gPlayer2CommandArgs2[GetMultiplayerId() ^ 1];
     enum Player2MovementAction movementAction = gPlayer2MovementActions[GetMultiplayerId() ^ 1];
+    u8 objId = GetObjectEventIdByLocalId(OBJ_EVENT_ID_PLAYER_2);
+
+    if (gPlayer2FieldMoveState == 1)
+    {
+        if (command != P2_CMD_END_FIELD_MOVE && command != P2_CMD_USE_ROCK_SMASH)
+            return;
+
+        ObjectEventSetGraphicsId(&gObjectEvents[objId], GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
+        StartSpriteAnim(&gSprites[gObjectEvents[objId].spriteId], arg);
+        gPlayer2FieldMoveState = 0;
+    }
+
+    switch (command)
+    {
+    case P2_CMD_USE_FIELD_MOVE:
+        ObjectEventSetGraphicsId(&gObjectEvents[objId], GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_FIELD_MOVE, gSaveBlock2Ptr->player2Gender));
+        StartSpriteAnim(&gSprites[gObjectEvents[objId].spriteId], ANIM_FIELD_MOVE);
+        ObjectEventSetHeldMovement(&gObjectEvents[objId], MOVEMENT_ACTION_START_ANIM_IN_DIRECTION);
+        gPlayer2FieldMoveState = 1;
+        break;
+    case P2_CMD_PUSH_BOULDER:
+        StartStrengthAnim(GetObjectEventIdByLocalId(arg), arg2);
+        break;
+    case P2_CMD_USE_ROCK_SMASH:
+        ScriptMovement_StartObjectMovementScript(arg2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, Common_Movement_RockSmashBreak);
+        break;
+    case P2_CMD_END_ROCK_SMASH:
+        RemoveObjectEventByLocalIdAndMap(arg2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
+        break;
+    case P2_CMD_NONE:
+    default:
+        break;
+    }
 
     if (movementAction != P2_MOVEMENT_ACTION_NONE)
     {
@@ -2981,7 +3028,7 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
 
         if (dir != DIR_NONE)
         {
-            struct ObjectEvent *objEvent = &gObjectEvents[GetObjectEventIdByLocalId(OBJ_EVENT_ID_PLAYER_2)];
+            struct ObjectEvent *objEvent = &gObjectEvents[objId];
             s16 x = objEvent->currentCoords.x;
             s16 y = objEvent->currentCoords.y;
             MoveCoords(dir, &x, &y);

@@ -3,6 +3,7 @@
 #include "event_scripts.h"
 #include "field_effect.h"
 #include "fldeff.h"
+#include "overworld.h"
 #include "party_menu.h"
 #include "script.h"
 #include "string_util.h"
@@ -46,6 +47,8 @@ bool8 FldEff_UseStrength(void)
 // Just passes control back to EventScript_UseStrength
 static void StartStrengthFieldEffect(void)
 {
+    gPlayer2CommandToSend = P2_CMD_END_FIELD_MOVE;
+    gPlayer2CommandArgToSend = gFieldEffectArguments[2];
     FieldEffectActiveListRemove(FLDEFF_USE_STRENGTH);
     ScriptContext_Enable();
 }

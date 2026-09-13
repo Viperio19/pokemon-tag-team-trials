@@ -54,6 +54,7 @@ bool8 IsPlayerFacingFishableWater(void);
 bool8 IsPlayerFacingLava(void);
 bool8 IsPlayerSurfingNorth(void);
 void SetPlayerAvatarWatering(enum Direction direction);
+void StartStrengthAnim(u8 objectEventId, enum Direction direction);
 u8 GetPlayerAvatarFlags(void);
 void UpdatePlayerAvatarTransitionState(void);
 u16 GetFRLGAvatarGraphicsIdByGender(enum Gender gender);

@@ -71,6 +71,7 @@ static void Task_DoFieldMove_Init(u8 taskId)
         else
         {
             // Do field move pose
+            gPlayer2CommandToSend = P2_CMD_USE_FIELD_MOVE;
             SetPlayerAvatarFieldMove();
             ObjectEventSetHeldMovement(&gObjectEvents[objEventId], MOVEMENT_ACTION_START_ANIM_IN_DIRECTION);
             gTasks[taskId].func = Task_DoFieldMove_ShowMonAfterPose;
@@ -161,6 +162,9 @@ bool8 FldEff_UseRockSmash(void)
 // The actual rock smashing is handled by EventScript_SmashRock, so this function does very little
 static void FieldMove_RockSmash(void)
 {
+    gPlayer2CommandToSend = P2_CMD_USE_ROCK_SMASH;
+    gPlayer2CommandArgToSend = gFieldEffectArguments[2];
+    gPlayer2CommandArg2ToSend = VarGet(VAR_LAST_TALKED);
     PlaySE(SE_M_ROCK_THROW);
     FieldEffectActiveListRemove(FLDEFF_USE_ROCK_SMASH);
     ScriptContext_Enable();

@@ -36,6 +36,11 @@
 enum Player2Command
 {
     P2_CMD_NONE = 0,
+    P2_CMD_USE_FIELD_MOVE,
+    P2_CMD_END_FIELD_MOVE,
+    P2_CMD_PUSH_BOULDER,
+    P2_CMD_USE_ROCK_SMASH,
+    P2_CMD_END_ROCK_SMASH,
 };
 
 enum Player2MovementAction
@@ -83,6 +88,8 @@ extern u16 *gOverworldTilemapBuffer_Bg1;
 extern u16 *gOverworldTilemapBuffer_Bg3;
 extern u16 gHeldKeyCodeToSend;
 extern u16 gPlayer2CommandToSend;
+extern u16 gPlayer2CommandArgToSend;
+extern u16 gPlayer2CommandArg2ToSend;
 extern void (*gFieldCallback)(void);
 extern bool8 (*gFieldCallback2)(void);
 extern u8 gLocalLinkPlayerId;

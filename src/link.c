@@ -93,8 +93,11 @@ COMMON_DATA u8 gLastSendQueueCount = 0;
 COMMON_DATA struct Link gLink = {0};
 COMMON_DATA u8 gLastRecvQueueCount = 0;
 COMMON_DATA u16 gLinkSavedIme = 0;
-COMMON_DATA u16 gPlayer2Commands[6] = {0};
 COMMON_DATA u16 gPlayer2MovementActions[6] = {0};
+COMMON_DATA u16 gPlayer2Commands[6] = {0};
+COMMON_DATA u16 gPlayer2CommandArgs[6] = {0};
+COMMON_DATA u16 gPlayer2CommandArgs2[6] = {0};
+COMMON_DATA u16 gPlayer2FieldMoveState = 0;
 
 static EWRAM_DATA u8 sLinkTestDebugValuesEnabled = 0;
 EWRAM_DATA u32 gBerryBlenderKeySendAttempts = 0;
@@ -619,8 +622,10 @@ static void ProcessRecvCmds(u8 unused)
             break;
         case LINKCMD_SEND_HELD_KEYS:
             gLinkPartnersHeldKeys[i] = gRecvCmds[i][1];
-            gPlayer2Commands[i] = gRecvCmds[i][2];
-            gPlayer2MovementActions[i] = gRecvCmds[i][3];
+            gPlayer2MovementActions[i] = gRecvCmds[i][2];
+            gPlayer2Commands[i] = gRecvCmds[i][3];
+            gPlayer2CommandArgs[i] = gRecvCmds[i][4];
+            gPlayer2CommandArgs2[i] = gRecvCmds[i][5];
             break;
         }
     }
@@ -698,13 +703,15 @@ static void BuildSendCmd(u16 command)
         gSendCmd[0] = LINKCMD_DUMMY_2;
         break;
     case LINKCMD_SEND_HELD_KEYS:
-        if ((gHeldKeyCodeToSend == 0 && gPlayer2CommandToSend == 0) || gLinkTransferringData)
+        if (gLinkTransferringData)
             break;
 
         gSendCmd[0] = LINKCMD_SEND_HELD_KEYS;
         gSendCmd[1] = gHeldKeyCodeToSend;
-        gSendCmd[2] = gPlayer2CommandToSend;
-        gSendCmd[3] = GetPlayer2MovementState();
+        gSendCmd[2] = GetPlayer2MovementState();
+        gSendCmd[3] = gPlayer2CommandToSend;
+        gSendCmd[4] = gPlayer2CommandArgToSend;
+        gSendCmd[5] = gPlayer2CommandArg2ToSend;
         gPlayer2CommandToSend = 0;
         break;
     }
