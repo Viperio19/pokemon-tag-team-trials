@@ -7,6 +7,7 @@
 #define QUEUE_CAPACITY 50
 #define OVERWORLD_RECV_QUEUE_MAX 3
 #define BLOCK_BUFFER_SIZE 0x100
+#define P2_CMD_QUEUE_SIZE 10
 
 #define LINK_SLAVE 0
 #define LINK_MASTER 8
@@ -307,11 +308,11 @@ void SetWirelessCommType0(void);
 bool32 IsLinkRecvQueueAtOverworldMax(void);
 
 extern u16 gLinkPartnersHeldKeys[6];
-extern u16 gPlayer2MovementActions[6];
 extern u16 gPlayer2Commands[6];
 extern u16 gPlayer2CommandArgs[6];
 extern u16 gPlayer2CommandArgs2[6];
-extern u16 gPlayer2FieldMoveState;
+extern u16 gPlayer2CommandsQueue[3][P2_CMD_QUEUE_SIZE];
+extern u16 gPreviousPlayer2Command;
 extern u32 gLinkDebugSeed;
 extern struct LinkPlayerBlock gLocalLinkPlayerBlock;
 extern bool8 gLinkErrorOccurred;

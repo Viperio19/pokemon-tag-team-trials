@@ -93,12 +93,11 @@ COMMON_DATA u8 gLastSendQueueCount = 0;
 COMMON_DATA struct Link gLink = {0};
 COMMON_DATA u8 gLastRecvQueueCount = 0;
 COMMON_DATA u16 gLinkSavedIme = 0;
-COMMON_DATA u16 gPlayer2MovementActions[6] = {0};
 COMMON_DATA u16 gPlayer2Commands[6] = {0};
 COMMON_DATA u16 gPlayer2CommandArgs[6] = {0};
 COMMON_DATA u16 gPlayer2CommandArgs2[6] = {0};
-COMMON_DATA u16 gPlayer2FieldMoveState = 0;
-
+COMMON_DATA u16 gPlayer2CommandsQueue[3][P2_CMD_QUEUE_SIZE] = {0};
+COMMON_DATA u16 gPreviousPlayer2Command = 0;
 static EWRAM_DATA u8 sLinkTestDebugValuesEnabled = 0;
 EWRAM_DATA u32 gBerryBlenderKeySendAttempts = 0;
 EWRAM_DATA u16 gBlockRecvBuffer[MAX_RFU_PLAYERS][BLOCK_BUFFER_SIZE / 2] = {};
@@ -520,7 +519,6 @@ static void ProcessRecvCmds(u8 unused)
     {
         gLinkPartnersHeldKeys[i] = 0;
         gPlayer2Commands[i] = 0;
-        gPlayer2MovementActions[i] = 0;
         if (gRecvCmds[i][0] == 0)
         {
             continue;
@@ -622,31 +620,12 @@ static void ProcessRecvCmds(u8 unused)
             break;
         case LINKCMD_SEND_HELD_KEYS:
             gLinkPartnersHeldKeys[i] = gRecvCmds[i][1];
-            gPlayer2MovementActions[i] = gRecvCmds[i][2];
-            gPlayer2Commands[i] = gRecvCmds[i][3];
-            gPlayer2CommandArgs[i] = gRecvCmds[i][4];
-            gPlayer2CommandArgs2[i] = gRecvCmds[i][5];
+            gPlayer2Commands[i] = gRecvCmds[i][2];
+            gPlayer2CommandArgs[i] = gRecvCmds[i][3];
+            gPlayer2CommandArgs2[i] = gRecvCmds[i][4];
             break;
         }
     }
-}
-
-static enum Player2MovementAction GetPlayer2MovementState(void)
-{
-    switch (gPlayerAvatar.runningState)
-    {
-    case NOT_MOVING:
-    default:
-        return P2_MOVEMENT_ACTION_NONE;
-    case TURN_DIRECTION:
-        return P2_MOVEMENT_ACTION_FACE_DIRECTION;
-    case MOVING:
-        if (gPlayerAvatar.flags & (PLAYER_AVATAR_FLAG_SURFING | PLAYER_AVATAR_FLAG_DASH))
-            return P2_MOVEMENT_ACTION_WALK_FAST;
-
-        return P2_MOVEMENT_ACTION_WALK_NORMAL;
-    }
-    
 }
 
 static void BuildSendCmd(u16 command)
@@ -708,10 +687,9 @@ static void BuildSendCmd(u16 command)
 
         gSendCmd[0] = LINKCMD_SEND_HELD_KEYS;
         gSendCmd[1] = gHeldKeyCodeToSend;
-        gSendCmd[2] = GetPlayer2MovementState();
-        gSendCmd[3] = gPlayer2CommandToSend;
-        gSendCmd[4] = gPlayer2CommandArgToSend;
-        gSendCmd[5] = gPlayer2CommandArg2ToSend;
+        gSendCmd[2] = gPlayer2CommandToSend;
+        gSendCmd[3] = gPlayer2CommandArgToSend;
+        gSendCmd[4] = gPlayer2CommandArg2ToSend;
         gPlayer2CommandToSend = 0;
         break;
     }

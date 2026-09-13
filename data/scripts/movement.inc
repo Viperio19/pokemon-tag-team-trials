@@ -31,19 +31,19 @@ Common_Movement_FaceOriginalDirection:
 	face_original_direction
 	step_end
 
-Common_Movement_WalkInPlaceFasterLeft:
+Common_Movement_WalkInPlaceFasterLeft::
 	walk_in_place_faster_left
 	step_end
 
-Common_Movement_WalkInPlaceFasterUp:
+Common_Movement_WalkInPlaceFasterUp::
 	walk_in_place_faster_up
 	step_end
 
-Common_Movement_WalkInPlaceFasterRight:
+Common_Movement_WalkInPlaceFasterRight::
 	walk_in_place_faster_right
 	step_end
 
-Common_Movement_WalkInPlaceFasterDown:
+Common_Movement_WalkInPlaceFasterDown::
 	walk_in_place_faster_down
 	step_end
 
@@ -76,6 +76,22 @@ Common_Movement_WalkInPlaceRight::
 	step_end
 
 Common_Movement_WalkInPlaceUp::
+	walk_in_place_up
+	step_end
+
+Common_Movement_WalkInPlaceFastDown::
+	walk_in_place_down
+	step_end
+
+Common_Movement_WalkInPlaceFastLeft::
+	walk_in_place_left
+	step_end
+
+Common_Movement_WalkInPlaceFastRight::
+	walk_in_place_right
+	step_end
+
+Common_Movement_WalkInPlaceFastUp::
 	walk_in_place_up
 	step_end
 
@@ -181,6 +197,22 @@ Common_Movement_WalkRightFaster::
 
 Common_Movement_WalkLeftFaster::
 	walk_faster_left
+	step_end
+
+Common_Movement_RunLeft::
+	player_run_left
+	step_end
+
+Common_Movement_RunUp::
+	player_run_up
+	step_end
+
+Common_Movement_RunRight::
+	player_run_right
+	step_end
+
+Common_Movement_RunDown::
+	player_run_down
 	step_end
 
 Common_Movement_RockSmashBreak::

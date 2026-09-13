@@ -707,6 +707,18 @@ extern const u8 Common_Movement_WalkInPlaceUp[];
 extern const u8 Common_Movement_WalkInPlaceDown[];
 extern const u8 Common_Movement_WalkInPlaceRight[];
 extern const u8 Common_Movement_WalkInPlaceLeft[];
+extern const u8 Common_Movement_WalkInPlaceFastUp[];
+extern const u8 Common_Movement_WalkInPlaceFastDown[];
+extern const u8 Common_Movement_WalkInPlaceFastRight[];
+extern const u8 Common_Movement_WalkInPlaceFastLeft[];
+extern const u8 Common_Movement_WalkInPlaceFasterUp[];
+extern const u8 Common_Movement_WalkInPlaceFasterDown[];
+extern const u8 Common_Movement_WalkInPlaceFasterRight[];
+extern const u8 Common_Movement_WalkInPlaceFasterLeft[];
+extern const u8 Common_Movement_RunUp[];
+extern const u8 Common_Movement_RunDown[];
+extern const u8 Common_Movement_RunRight[];
+extern const u8 Common_Movement_RunLeft[];
 extern const u8 Common_Movement_RockSmashBreak[];
 
 extern const u8 EventScript_CancelMessageBox[];

@@ -2934,21 +2934,32 @@ static bool32 IsAnyPlayerInLinkState(u16 state)
 //     }
 // }
 
-void TrySetPlayer2DirectionCommand(enum Direction direction, u16 command)
+void TrySetPlayer2DirectionCommand(enum Player2Command command, enum Direction direction)
 {
     if (direction < DIR_SOUTH || direction > DIR_EAST)
         return;
 
-    gPlayer2CommandToSend = command + direction - 1;
+    gPlayer2CommandToSend = command;
+    gPlayer2CommandArgToSend = direction;
 }
 
-static const u8 *const sLinkPlayerActionToMovement[][4] =
+void SetPlayer2CommandEndRockSmash(void)
 {
-    [P2_MOVEMENT_ACTION_NONE] = {Common_Movement_FaceDown, Common_Movement_FaceUp, Common_Movement_FaceLeft, Common_Movement_FaceRight},
-    [P2_MOVEMENT_ACTION_FACE_DIRECTION] = {Common_Movement_FaceDown, Common_Movement_FaceUp, Common_Movement_FaceLeft, Common_Movement_FaceRight},
-    [P2_MOVEMENT_ACTION_WALK_IN_PLACE] = {Common_Movement_WalkInPlaceDown, Common_Movement_WalkInPlaceUp, Common_Movement_WalkInPlaceLeft, Common_Movement_WalkInPlaceRight},
-    [P2_MOVEMENT_ACTION_WALK_NORMAL] = {Common_Movement_WalkDown, Common_Movement_WalkUp, Common_Movement_WalkLeft, Common_Movement_WalkRight},
-    [P2_MOVEMENT_ACTION_WALK_FAST] = {Common_Movement_WalkDownFast, Common_Movement_WalkUpFast, Common_Movement_WalkLeftFast, Common_Movement_WalkRightFast}
+    gPlayer2CommandToSend = P2_CMD_END_ROCK_SMASH;
+    gPlayer2CommandArgToSend = gFieldEffectArguments[2];
+    gPlayer2CommandArg2ToSend = VarGet(VAR_LAST_TALKED);
+}
+
+static const u8 *const sPlayer2CommandToMovement[][4] =
+{
+    [P2_CMD_NONE] = {Common_Movement_FaceDown, Common_Movement_FaceUp, Common_Movement_FaceLeft, Common_Movement_FaceRight},
+    [P2_CMD_FACE_DIRECTION] = {Common_Movement_FaceDown, Common_Movement_FaceUp, Common_Movement_FaceLeft, Common_Movement_FaceRight},
+    [P2_CMD_WALK_IN_PLACE] = {Common_Movement_WalkInPlaceDown, Common_Movement_WalkInPlaceUp, Common_Movement_WalkInPlaceLeft, Common_Movement_WalkInPlaceRight},
+    [P2_CMD_WALK_IN_PLACE_FAST] = {Common_Movement_WalkInPlaceFastDown, Common_Movement_WalkInPlaceFastUp, Common_Movement_WalkInPlaceFastLeft, Common_Movement_WalkInPlaceFastRight},
+    [P2_CMD_WALK_IN_PLACE_FASTER] = {Common_Movement_WalkInPlaceFasterDown, Common_Movement_WalkInPlaceFasterUp, Common_Movement_WalkInPlaceFasterLeft, Common_Movement_WalkInPlaceFasterRight},
+    [P2_CMD_WALK_NORMAL] = {Common_Movement_WalkDown, Common_Movement_WalkUp, Common_Movement_WalkLeft, Common_Movement_WalkRight},
+    [P2_CMD_WALK_FAST] = {Common_Movement_WalkDownFast, Common_Movement_WalkUpFast, Common_Movement_WalkLeftFast, Common_Movement_WalkRightFast},
+    [P2_CMD_RUN] = {Common_Movement_RunDown, Common_Movement_RunUp, Common_Movement_RunLeft, Common_Movement_RunRight},
 };
 
 static void StartPlayer2Movement(const u8 *movementScript)
@@ -2956,98 +2967,99 @@ static void StartPlayer2Movement(const u8 *movementScript)
     ScriptMovement_StartObjectMovementScript(LOCALID_PLAYER_2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, movementScript);
 }
 
-void RemovePlayer2RockSmashRock(void)
+static void EnqueuePlayer2Command(enum Player2Command command, u16 arg1, u16 arg2)
 {
-    if (IS_MULTIPLAYER)
+    for (u8 i = 0; i < P2_CMD_QUEUE_SIZE; i++)
     {
-        gPlayer2CommandToSend = P2_CMD_END_ROCK_SMASH;
-        gPlayer2CommandArgToSend = gFieldEffectArguments[2];
-        gPlayer2CommandArg2ToSend = VarGet(VAR_LAST_TALKED);
+        if (gPlayer2CommandsQueue[0][i] == P2_CMD_NONE)
+        {
+            gPlayer2CommandsQueue[0][i] = command;
+            gPlayer2CommandsQueue[1][i] = arg1;
+            gPlayer2CommandsQueue[2][i] = arg2;
+            return;
+        }
     }
+}
+
+static void PopPlayer2Command(enum Player2Command *command, u16 *arg1, u16 *arg2)
+{
+    *command = gPlayer2CommandsQueue[0][0];
+    *arg1 = gPlayer2CommandsQueue[1][0];
+    *arg2 = gPlayer2CommandsQueue[2][0];
+
+    for (u8 i = 0; i < P2_CMD_QUEUE_SIZE - 1; i++)
+    {
+        gPlayer2CommandsQueue[0][i] = gPlayer2CommandsQueue[0][i + 1];
+        gPlayer2CommandsQueue[1][i] = gPlayer2CommandsQueue[1][i + 1];
+        gPlayer2CommandsQueue[2][i] = gPlayer2CommandsQueue[2][i + 1];
+    }
+
+    gPlayer2CommandsQueue[0][P2_CMD_QUEUE_SIZE - 1] = P2_CMD_NONE;
+    gPlayer2CommandsQueue[1][P2_CMD_QUEUE_SIZE - 1] = 0;
+    gPlayer2CommandsQueue[2][P2_CMD_QUEUE_SIZE - 1] = 0;
 }
 
 static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
 {
-    u8 key = keys[GetMultiplayerId() ^ 1];
-    enum Direction dir = DIR_NONE;
-    u16 command = gPlayer2Commands[GetMultiplayerId() ^ 1];
-    u16 arg = gPlayer2CommandArgs[GetMultiplayerId() ^ 1];
-    u16 arg2 = gPlayer2CommandArgs2[GetMultiplayerId() ^ 1];
-    enum Player2MovementAction movementAction = gPlayer2MovementActions[GetMultiplayerId() ^ 1];
+    u8 linkPartnerId = GetMultiplayerId() ^ 1;
+
+    if (gPlayer2Commands[linkPartnerId] != P2_CMD_NONE)
+        EnqueuePlayer2Command(gPlayer2Commands[linkPartnerId], gPlayer2CommandArgs[linkPartnerId], gPlayer2CommandArgs2[linkPartnerId]);
+
     u8 objId = GetObjectEventIdByLocalId(OBJ_EVENT_ID_PLAYER_2);
+    struct ObjectEvent *objEvent = &gObjectEvents[objId];
 
-    if (gPlayer2FieldMoveState == 1)
+    if (ObjectEventIsHeldMovementActive(objEvent))
+        return;
+
+    enum Player2Command command;
+    u16 arg1, arg2;
+
+    PopPlayer2Command(&command, &arg1, &arg2);
+
+    if (command == P2_CMD_NONE)
     {
-        if (command != P2_CMD_END_FIELD_MOVE && command != P2_CMD_USE_ROCK_SMASH)
-            return;
-
-        ObjectEventSetGraphicsId(&gObjectEvents[objId], GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
-        StartSpriteAnim(&gSprites[gObjectEvents[objId].spriteId], arg);
-        gPlayer2FieldMoveState = 0;
+        if (gPreviousPlayer2Command == P2_CMD_RUN) // fix player standing still in running position
+            StartPlayer2Movement(sPlayer2CommandToMovement[P2_CMD_FACE_DIRECTION][gObjectEvents[objId].facingDirection - 1]);
+        return;
     }
+
+    gPreviousPlayer2Command = command;
 
     switch (command)
     {
+    case P2_CMD_FACE_DIRECTION:
+    case P2_CMD_WALK_IN_PLACE:
+    case P2_CMD_WALK_IN_PLACE_FAST:
+    case P2_CMD_WALK_IN_PLACE_FASTER:
+    case P2_CMD_WALK_NORMAL:
+    case P2_CMD_WALK_FAST:
+    case P2_CMD_RUN:
+        StartPlayer2Movement(sPlayer2CommandToMovement[command][arg1 - 1]);
+        break;
     case P2_CMD_USE_FIELD_MOVE:
         ObjectEventSetGraphicsId(&gObjectEvents[objId], GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_FIELD_MOVE, gSaveBlock2Ptr->player2Gender));
         StartSpriteAnim(&gSprites[gObjectEvents[objId].spriteId], ANIM_FIELD_MOVE);
         ObjectEventSetHeldMovement(&gObjectEvents[objId], MOVEMENT_ACTION_START_ANIM_IN_DIRECTION);
-        gPlayer2FieldMoveState = 1;
+        break;
+    case P2_CMD_END_FIELD_MOVE:
+        ObjectEventSetGraphicsId(&gObjectEvents[objId], GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
+        StartSpriteAnim(&gSprites[gObjectEvents[objId].spriteId], arg1);
         break;
     case P2_CMD_PUSH_BOULDER:
-        StartStrengthAnim(GetObjectEventIdByLocalId(arg), arg2);
+        StartStrengthAnim(GetObjectEventIdByLocalId(arg1), arg2);
         break;
     case P2_CMD_USE_ROCK_SMASH:
         ScriptMovement_StartObjectMovementScript(arg2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, Common_Movement_RockSmashBreak);
         break;
     case P2_CMD_END_ROCK_SMASH:
+        ObjectEventSetGraphicsId(&gObjectEvents[objId], GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
+        StartSpriteAnim(&gSprites[gObjectEvents[objId].spriteId], arg1);
         RemoveObjectEventByLocalIdAndMap(arg2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
         break;
     case P2_CMD_NONE:
     default:
         break;
-    }
-
-    if (movementAction != P2_MOVEMENT_ACTION_NONE)
-    {
-        switch (key)
-        {
-        case LINK_KEY_CODE_DPAD_RIGHT:
-            dir =  DIR_EAST;
-            break;
-        case LINK_KEY_CODE_DPAD_LEFT:
-            dir =  DIR_WEST;
-            break;
-        case LINK_KEY_CODE_DPAD_UP:
-            dir =  DIR_NORTH;
-            break;
-        case LINK_KEY_CODE_DPAD_DOWN:
-            dir =  DIR_SOUTH;
-            break;
-        }
-
-        if (dir != DIR_NONE)
-        {
-            struct ObjectEvent *objEvent = &gObjectEvents[objId];
-            s16 x = objEvent->currentCoords.x;
-            s16 y = objEvent->currentCoords.y;
-            MoveCoords(dir, &x, &y);
-
-            enum Collision collision = CheckForObjectEventCollision(objEvent, x, y, dir, MapGridGetMetatileBehaviorAt(x, y));
-
-            if (collision == COLLISION_LEDGE_JUMP)
-                StartPlayer2Movement(sLinkPlayerActionToMovement[movementAction][dir - 1]);
-            else if (collision == COLLISION_HOLE_JUMP)
-                StartPlayer2Movement(sLinkPlayerActionToMovement[movementAction][dir - 1]);
-            else if (collision == COLLISION_STOP_SURFING)
-                StartPlayer2Movement(sLinkPlayerActionToMovement[movementAction][dir - 1]);
-            else if (collision == COLLISION_PUSHED_BOULDER)
-                StartPlayer2Movement(sLinkPlayerActionToMovement[movementAction][dir - 1]);
-            else if (collision == COLLISION_NONE)
-                StartPlayer2Movement(sLinkPlayerActionToMovement[movementAction][dir - 1]);
-            else // any regular collision
-                StartPlayer2Movement(sLinkPlayerActionToMovement[P2_MOVEMENT_ACTION_WALK_IN_PLACE][dir - 1]);
-        }
     }
 }
 

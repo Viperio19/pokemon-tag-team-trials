@@ -1337,11 +1337,13 @@ static void PlayerRunSlow(enum Direction direction)
 // normal speed (1 speed)
 void PlayerWalkNormal(enum Direction direction)
 {
+    TrySetPlayer2DirectionCommand(P2_CMD_WALK_NORMAL, direction);
     PlayerSetAnimId(GetWalkNormalMovementAction(direction), COPY_MOVE_WALK);
 }
 
 void PlayerWalkFast(enum Direction direction)
 {
+    TrySetPlayer2DirectionCommand(P2_CMD_WALK_FAST, direction);
     PlayerSetAnimId(GetWalkFastMovementAction(direction), COPY_MOVE_WALK);
 }
 
@@ -1357,6 +1359,7 @@ void PlayerWalkFaster(enum Direction direction)
 
 static void PlayerRun(enum Direction direction)
 {
+    TrySetPlayer2DirectionCommand(P2_CMD_RUN, direction);
     PlayerSetAnimId(GetPlayerRunMovementAction(direction), COPY_MOVE_WALK);
 }
 
@@ -1389,6 +1392,7 @@ void PlayerOnBikeCollideWithFarawayIslandMew(enum Direction direction)
 
 static void PlayerNotOnBikeCollide(enum Direction direction)
 {
+    TrySetPlayer2DirectionCommand(P2_CMD_FACE_DIRECTION, direction);
     PlayCollisionSoundIfNotFacingWarp(direction);
     PlayerSetAnimId(GetWalkInPlaceSlowMovementAction(direction), COPY_MOVE_WALK_COLLIDE_SLOW);
 }
@@ -1405,6 +1409,7 @@ void PlayerFaceDirection(enum Direction direction)
 
 void PlayerTurnInPlace(enum Direction direction)
 {
+    TrySetPlayer2DirectionCommand(P2_CMD_FACE_DIRECTION, direction);
     PlayerSetAnimId(GetWalkInPlaceFastMovementAction(direction), COPY_MOVE_FACE);
 }
 
