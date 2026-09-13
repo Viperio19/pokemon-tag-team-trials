@@ -618,6 +618,7 @@ VolcanionCave_3F_EventScript_SetMetatilesBlueButtonPressed::
 	setmetatile 24, 30, METATILE_Cave_CoolGem_Blue_WaterEdge_Empty, FALSE
 	setmetatile 23, 33, METATILE_Cave_CoolGem_Blue_Mud_Empty, FALSE
 	setmetatile 25, 33, METATILE_Cave_CoolGem_Blue_Floor_Empty, FALSE
+	setmetatile 28, 33, METATILE_Cave_CoolGem_Blue_Floor_Empty, FALSE
 	setmetatile 29, 34, METATILE_Cave_CoolGem_Blue_Floor_Empty, FALSE
 	setmetatile 26, 36, METATILE_Cave_CoolGem_Blue_Floor_Empty, FALSE
 	setmetatile 25, 28, METATILE_Cave_CoolGem_Red_Floor_Full, TRUE
@@ -650,6 +651,7 @@ VolcanionCave_3F_EventScript_SetMetatilesRedButtonPressed::
 	setmetatile 24, 30, METATILE_Cave_CoolGem_Blue_WaterEdge_Full, TRUE
 	setmetatile 23, 33, METATILE_Cave_CoolGem_Blue_Mud_Full, TRUE
 	setmetatile 25, 33, METATILE_Cave_CoolGem_Blue_Floor_Full, TRUE
+	setmetatile 28, 33, METATILE_Cave_CoolGem_Blue_Floor_Full, TRUE
 	setmetatile 29, 34, METATILE_Cave_CoolGem_Blue_Floor_Full, TRUE
 	setmetatile 26, 36, METATILE_Cave_CoolGem_Blue_Floor_Full, TRUE
 	setmetatile 25, 28, METATILE_Cave_CoolGem_Red_Floor_Empty, FALSE
