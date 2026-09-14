@@ -384,7 +384,9 @@ VolcanionCave_1F_Text_MagmaGruntMWoahThereDiglett::
 
 VolcanionCave_1F_EventScript_HeatBadge::
 	removeobject VAR_LAST_TALKED
-	msgbox VolcanionCave_1F_Text_ObtainedHeatBadge
+	playfanfare MUS_OBTAIN_BADGE
+	message VolcanionCave_1F_Text_ObtainedHeatBadge
+	waitfanfare
 	closemessage
 	setflag FLAG_BADGE04_GET
 	end
@@ -512,6 +514,9 @@ VolcanionCave_1F_EventScript_Tirtouga::
 	msgbox VolcanionCave_1F_Text_TirtougaCry, MSGBOX_DEFAULT
 	waitmoncry
 	closemessage
+	delay 10
+	forcesave
+	closemessage
 	setwildbattle SPECIES_TIRTOUGA, 20
 	dowildbattle
 	specialvar VAR_RESULT, GetBattleOutcome
@@ -528,6 +533,9 @@ VolcanionCave_1F_EventScript_Cubone::
 	playmoncry SPECIES_CUBONE, CRY_MODE_ENCOUNTER
 	msgbox VolcanionCave_1F_Text_CuboneCry, MSGBOX_DEFAULT
 	waitmoncry
+	closemessage
+	delay 10
+	forcesave
 	closemessage
 	setwildbattle SPECIES_CUBONE, 20
 	dowildbattle

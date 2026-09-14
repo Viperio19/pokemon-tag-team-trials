@@ -711,7 +711,7 @@ VolcanionCave_2F_EventScript_PleaseShowGoldeen::
 	msgbox VolcanionCave_2F_Text_PleaseShowGoldeen, MSGBOX_DEFAULT
 VolcanionCave_2F_EventScript_ChoosePartyMonGoldeen::
 	setvar VAR_0x8009, SPECIES_CHI_YU
-	special ChoosePartyMon
+	special ChooseGoldeen
 	specialvar VAR_RESULT, GetTradeSpecies
 	goto_if_eq VAR_RESULT, SPECIES_NONE, VolcanionCave_2F_EventScript_PleaseKeepLooking
 	goto_if_ne VAR_RESULT, VAR_0x8009, VolcanionCave_2F_EventScript_ThatsNotGoldeen
@@ -1125,6 +1125,10 @@ VolcanionCave_2F_EventScript_Corsola::
 	playmoncry SPECIES_CORSOLA, CRY_MODE_ENCOUNTER
 	msgbox VolcanionCave_2F_Text_Corsola, MSGBOX_DEFAULT
 	waitmoncry
+	closemessage
+	delay 10
+	forcesave
+	closemessage
 	setwildbattle SPECIES_CORSOLA, 20
 	dowildbattle
 	specialvar VAR_RESULT, GetBattleOutcome

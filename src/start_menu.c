@@ -15,6 +15,7 @@
 #include "field_specials.h"
 #include "field_weather.h"
 #include "field_screen_effect.h"
+#include "fishing.h"
 #include "frontier_pass.h"
 #include "frontier_util.h"
 #include "gpu_regs.h"
@@ -82,6 +83,7 @@ enum
 
 // IWRAM common
 COMMON_DATA bool8 (*gMenuCallback)(void) = NULL;
+COMMON_DATA bool8 gFishAfterSave = FALSE;
 
 // EWRAM
 EWRAM_DATA static u8 sSafariBallsWindowId = 0;
@@ -984,8 +986,18 @@ static void SaveGameTask(u8 taskId)
         return;
     }
 
-    DestroyTask(taskId);
-    ScriptContext_Enable();
+
+    if (gFishAfterSave)
+    {
+        gFishAfterSave = FALSE;
+        DestroyTask(taskId);
+        FishingWildEncounter(0);
+    }
+    else
+    {
+        DestroyTask(taskId);
+        ScriptContext_Enable();
+    }
 }
 
 static void HideSaveMessageWindow(void)
@@ -1186,6 +1198,7 @@ static u8 SaveReturnSuccessCallback(void)
 {
     if (!IsSEPlaying() && SaveSuccesTimer())
     {
+        HideSaveMessageWindow();
         HideSaveInfoWindow();
         return SAVE_SUCCESS;
     }
@@ -1506,8 +1519,13 @@ static bool8 StartMenuDexNavCallback(void)
 
 void Script_ForceSaveGame(struct ScriptContext *ctx)
 {
+    ForceSaveGame();
+}
+
+void ForceSaveGame(void)
+{
     SaveGame();
-    ShowSaveInfoWindow();
+    // ShowSaveInfoWindow();
     gMenuCallback = SaveCallback;
     sSaveDialogCallback = SaveSavingMessageCallback;
 }
