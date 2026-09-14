@@ -386,7 +386,8 @@ static void BuildMultiplayerStartMenu(void)
     AddStartMenuAction(MENU_ACTION_PLAYER);
     AddStartMenuAction(MENU_ACTION_SAVE);
     AddStartMenuAction(MENU_ACTION_OPTION);
-    AddStartMenuAction(MENU_ACTION_CONNECT);
+    if (!IsTagTeamTrialsLinkActive())
+        AddStartMenuAction(MENU_ACTION_CONNECT);
     AddStartMenuAction(MENU_ACTION_EXIT);
 }
 

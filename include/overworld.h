@@ -196,6 +196,7 @@ mapsec_u8_t GetCurrentRegionMapSectionId(void);
 enum MapBattleScene GetCurrentMapBattleScene(void);
 void CleanupOverworldWindowsAndTilemaps(void);
 bool32 IsOverworldLinkActive(void);
+bool32 IsTagTeamTrialsLinkActive(void);
 void CB1_Overworld(void);
 void CB1_OverworldLink(void);
 void CB2_OverworldBasic(void);

@@ -245,6 +245,7 @@ Common_Movement_JumpSpecialLeft::
 
 Common_Movement_JumpSpecialRight::
 	jump_special_right
+	step_end
 	
 Common_Movement_Jump2Down::
 	jump_2_down

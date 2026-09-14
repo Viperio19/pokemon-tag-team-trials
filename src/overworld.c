@@ -1653,6 +1653,14 @@ static void ResetSafariZoneFlag_(void)
 
 bool32 IsOverworldLinkActive(void)
 {
+    if (gMain.callback1 == CB1_OverworldLink)
+        return TRUE;
+    else
+        return FALSE;
+}
+
+bool32 IsTagTeamTrialsLinkActive(void)
+{
     if (gMain.callback3 == CB1_OverworldLink)
         return TRUE;
     else
@@ -2025,7 +2033,7 @@ static void CB2_LoadMapOnReturnToFieldCableClub(void)
 
 void CB2_ReturnToField(void)
 {
-    if (IsOverworldLinkActive() == TRUE)
+    if (IsTagTeamTrialsLinkActive() == TRUE)
     {
         SetMainCallback2(CB2_ReturnToFieldLink);
     }
@@ -2047,6 +2055,8 @@ static void CB2_ReturnToFieldLocal(void)
 
 static void CB2_ReturnToFieldLink(void)
 {
+    StartSendingKeysToLink();
+    SetMainCallback3(CB1_OverworldLink);
     if (!Overworld_IsRecvQueueAtMax() && ReturnToFieldLink(&gMain.state))
         SetMainCallback2(CB2_Overworld);
 }
@@ -2762,6 +2772,9 @@ void CB1_OverworldLink(void)
         //
         // Note 2: There are some key intercept callbacks that treat the key as a player
         // ID. It's so hacky.
+        if (sPlayerKeyInterceptCallback == 0)
+            return;
+
         UpdateHeldKeyCode(sPlayerKeyInterceptCallback(selfId));
         ClearAllPlayerKeys();
     }
@@ -3153,7 +3166,7 @@ static void UpdateHeldKeyCode(u16 key)
 
     if (gWirelessCommType != 0
         && GetLinkSendQueueLength() > 1
-        && IsOverworldLinkActive() == TRUE
+        && IsTagTeamTrialsLinkActive() == TRUE
         && IsSendingKeysToLink() == TRUE)
     {
         switch (key)
@@ -3543,10 +3556,13 @@ u16 SetStartedCableClubActivity(void)
 
 bool32 Overworld_IsRecvQueueAtMax(void)
 {
-    if (!IsOverworldLinkActive())
+    if (!IsTagTeamTrialsLinkActive())
         return FALSE;
     if (GetLinkRecvQueueLength() >= OVERWORLD_RECV_QUEUE_MAX)
+    {
+        gLink.recvQueue.count--;
         sReceivingFromLink = TRUE;
+    }
     else
         sReceivingFromLink = FALSE;
     return sReceivingFromLink;
@@ -3558,7 +3574,7 @@ bool32 Overworld_RecvKeysFromLinkIsRunning(void)
 
     if (GetLinkRecvQueueLength() < OVERWORLD_RECV_QUEUE_MAX - 1)
         return FALSE;
-    else if (IsOverworldLinkActive() != TRUE)
+    else if (IsTagTeamTrialsLinkActive() != TRUE)
         return FALSE;
     else if (IsSendingKeysToLink() != TRUE)
         return FALSE;
@@ -3582,7 +3598,7 @@ bool32 Overworld_SendKeysToLinkIsRunning(void)
 {
     if (GetLinkSendQueueLength() < 2)
         return FALSE;
-    else if (IsOverworldLinkActive() != TRUE)
+    else if (IsTagTeamTrialsLinkActive() != TRUE)
         return FALSE;
     else if (IsSendingKeysToLink() != TRUE)
         return FALSE;
