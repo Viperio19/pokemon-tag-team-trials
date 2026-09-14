@@ -2950,6 +2950,26 @@ void SetPlayer2CommandEndRockSmash(void)
     gPlayer2CommandArg2ToSend = VarGet(VAR_LAST_TALKED);
 }
 
+struct RockClimbRide
+{
+    u8 action;
+    s8 dx;
+    s8 dy;
+    u8 jumpDir;
+};
+static const struct RockClimbRide sRockClimbMovement[] =
+{
+    [DIR_NONE] = {MOVEMENT_ACTION_WALK_FAST_DOWN, 0, 0, DIR_NONE},
+    [DIR_SOUTH] = {MOVEMENT_ACTION_WALK_FAST_DOWN, 0, -1, DIR_SOUTH},
+    [DIR_NORTH] = {MOVEMENT_ACTION_WALK_FAST_UP, 0, 1, DIR_NORTH},
+    [DIR_WEST] = {MOVEMENT_ACTION_WALK_FAST_LEFT, 1, 1, DIR_WEST},
+    [DIR_EAST] = {MOVEMENT_ACTION_WALK_FAST_RIGHT, -1, -1, DIR_EAST},
+    [DIR_SOUTHWEST] = {MOVEMENT_ACTION_WALK_FAST_DIAGONAL_DOWN_LEFT, 1, -1, DIR_WEST},
+    [DIR_SOUTHEAST] = {MOVEMENT_ACTION_WALK_FAST_DIAGONAL_DOWN_RIGHT, -1, -1, DIR_EAST},
+    [DIR_NORTHWEST] = {MOVEMENT_ACTION_WALK_FAST_DIAGONAL_UP_LEFT, 1, 1, DIR_WEST},
+    [DIR_NORTHEAST] = {MOVEMENT_ACTION_WALK_FAST_DIAGONAL_UP_RIGHT, -1, 1, DIR_EAST},
+};
+
 static const u8 *const sPlayer2CommandToMovement[][4] =
 {
     [P2_CMD_NONE] = {Common_Movement_FaceDown, Common_Movement_FaceUp, Common_Movement_FaceLeft, Common_Movement_FaceRight},
@@ -2960,6 +2980,8 @@ static const u8 *const sPlayer2CommandToMovement[][4] =
     [P2_CMD_WALK_NORMAL] = {Common_Movement_WalkDown, Common_Movement_WalkUp, Common_Movement_WalkLeft, Common_Movement_WalkRight},
     [P2_CMD_WALK_FAST] = {Common_Movement_WalkDownFast, Common_Movement_WalkUpFast, Common_Movement_WalkLeftFast, Common_Movement_WalkRightFast},
     [P2_CMD_RUN] = {Common_Movement_RunDown, Common_Movement_RunUp, Common_Movement_RunLeft, Common_Movement_RunRight},
+    [P2_CMD_JUMP] = {Common_Movement_JumpDown, Common_Movement_JumpUp, Common_Movement_JumpLeft, Common_Movement_JumpRight},
+    [P2_CMD_JUMP_2] = {Common_Movement_Jump2Down, Common_Movement_Jump2Up, Common_Movement_Jump2Left, Common_Movement_Jump2Right},
     [P2_CMD_RIDE_WATER_CURRENT] = {Common_Movement_RideWaterCurrentDown, Common_Movement_RideWaterCurrentUp, Common_Movement_RideWaterCurrentLeft, Common_Movement_RideWaterCurrentRight},
     [P2_CMD_STOP_SURFING] = {Common_Movement_JumpSpecialDown, Common_Movement_JumpSpecialUp, Common_Movement_JumpSpecialLeft, Common_Movement_JumpSpecialRight},
 };
@@ -3021,10 +3043,12 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
 
     if (command == P2_CMD_NONE)
     {
-        if (gPreviousPlayer2Command == P2_CMD_RUN || gPreviousPlayer2Command == P2_CMD_END_USE_SURF) // fix player standing still in running or jumping position
+        if (gPreviousPlayer2Command == P2_CMD_RUN || gPreviousPlayer2Command == P2_CMD_END_USE_SURF || gPreviousPlayer2Command == P2_CMD_END_USE_ROCK_CLIMB) // fix player standing still in running or jumping position
             StartPlayer2Movement(sPlayer2CommandToMovement[P2_CMD_FACE_DIRECTION][objEvent->facingDirection - 1]);
         return;
     }
+
+    s16 x, y;
 
     gPreviousPlayer2Command = command;
 
@@ -3037,6 +3061,8 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
     case P2_CMD_WALK_NORMAL:
     case P2_CMD_WALK_FAST:
     case P2_CMD_RUN:
+    case P2_CMD_JUMP:
+    case P2_CMD_JUMP_2:
     case P2_CMD_RIDE_WATER_CURRENT:
         StartPlayer2Movement(sPlayer2CommandToMovement[command][arg1 - 1]);
         break;
@@ -3065,8 +3091,8 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
         ObjectEventClearHeldMovementIfFinished(objEvent);
         ObjectEventSetHeldMovement(objEvent, GetJumpSpecialMovementAction(arg1));
 
-        s16 x = objEvent->currentCoords.x;
-        s16 y = objEvent->currentCoords.y;
+        x = objEvent->currentCoords.x;
+        y = objEvent->currentCoords.y;
         MoveCoords(arg1, &x, &y);
     
         gFieldEffectArguments[0] = x;
@@ -3085,6 +3111,32 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
         ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
         StartPlayer2Movement(sPlayer2CommandToMovement[P2_CMD_FACE_DIRECTION][arg1 - 1]);
         DestroySprite(&gSprites[objEvent->fieldEffectSpriteId]);
+        break;
+    case P2_CMD_USE_ROCK_CLIMB:
+        ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_SURFING, gSaveBlock2Ptr->player2Gender));
+        ObjectEventClearHeldMovementIfFinished(objEvent);
+        ObjectEventSetHeldMovement(objEvent, GetJumpSpecialMovementAction(arg1));
+        x = objEvent->currentCoords.x;
+        y = objEvent->currentCoords.y;
+        MoveCoords(arg1, &x, &y);
+    
+        gFieldEffectArguments[0] = x;
+        gFieldEffectArguments[1] = y;
+        gFieldEffectArguments[2] = objId;
+        objEvent->fieldEffectSpriteId = CreateRockClimbBlob();
+        break;
+    case P2_CMD_BOB_ROCK_CLIMB:
+        SetSurfBlob_BobState(objEvent->fieldEffectSpriteId, BOB_PLAYER_AND_MON);
+        break;
+    case P2_CMD_RIDE_ROCK_CLIMB:
+        ObjectEventSetHeldMovement(objEvent, sRockClimbMovement[arg1].action);
+        PlaySE(SE_M_ROCK_THROW);
+        RockClimbDust(objEvent, arg1);
+        break;
+    case P2_CMD_END_USE_ROCK_CLIMB:
+        ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
+        ObjectEventSetHeldMovement(objEvent, GetJumpSpecialMovementAction(sRockClimbMovement[arg1].jumpDir));
+        SetSurfBlob_BobState(objEvent->fieldEffectSpriteId, BOB_NONE);
         break;
     case P2_CMD_NONE:
     default:

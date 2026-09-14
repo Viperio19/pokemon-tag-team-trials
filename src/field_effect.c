@@ -4383,7 +4383,7 @@ enum RockClimbState
 #define tDestY       data[2]
 #define tMonId       data[15]
 
-static u8 CreateRockClimbBlob(void)
+u8 CreateRockClimbBlob(void)
 {
     u8 spriteId;
     struct Sprite *sprite;
@@ -4472,6 +4472,7 @@ static bool8 RockClimb_JumpOnRockClimbBlob(struct Task *task, struct ObjectEvent
 {
     if (!FieldEffectActiveListContains(FLDEFF_FIELD_MOVE_SHOW_MON))
     {
+        TrySetPlayer2DirectionCommand(P2_CMD_USE_ROCK_CLIMB, objectEvent->movementDirection);
         objectEvent->noShadow = TRUE; // hide shadow
         ObjectEventSetGraphicsId(objectEvent, GetPlayerAvatarGraphicsIdByStateId(PLAYER_AVATAR_STATE_SURFING));
         ObjectEventClearHeldMovementIfFinished(objectEvent);
@@ -4490,6 +4491,7 @@ static bool8 RockClimb_WaitJumpOnRockClimbBlob(struct Task *task, struct ObjectE
 {
     if (ObjectEventClearHeldMovementIfFinished(objectEvent))
     {
+        gPlayer2CommandToSend = P2_CMD_BOB_ROCK_CLIMB;
         SetSurfBlob_BobState(objectEvent->fieldEffectSpriteId, BOB_PLAYER_AND_MON);
         switch (objectEvent->facingDirection)
         {
@@ -4535,7 +4537,7 @@ static const struct RockClimbRide sRockClimbMovement[] =
     [DIR_NORTHEAST] = {MOVEMENT_ACTION_WALK_FAST_DIAGONAL_UP_RIGHT, -1, 1, DIR_EAST},
 };
 
-static void RockClimbDust(struct ObjectEvent *objectEvent, enum Direction direction)
+void RockClimbDust(struct ObjectEvent *objectEvent, enum Direction direction)
 {
     s8 dx = sRockClimbMovement[direction].dx;
     s8 dy = sRockClimbMovement[direction].dy;
@@ -4549,6 +4551,7 @@ static void RockClimbDust(struct ObjectEvent *objectEvent, enum Direction direct
 
 static bool8 RockClimb_Ride(struct Task *task, struct ObjectEvent *objectEvent)
 {
+    TrySetPlayer2DirectionCommand(P2_CMD_RIDE_ROCK_CLIMB, objectEvent->movementDirection);
     ObjectEventSetHeldMovement(objectEvent, sRockClimbMovement[objectEvent->movementDirection].action);
     PlaySE(SE_M_ROCK_THROW);
     RockClimbDust(objectEvent, objectEvent->movementDirection);
@@ -4585,6 +4588,7 @@ static bool8 RockClimb_StopRockClimbInit(struct Task *task, struct ObjectEvent *
     }
 
     RockClimbDust(objectEvent, DIR_NONE);   //dust on final spot
+    TrySetPlayer2DirectionCommand(P2_CMD_END_USE_ROCK_CLIMB, objectEvent->movementDirection);
     ObjectEventSetHeldMovement(objectEvent, GetJumpSpecialMovementAction(sRockClimbMovement[objectEvent->movementDirection].jumpDir));
     SetSurfBlob_BobState(objectEvent->fieldEffectSpriteId, BOB_NONE);
     task->tState++;

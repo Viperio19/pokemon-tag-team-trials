@@ -727,6 +727,14 @@ extern const u8 Common_Movement_JumpSpecialUp[];
 extern const u8 Common_Movement_JumpSpecialDown[];
 extern const u8 Common_Movement_JumpSpecialRight[];
 extern const u8 Common_Movement_JumpSpecialLeft[];
+extern const u8 Common_Movement_Jump2Up[];
+extern const u8 Common_Movement_Jump2Down[];
+extern const u8 Common_Movement_Jump2Right[];
+extern const u8 Common_Movement_Jump2Left[];
+extern const u8 Common_Movement_JumpUp[];
+extern const u8 Common_Movement_JumpDown[];
+extern const u8 Common_Movement_JumpRight[];
+extern const u8 Common_Movement_JumpLeft[];
 extern const u8 Common_Movement_RockSmashBreak[];
 
 extern const u8 EventScript_CancelMessageBox[];

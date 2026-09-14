@@ -651,6 +651,8 @@ static void Task_DoCableClubWarp(u8 taskId)
 
 void DoCableClubWarp(void)
 {
+    memset(&gPlayer2CommandsQueue, 0, sizeof(gPlayer2CommandsQueue));
+    memset(&gPlayer2Commands, 0, sizeof(gPlayer2Commands));
     LockPlayerFieldControls();
     TryFadeOutOldMapMusic();
     WarpFadeOutScreen();

@@ -1416,12 +1416,14 @@ void PlayerTurnInPlace(enum Direction direction)
 
 void PlayerJumpLedge(enum Direction direction)
 {
+    TrySetPlayer2DirectionCommand(P2_CMD_JUMP_2, direction);
     PlaySE(SE_LEDGE);
     PlayerSetAnimId(GetJump2MovementAction(direction), COPY_MOVE_JUMP2);
 }
 
 void PlayerJumpInHole(enum Direction direction)
 {
+    TrySetPlayer2DirectionCommand(P2_CMD_JUMP, direction);
     PlaySE(SE_LEDGE);
     PlayerSetAnimId(GetJumpMovementAction(direction), COPY_MOVE_JUMP2);
 }

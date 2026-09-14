@@ -245,6 +245,37 @@ Common_Movement_JumpSpecialLeft::
 
 Common_Movement_JumpSpecialRight::
 	jump_special_right
+	
+Common_Movement_Jump2Down::
+	jump_2_down
+	step_end
+
+Common_Movement_Jump2Up::
+	jump_2_up
+	step_end
+
+Common_Movement_Jump2Left::
+	jump_2_left
+	step_end
+
+Common_Movement_Jump2Right::
+	jump_2_right
+	step_end
+
+Common_Movement_JumpDown::
+	jump_down
+	step_end
+
+Common_Movement_JumpUp::
+	jump_up
+	step_end
+
+Common_Movement_JumpLeft::
+	jump_left
+	step_end
+
+Common_Movement_JumpRight::
+	jump_right
 	step_end
 
 Common_Movement_RockSmashBreak::
