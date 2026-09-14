@@ -62,6 +62,7 @@ enum
     MENU_ACTION_PLAYER,
     MENU_ACTION_SAVE,
     MENU_ACTION_OPTION,
+    MENU_ACTION_DIG,
     MENU_ACTION_EXIT,
     MENU_ACTION_RETIRE_SAFARI,
     MENU_ACTION_PLAYER_LINK,
@@ -106,6 +107,7 @@ static bool8 StartMenuPokeNavCallback(void);
 static bool8 StartMenuPlayerNameCallback(void);
 static bool8 StartMenuSaveCallback(void);
 static bool8 StartMenuOptionCallback(void);
+static bool8 StartMenuDigCallback(void);
 static bool8 StartMenuExitCallback(void);
 static bool8 StartMenuSafariZoneRetireCallback(void);
 static bool8 StartMenuLinkModePlayerNameCallback(void);
@@ -200,6 +202,7 @@ static const struct MenuAction sStartMenuItems[] =
     [MENU_ACTION_PLAYER]          = {gText_MenuPlayer,  {.u8_void = StartMenuPlayerNameCallback}},
     [MENU_ACTION_SAVE]            = {gText_MenuSave,    {.u8_void = StartMenuSaveCallback}},
     [MENU_ACTION_OPTION]          = {gText_MenuOption,  {.u8_void = StartMenuOptionCallback}},
+    [MENU_ACTION_DIG]             = {gText_MenuDig,     {.u8_void = StartMenuDigCallback}},
     [MENU_ACTION_EXIT]            = {gText_MenuExit,    {.u8_void = StartMenuExitCallback}},
     [MENU_ACTION_RETIRE_SAFARI]   = {gText_MenuRetire,  {.u8_void = StartMenuSafariZoneRetireCallback}},
     [MENU_ACTION_PLAYER_LINK]     = {gText_MenuPlayer,  {.u8_void = StartMenuLinkModePlayerNameCallback}},
@@ -343,6 +346,8 @@ static void BuildNormalStartMenu(void)
     AddStartMenuAction(MENU_ACTION_PLAYER);
     AddStartMenuAction(MENU_ACTION_SAVE);
     AddStartMenuAction(MENU_ACTION_OPTION);
+    if (gSaveBlock1Ptr->location.mapNum == MAP_NUM(MAP_VOLCANION_CAVE_3F) && !FlagGet(FLAG_DOING_CREDITS))
+        AddStartMenuAction(MENU_ACTION_DIG);
     AddStartMenuAction(MENU_ACTION_EXIT);
 }
 
@@ -658,7 +663,8 @@ static bool8 HandleStartMenuInput(void)
             && gMenuCallback != StartMenuExitCallback
             && gMenuCallback != StartMenuDebugCallback
             && gMenuCallback != StartMenuSafariZoneRetireCallback
-            && gMenuCallback != StartMenuBattlePyramidRetireCallback)
+            && gMenuCallback != StartMenuBattlePyramidRetireCallback
+            && gMenuCallback != StartMenuDigCallback)
         {
            FadeScreen(FADE_TO_BLACK, 0);
         }
@@ -782,6 +788,13 @@ static bool8 StartMenuOptionCallback(void)
     }
 
     return FALSE;
+}
+
+static bool8 StartMenuDigCallback(void)
+{
+    StartMenuExitCallback();
+    ScriptContext_SetupScript(EventScript_VolcanionCave_3F_Dig);
+    return TRUE;
 }
 
 static bool8 StartMenuExitCallback(void)
@@ -1007,7 +1020,8 @@ static void HideSaveMessageWindow(void)
 
 static void HideSaveInfoWindow(void)
 {
-    RemoveSaveInfoWindow();
+    if (sSaveInfoWindowId != 0)
+        RemoveSaveInfoWindow();
 }
 
 static void SaveStartTimer(void)

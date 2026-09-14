@@ -532,6 +532,22 @@ static bool32 WaitForWeatherFadeIn(void)
 
 void DoWarp(void)
 {
+    s8 mapGroup, mapNum;
+    GetWarpGroupAndNum(&mapGroup, &mapNum);
+
+    // Reset player 2 for room 3 when re-entering the room
+    if (!FlagGet(FLAG_DOING_PLAYER_SWITCH)
+     && mapNum == MAP_NUM(MAP_VOLCANION_CAVE_3F)
+     && mapNum == gSaveBlock2Ptr->player2Pos.mapNum
+     && mapGroup == gSaveBlock2Ptr->player2Pos.mapGroup
+     && VarGet(VAR_VOLCANION_CAVE_3F_STATE) != 0)
+        SetPlayer2Pos(mapGroup,
+                        mapNum,
+                        IS_PLAYER_ONE ? 17 : 15,
+                        32,
+                        DIR_NORTH,
+                        3);
+
     LockPlayerFieldControls();
     TryFadeOutOldMapMusic();
     WarpFadeOutScreen();

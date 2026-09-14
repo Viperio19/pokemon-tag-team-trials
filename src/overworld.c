@@ -709,6 +709,12 @@ void WarpIntoMap(void)
     SetPlayerCoordsFromWarp();
 }
 
+void GetWarpGroupAndNum(s8 *mapGroup, s8 *mapNum)
+{
+    *mapGroup = sWarpDestination.mapGroup;
+    *mapNum = sWarpDestination.mapNum;
+}
+
 void SetWarpDestination(s8 mapGroup, s8 mapNum, s8 warpId, s8 x, s8 y)
 {
     SetWarpData(&sWarpDestination, mapGroup, mapNum, warpId, x, y);

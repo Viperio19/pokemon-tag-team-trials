@@ -175,6 +175,7 @@ VolcanionCave_3F_EventScript_Intro::
 	call_if_eq VAR_RESULT, FALSE, VolcanionCave_3F_EventScript_CameraResetToMagma
 	waitmovement 0
 	special RemoveCameraObject
+	forcesave
 	release
 	end
 
@@ -4003,3 +4004,26 @@ Credits_ThanksForPlayingStardust50::
 	.string "Enjoy the VOLCANION room!\p"
 	.string "And of course, stay alive.\n"
 	.string "{PAUSE 80} - Viperio (2004-2027)$"
+
+EventScript_VolcanionCave_3F_Dig::
+	message VolcanionCave_3F_Text_AskDig
+	waitmessage
+	yesnobox 20, 8, 1
+	goto_if_eq VAR_RESULT, YES, VolcanionCave_3F_EventScript_UseDig
+	release
+	end
+
+VolcanionCave_3F_EventScript_UseDig::
+	playmoncry SPECIES_DIGLETT, CRY_MODE_NORMAL
+	message VolcanionCave_3F_Text_AgentDiggsUsedDig
+	waitmoncry
+	waitmessage
+	playse SE_M_DIG
+	warp MAP_VOLCANION_CAVE_3F, 16, 35
+	waitstate
+	end
+
+VolcanionCave_3F_Text_AskDig::
+	.string "AGENT DIGGS can use DIG to reset\n"
+	.string "this room.\p"
+	.string "Do you want AGENT DIGGS to use DIG?$"
