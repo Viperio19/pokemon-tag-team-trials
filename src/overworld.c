@@ -211,7 +211,7 @@ COMMON_DATA bool8 (*gFieldCallback2)(void) = NULL;
 COMMON_DATA u8 gLocalLinkPlayerId = 0; // This is our player id in a multiplayer mode.
 COMMON_DATA u8 gFieldLinkPlayerCount = 0;
 COMMON_DATA u16 gPlayer2CommandToSend = 0;
-COMMON_DATA u16 gPlayer2CommandArgToSend = 0;
+COMMON_DATA u16 gPlayer2CommandArg1ToSend = 0;
 COMMON_DATA u16 gPlayer2CommandArg2ToSend = 0;
 
 u8 gTimeOfDay;
@@ -2959,13 +2959,13 @@ void TrySetPlayer2DirectionCommand(enum Player2Command command, enum Direction d
         return;
 
     gPlayer2CommandToSend = command;
-    gPlayer2CommandArgToSend = direction;
+    gPlayer2CommandArg1ToSend = direction;
 }
 
 void SetPlayer2CommandEndRockSmash(void)
 {
     gPlayer2CommandToSend = P2_CMD_END_ROCK_SMASH;
-    gPlayer2CommandArgToSend = gFieldEffectArguments[2];
+    gPlayer2CommandArg1ToSend = gFieldEffectArguments[2];
     gPlayer2CommandArg2ToSend = VarGet(VAR_LAST_TALKED);
 }
 
@@ -3047,7 +3047,7 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
     u8 linkPartnerId = GetMultiplayerId() ^ 1;
 
     if (gPlayer2Commands[linkPartnerId] != P2_CMD_NONE)
-        EnqueuePlayer2Command(gPlayer2Commands[linkPartnerId], gPlayer2CommandArgs[linkPartnerId], gPlayer2CommandArgs2[linkPartnerId]);
+        EnqueuePlayer2Command(gPlayer2Commands[linkPartnerId], gPlayer2CommandArgs1[linkPartnerId], gPlayer2CommandArgs2[linkPartnerId]);
 
     u8 objId = GetObjectEventIdByLocalId(OBJ_EVENT_ID_PLAYER_2);
     struct ObjectEvent *objEvent = &gObjectEvents[objId];
@@ -3156,6 +3156,12 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
         ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
         ObjectEventSetHeldMovement(objEvent, GetJumpSpecialMovementAction(sRockClimbMovement[arg1].jumpDir));
         SetSurfBlob_BobState(objEvent->fieldEffectSpriteId, BOB_NONE);
+        break;
+    case P2_CMD_TRY_SAVE_AND_DISCONNECT:
+        FlagSet(FLAG_PLAYER_2_IS_SAVING);
+        break;
+    case P2_CMD_CANCEL_SAVE:
+        FlagClear(FLAG_PLAYER_2_IS_SAVING);
         break;
     case P2_CMD_NONE:
     default:

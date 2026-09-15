@@ -258,6 +258,9 @@ void UpdatePlayer2Pos(void)
 
 void TrySpawnPlayer2(void)
 {
+    if (IS_MULTIPLAYER && !FlagGet(FlAG_SHOW_PLAYER_2))
+        return;
+
     if (gSaveBlock1Ptr->location.mapNum != gSaveBlock2Ptr->player2Pos.mapNum || gSaveBlock1Ptr->location.mapGroup != gSaveBlock2Ptr->player2Pos.mapGroup)
         return;
 

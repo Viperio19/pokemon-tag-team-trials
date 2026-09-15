@@ -1100,7 +1100,7 @@ static bool8 TryPushBoulder(s16 x, s16 y, enum Direction direction)
              && MapGridGetMetatileBehaviorAt(x, y) != MB_GEM)
             {
                 gPlayer2CommandToSend = P2_CMD_PUSH_BOULDER;
-                gPlayer2CommandArgToSend = gObjectEvents[objectEventId].localId;
+                gPlayer2CommandArg1ToSend = gObjectEvents[objectEventId].localId;
                 gPlayer2CommandArg2ToSend = direction;
                 StartStrengthAnim(objectEventId, direction);
                 return TRUE;

@@ -309,7 +309,7 @@ bool32 IsLinkRecvQueueAtOverworldMax(void);
 
 extern u16 gLinkPartnersHeldKeys[6];
 extern u16 gPlayer2Commands[6];
-extern u16 gPlayer2CommandArgs[6];
+extern u16 gPlayer2CommandArgs1[6];
 extern u16 gPlayer2CommandArgs2[6];
 extern u16 gPlayer2CommandsQueue[3][P2_CMD_QUEUE_SIZE];
 extern u16 gPreviousPlayer2Command;

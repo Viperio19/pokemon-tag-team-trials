@@ -42,6 +42,7 @@ VolcanionCave_1F_EventScript_HidePlayers::
 	return
 
 VolcanionCave_1F_OnFrame:
+	map_script_2 VAR_SAVE_ON_FRAME, 1, Player2_EventScript_Save
 	map_script_2 VAR_VOLCANION_CAVE_1F_STATE, 0, VolcanionCave_1F_EventScript_EnterCave
 	map_script_2 VAR_OLD_ROD_STATE, 10, VolcanionCave_1F_EventScript_DropOldRod
 	.2byte 0
@@ -533,9 +534,12 @@ VolcanionCave_1F_EventScript_Tirtouga::
 	msgbox VolcanionCave_1F_Text_TirtougaCry, MSGBOX_DEFAULT
 	waitmoncry
 	closemessage
+	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
+	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_1F_EventScript_BattleTirtouga
 	delay 10
 	forcesave
 	closemessage
+VolcanionCave_1F_EventScript_BattleTirtouga::
 	setwildbattle SPECIES_TIRTOUGA, 20
 	dowildbattle
 	specialvar VAR_RESULT, GetBattleOutcome
@@ -553,9 +557,12 @@ VolcanionCave_1F_EventScript_Cubone::
 	msgbox VolcanionCave_1F_Text_CuboneCry, MSGBOX_DEFAULT
 	waitmoncry
 	closemessage
+	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
+	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_1F_EventScript_BattleCubone
 	delay 10
 	forcesave
 	closemessage
+VolcanionCave_1F_EventScript_BattleCubone::
 	setwildbattle SPECIES_CUBONE, 20
 	dowildbattle
 	specialvar VAR_RESULT, GetBattleOutcome

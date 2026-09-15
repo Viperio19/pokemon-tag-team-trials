@@ -115,9 +115,9 @@
 #define FLAG_DO_CREDITS_TITLE                      0x282
 #define FLAG_AGENT_DIGGS_DIED                      0x283
 #define FLAG_DOING_CREDITS                         0x284
+#define FlAG_SHOW_PLAYER_2                         0x285
+#define FLAG_PLAYER_2_IS_SAVING                    0x286
 
-#define FLAG_UNUSED_0x285  0x285 // Unused Flag
-#define FLAG_UNUSED_0x286  0x286 // Unused Flag
 #define FLAG_UNUSED_0x287  0x287 // Unused Flag
 #define FLAG_UNUSED_0x288  0x288 // Unused Flag
 #define FLAG_UNUSED_0x289  0x289 // Unused Flag

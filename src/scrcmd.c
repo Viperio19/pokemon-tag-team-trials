@@ -85,6 +85,7 @@ static EWRAM_DATA u16 sCreditsBlendLevel = 0;
 static u8 sBrailleWindowId;
 static bool8 sIsScriptedWildDouble;
 static bool8 sIsScriptedWildBoss;
+static u32 sFlagIdToWait;
 
 extern const SpecialFunc gSpecials[];
 extern const u8 *gStdScripts[];
@@ -3559,5 +3560,35 @@ bool8 ScrCmd_setfonttype(struct ScriptContext * ctx)
     gSpecialVar_FontType = ScriptReadByte(ctx);
 
     Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
+    return FALSE;
+}
+
+static bool8 WaitForFlagOrBPress(void)
+{
+    if (FlagGet(sFlagIdToWait))
+        return TRUE;
+    if (JOY_NEW(B_BUTTON))
+        return TRUE;
+    return FALSE;
+}
+
+bool8 ScrCmd_waitflagorbbutton(struct ScriptContext *ctx)
+{
+    sFlagIdToWait = ScriptReadHalfword(ctx);
+
+    Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
+
+    SetupNativeScript(ctx, WaitForFlagOrBPress);
+    return TRUE;
+}
+
+bool8 ScrCmd_setplayer2command(struct ScriptContext * ctx)
+{
+    gPlayer2CommandToSend = ScriptReadHalfword(ctx);
+    gPlayer2CommandArg1ToSend = ScriptReadHalfword(ctx);
+    gPlayer2CommandArg2ToSend = ScriptReadHalfword(ctx);
+
+    Script_RequestEffects(SCREFF_V1 | SCREFF_SAVE);
+
     return FALSE;
 }

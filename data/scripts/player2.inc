@@ -395,6 +395,7 @@ Player2_LinkSuccess::
 	setvar VAR_0x8004, USING_TRADE_CENTER
 	copyvar VAR_CABLE_CLUB_STATE, VAR_0x8004
 	callnative SetWarpCurrentPosition
+	setflag FlAG_SHOW_PLAYER_2
 	special DoCableClubWarp
 	end
 
@@ -449,3 +450,49 @@ Player2_Text_ReadyToBattle::
 	.string "{RIVAL} is ready to battle!\p"
 	.string "Do you want to cancel the battle\n"
 	.string "and switch anyways?$"
+
+EventScript_Player2_TrySaveAndDisconnect::
+	msgbox Player2_Text_AskSave, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, YES, Player2_EventScript_StartSaveAndDisconnect
+	erasebox 0, 0, 29, 19
+	releaseall
+	end
+
+Player2_EventScript_StartSaveAndDisconnect::
+	message Player2_Text_WaitingForOtherPlayerSave
+	waitmessage
+	setplayer2command P2_CMD_TRY_SAVE_AND_DISCONNECT
+	waitflagorbbutton FLAG_PLAYER_2_IS_SAVING
+	goto_if_unset FLAG_PLAYER_2_IS_SAVING, Player2_EventScript_CancelSaveAndDisconnect
+	clearflag FLAG_PLAYER_2_IS_SAVING
+	clearflag FlAG_SHOW_PLAYER_2
+	setvar VAR_SAVE_ON_FRAME, 1
+	message Player2_Text_ClosingConnection
+	waitmessage
+	closemessage
+	callnative SetWarpCurrentPosition
+	special ReturnFromLinkRoom
+	end
+
+Player2_EventScript_CancelSaveAndDisconnect::
+	setplayer2command P2_CMD_CANCEL_SAVE
+	release
+	end
+
+Player2_Text_AskSave::
+	.string "Saving will terminate the connection.\p"
+	.string "Both players need to select SAVE\n"
+	.string "in order to save and disconnect.\p"
+	.string "Would you like to save the game?$"
+
+Player2_Text_WaitingForOtherPlayerSave::
+	.string "Waiting for other player to save…\n"
+	.string "… … B Button: Cancel.$"
+
+Player2_Text_ClosingConnection::
+	.string "Closing connection…{PAUSE 40}$"
+
+Player2_EventScript_Save::
+	setvar VAR_SAVE_ON_FRAME, 0
+	forcesave
+	end

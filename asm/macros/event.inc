@@ -2026,6 +2026,18 @@
 	.byte \type
 	.endm
 
+	.macro waitflagorbbutton flagId:req
+	.byte SCR_OP_WAITFLAGORBBUTTON
+	.2byte \flagId
+	.endm
+
+	.macro setplayer2command command:req, arg1=0, arg2=0
+	.byte SCR_OP_SETPLAYER2COMMAND
+	.2byte \command
+	.2byte \arg1
+	.2byte \arg2
+	.endm
+
 	.macro dynmultistack left:req, top:req, ignoreBPress:req, maxBeforeScroll:req, shouldSort:req, initialSelected:req, callbacks:req
 	_dynmultichoice \left, \top, \ignoreBPress, \maxBeforeScroll, \shouldSort, \initialSelected, \callbacks, NULL
 	.endm

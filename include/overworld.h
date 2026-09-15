@@ -2,6 +2,7 @@
 #define GUARD_OVERWORLD_H
 
 #include "constants/map_types.h"
+#include "constants/p2_commands.h"
 
 #define LINK_KEY_CODE_NULL 0x00
 #define LINK_KEY_CODE_EMPTY 0x11
@@ -32,43 +33,6 @@
 #define HOURS_BLEND_ONCE 25
 // don't update gTimeBlend
 #define HOURS_FREEZE_BLEND 26
-
-enum Player2Command
-{
-    P2_CMD_NONE = 0,
-    P2_CMD_USE_FIELD_MOVE,
-    P2_CMD_END_FIELD_MOVE,
-    P2_CMD_PUSH_BOULDER,
-    P2_CMD_USE_ROCK_SMASH,
-    P2_CMD_END_ROCK_SMASH,
-    P2_CMD_USE_SURF,
-    P2_CMD_END_USE_SURF,
-    P2_CMD_STOP_SURFING,
-    P2_CMD_END_STOP_SURFING,
-    P2_CMD_USE_ROCK_CLIMB,
-    P2_CMD_RIDE_ROCK_CLIMB,
-    P2_CMD_BOB_ROCK_CLIMB,
-    P2_CMD_END_USE_ROCK_CLIMB,
-    P2_CMD_FACE_DIRECTION,
-    P2_CMD_WALK_IN_PLACE,
-    P2_CMD_WALK_IN_PLACE_FAST,
-    P2_CMD_WALK_IN_PLACE_FASTER,
-    P2_CMD_WALK_NORMAL,
-    P2_CMD_WALK_FAST,
-    P2_CMD_RUN,
-    P2_CMD_JUMP,
-    P2_CMD_JUMP_2,
-    P2_CMD_RIDE_WATER_CURRENT,
-};
-
-enum Player2MovementAction
-{
-    P2_MOVEMENT_ACTION_NONE = 0,
-    P2_MOVEMENT_ACTION_FACE_DIRECTION,
-    P2_MOVEMENT_ACTION_WALK_IN_PLACE,
-    P2_MOVEMENT_ACTION_WALK_NORMAL,
-    P2_MOVEMENT_ACTION_WALK_FAST
-};
 
 struct InitialPlayerAvatarState
 {
@@ -106,7 +70,7 @@ extern u16 *gOverworldTilemapBuffer_Bg1;
 extern u16 *gOverworldTilemapBuffer_Bg3;
 extern u16 gHeldKeyCodeToSend;
 extern u16 gPlayer2CommandToSend;
-extern u16 gPlayer2CommandArgToSend;
+extern u16 gPlayer2CommandArg1ToSend;
 extern u16 gPlayer2CommandArg2ToSend;
 extern void (*gFieldCallback)(void);
 extern bool8 (*gFieldCallback2)(void);

@@ -94,7 +94,7 @@ COMMON_DATA struct Link gLink = {0};
 COMMON_DATA u8 gLastRecvQueueCount = 0;
 COMMON_DATA u16 gLinkSavedIme = 0;
 COMMON_DATA u16 gPlayer2Commands[6] = {0};
-COMMON_DATA u16 gPlayer2CommandArgs[6] = {0};
+COMMON_DATA u16 gPlayer2CommandArgs1[6] = {0};
 COMMON_DATA u16 gPlayer2CommandArgs2[6] = {0};
 COMMON_DATA u16 gPlayer2CommandsQueue[3][P2_CMD_QUEUE_SIZE] = {0};
 COMMON_DATA u16 gPreviousPlayer2Command = 0;
@@ -621,7 +621,7 @@ static void ProcessRecvCmds(u8 unused)
         case LINKCMD_SEND_HELD_KEYS:
             gLinkPartnersHeldKeys[i] = gRecvCmds[i][1];
             gPlayer2Commands[i] = gRecvCmds[i][2];
-            gPlayer2CommandArgs[i] = gRecvCmds[i][3];
+            gPlayer2CommandArgs1[i] = gRecvCmds[i][3];
             gPlayer2CommandArgs2[i] = gRecvCmds[i][4];
             break;
         }
@@ -688,7 +688,7 @@ static void BuildSendCmd(u16 command)
         gSendCmd[0] = LINKCMD_SEND_HELD_KEYS;
         gSendCmd[1] = gHeldKeyCodeToSend;
         gSendCmd[2] = gPlayer2CommandToSend;
-        gSendCmd[3] = gPlayer2CommandArgToSend;
+        gSendCmd[3] = gPlayer2CommandArg1ToSend;
         gSendCmd[4] = gPlayer2CommandArg2ToSend;
         gPlayer2CommandToSend = 0;
         break;

@@ -788,6 +788,13 @@ static bool8 StartMenuPlayerNameCallback(void)
 
 static bool8 StartMenuSaveCallback(void)
 {
+    if (IsTagTeamTrialsLinkActive())
+    {
+        StartMenuExitCallback();
+        ScriptContext_SetupScript(EventScript_Player2_TrySaveAndDisconnect);
+        return TRUE;
+    }
+
     if (CurrentBattlePyramidLocation() != PYRAMID_LOCATION_NONE)
         RemoveExtraStartMenuWindows();
 

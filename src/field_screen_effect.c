@@ -699,6 +699,7 @@ static void Task_ReturnToWorldFromLinkRoom(u8 taskId)
     case 2:
         if (!gReceivedRemoteLinkPlayers)
         {
+            gMain.callback3 = NULL;
             WarpIntoMap();
             SetMainCallback2(CB2_LoadMap);
             DestroyTask(taskId);

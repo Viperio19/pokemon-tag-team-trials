@@ -162,7 +162,7 @@ bool8 FldEff_UseRockSmash(void)
 static void FieldMove_RockSmash(void)
 {
     gPlayer2CommandToSend = P2_CMD_USE_ROCK_SMASH;
-    gPlayer2CommandArgToSend = gFieldEffectArguments[2];
+    gPlayer2CommandArg1ToSend = gFieldEffectArguments[2];
     gPlayer2CommandArg2ToSend = VarGet(VAR_LAST_TALKED);
     PlaySE(SE_M_ROCK_THROW);
     FieldEffectActiveListRemove(FLDEFF_USE_ROCK_SMASH);
