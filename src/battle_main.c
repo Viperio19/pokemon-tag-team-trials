@@ -2796,7 +2796,7 @@ static void BattleStartClearSetData(void)
     gFieldStatuses = 0;
 
     gHasFetchedBall = FALSE;
-    gLastUsedBall = 0;
+    gLastUsedBall = IS_PLAYER_ONE ? ITEM_GREAT_BALL : ITEM_POKE_BALL;
 
     gBattlerAttacker = 0;
     gBattlerTarget = 0;
