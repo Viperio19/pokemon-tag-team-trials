@@ -4025,5 +4025,5 @@ VolcanionCave_3F_EventScript_UseDig::
 
 VolcanionCave_3F_Text_AskDig::
 	.string "AGENT DIGGS can use DIG to reset\n"
-	.string "this room.\p"
+	.string "the players and STRENGTH boulders.\p"
 	.string "Do you want AGENT DIGGS to use DIG?$"

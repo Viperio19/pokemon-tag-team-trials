@@ -384,7 +384,7 @@ VolcanionCave_1F_Text_MagmaGruntMWoahThereDiglett::
 
 VolcanionCave_1F_EventScript_HeatBadge::
 	removeobject VAR_LAST_TALKED
-	playfanfare MUS_OBTAIN_BADGE
+	playfanfare MUS_OBTAIN_ITEM
 	message VolcanionCave_1F_Text_ObtainedHeatBadge
 	waitfanfare
 	closemessage
