@@ -36,6 +36,8 @@ Player2_Singleplayer_Trade::
 	copyvar VAR_0x800A, VAR_0x8004
 	goto_if_ge VAR_0x800A, PARTY_SIZE, Player2_Singleplayer_Cancel
 	specialvar VAR_0x8008, GetTradeSpecies
+	goto_if_eq VAR_0x8008, SPECIES_NUMEL, Player2_Singleplayer_CantTradePokemon
+	goto_if_eq VAR_0x8008, SPECIES_CARVANHA, Player2_Singleplayer_CantTradePokemon
 
 	@ choose partner mon
 	callnative SwitchParties
@@ -45,6 +47,8 @@ Player2_Singleplayer_Trade::
 	copyvar VAR_0x800B, VAR_0x8004
 	specialvar VAR_0x8009, GetTradeSpecies
 	callnative SwitchParties
+	goto_if_eq VAR_0x8009, SPECIES_NUMEL, Player2_Singleplayer_CantTradePokemon
+	goto_if_eq VAR_0x8009, SPECIES_CARVANHA, Player2_Singleplayer_CantTradePokemon
 	goto_if_ge VAR_0x800B, PARTY_SIZE, Player2_Singleplayer_Cancel
 
 	@ confirm trade
@@ -81,6 +85,11 @@ Player2Magma_Singleplayer_GivePokemonForPokemon::
 Player2Aqua_Singleplayer_GivePokemonForPokemon::
 	msgbox Player2Aqua_Text_GivePokemonForPokemon, MSGBOX_YESNO
 	return
+
+Player2_Singleplayer_CantTradePokemon::
+	msgbox Player2_Text_CantTradeStarterPokemon, MSGBOX_DEFAULT
+	release
+	end
 
 Player2_Singleplayer_DoTrade::
 	special DoSinglePlayerTradeScene
@@ -345,6 +354,9 @@ Player2Aqua_Text_GivePokemonForPokemon::
 
 Player2Magma_Text_GivePokemonForPokemon::
 	.string "Trade {STR_VAR_1}\nfor {STR_VAR_2}?$"
+
+Player2_Text_CantTradeStarterPokemon::
+	.string "You can't trade a starter POKéMON.$"
 
 Player2Aqua_Text_TakeGoodCareOfPokemon::
 	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}Thanks! I'll take care of {STR_VAR_2}!$"

@@ -294,19 +294,6 @@
       "flag": "FLAG_SMASHED_ROCK_7"
     },
     {
-      "graphics_id": "OBJ_EVENT_GFX_PUSHABLE_BOULDER",
-      "x": 10,
-      "y": 47,
-      "elevation": 0,
-      "movement_type": "MOVEMENT_TYPE_FACE_DOWN",
-      "movement_range_x": 0,
-      "movement_range_y": 0,
-      "trainer_type": "TRAINER_TYPE_NONE",
-      "trainer_sight_or_berry_tree_id": "0",
-      "script": "EventScript_StrengthBoulder",
-      "flag": "FLAG_TEMP_9"
-    },
-    {
       "local_id": "LOCALID_2F_CORSOLA",
       "graphics_id": "OBJ_EVENT_GFX_SPECIES(CORSOLA)",
       "x": 31,
@@ -368,7 +355,7 @@
     {
       "type": "trigger",
       "x": 7,
-      "y": 48,
+      "y": 47,
       "elevation": 3,
       "var": "VAR_TEMP_F",
       "var_value": "0",
@@ -659,8 +646,8 @@
     },
     {
       "type": "hidden_item",
-      "x": 11,
-      "y": 49,
+      "x": 13,
+      "y": 45,
       "elevation": 0,
       "item": "ITEM_STARDUST",
       "flag": "FLAG_HIDDEN_ITEM_STARDUST_25"

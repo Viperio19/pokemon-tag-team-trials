@@ -308,7 +308,7 @@ static const u8 gJPText_No1MSubCircuit[] = _("1Mサブきばんが ささって�
 static const u8 gText_BatteryRunDry[] = _("The internal battery has run dry.\nThe game can be played.\pHowever, clock-based events will\nno longer occur.");
 
 static const u8 gText_MainMenuNewGame[] = _("NEW GAME");
-static const u8 gText_MainMenuNewSingleplayerGame[] = _("NEW SINGLEPLAYER GAME");
+static const u8 gText_MainMenuNewSingleplayerGame[] = _("NEW SINGLEPLAYER GAME (v2.0.0)");
 static const u8 gText_MainMenuNewMultiplayerGame[] = _("NEW MULTIPLAYER GAME (DEMO)");
 static const u8 gText_MainMenuPlayer1[] = _("PLAYER 1 ({COLOR BLUE}TEAM AQUA{COLOR DARK_GRAY})");
 static const u8 gText_MainMenuPlayer2[] = _("PLAYER 2 ({COLOR RED}TEAM MAGMA{COLOR DARK_GRAY})");

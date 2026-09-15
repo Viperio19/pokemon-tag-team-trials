@@ -6,6 +6,8 @@ extern const u8 EventScript_Player2_Multiplayer[];
 extern const u8 EventScript_Player2_ReadyToBattle[];
 extern const u8 EventScript_Player2_Connect[];
 
+extern const u8 EventScript_VolcanionCave_3F_Dig[];
+
 extern const u8 EventScript_Follower[];
 extern const u8 EventScript_FollowerEnd[];
 extern const u8 EventScript_FollowerGeneric[];
