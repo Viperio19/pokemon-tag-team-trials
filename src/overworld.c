@@ -213,6 +213,7 @@ COMMON_DATA u8 gFieldLinkPlayerCount = 0;
 COMMON_DATA u16 gPlayer2CommandToSend = 0;
 COMMON_DATA u16 gPlayer2CommandArg1ToSend = 0;
 COMMON_DATA u16 gPlayer2CommandArg2ToSend = 0;
+COMMON_DATA u16 gPlayer2CommandArg3ToSend = 0;
 
 u8 gTimeOfDay;
 struct TimeBlendSettings gTimeBlend;
@@ -2064,7 +2065,10 @@ static void CB2_ReturnToFieldLink(void)
     StartSendingKeysToLink();
     SetMainCallback3(CB1_OverworldLink);
     if (!Overworld_IsRecvQueueAtMax() && ReturnToFieldLink(&gMain.state))
+    {
+        FlagClear(FLAG_RETURNING_TO_FIELD_LINK);
         SetMainCallback2(CB2_Overworld);
+    }
 }
 
 void CB2_ReturnToFieldFromMultiplayer(void)
@@ -2500,16 +2504,19 @@ static bool32 ReturnToFieldLink(u8 *state)
         (*state)++;
         break;
     case 3:
+        gPlayer2CommandToSend = P2_CMD_REQUEST_POSITION;
         InitCurrentFlashLevelScanlineEffect();
         InitOverworldGraphicsRegisters();
         InitTextBoxGfxAndPrinters();
         (*state)++;
         break;
     case 4:
+        gPlayer2CommandToSend = P2_CMD_REQUEST_POSITION;
         ResetFieldCamera();
         (*state)++;
         break;
     case 5:
+        gPlayer2CommandToSend = P2_CMD_REQUEST_POSITION;
         CopyPrimaryTilesetToVram(gMapHeader.mapLayout);
         (*state)++;
         break;
@@ -3010,8 +3017,10 @@ static void StartPlayer2Movement(const u8 *movementScript)
     ScriptMovement_StartObjectMovementScript(LOCALID_PLAYER_2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, movementScript);
 }
 
-static void EnqueuePlayer2Command(enum Player2Command command, u16 arg1, u16 arg2)
+static void EnqueuePlayer2Command(enum Player2Command command, u16 arg1, u16 arg2, u16 arg3)
 {
+    DebugPrintf("enqueue %d", command);
+
     for (u8 i = 0; i < P2_CMD_QUEUE_SIZE; i++)
     {
         if (gPlayer2CommandsQueue[0][i] == P2_CMD_NONE)
@@ -3019,46 +3028,88 @@ static void EnqueuePlayer2Command(enum Player2Command command, u16 arg1, u16 arg
             gPlayer2CommandsQueue[0][i] = command;
             gPlayer2CommandsQueue[1][i] = arg1;
             gPlayer2CommandsQueue[2][i] = arg2;
+            gPlayer2CommandsQueue[3][i] = arg3;
             return;
         }
     }
 }
 
-static void PopPlayer2Command(enum Player2Command *command, u16 *arg1, u16 *arg2)
+static void PopPlayer2Command(enum Player2Command *command, u16 *arg1, u16 *arg2, u16 *arg3)
 {
     *command = gPlayer2CommandsQueue[0][0];
     *arg1 = gPlayer2CommandsQueue[1][0];
     *arg2 = gPlayer2CommandsQueue[2][0];
+    *arg3 = gPlayer2CommandsQueue[3][0];
+
+    if (*command != 0)
+        DebugPrintf("pop %d", *command);
 
     for (u8 i = 0; i < P2_CMD_QUEUE_SIZE - 1; i++)
     {
         gPlayer2CommandsQueue[0][i] = gPlayer2CommandsQueue[0][i + 1];
         gPlayer2CommandsQueue[1][i] = gPlayer2CommandsQueue[1][i + 1];
         gPlayer2CommandsQueue[2][i] = gPlayer2CommandsQueue[2][i + 1];
+        gPlayer2CommandsQueue[3][i] = gPlayer2CommandsQueue[3][i + 1];
     }
 
     gPlayer2CommandsQueue[0][P2_CMD_QUEUE_SIZE - 1] = P2_CMD_NONE;
     gPlayer2CommandsQueue[1][P2_CMD_QUEUE_SIZE - 1] = 0;
-    gPlayer2CommandsQueue[2][P2_CMD_QUEUE_SIZE - 1] = 0;
+    gPlayer2CommandsQueue[2][P2_CMD_QUEUE_SIZE - 1] = 0;;
+    gPlayer2CommandsQueue[3][P2_CMD_QUEUE_SIZE - 1] = 0;
 }
 
 static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
 {
+    enum Player2Command command;
+    u16 arg1, arg2, arg3;
     u8 linkPartnerId = GetMultiplayerId() ^ 1;
-
-    if (gPlayer2Commands[linkPartnerId] != P2_CMD_NONE)
-        EnqueuePlayer2Command(gPlayer2Commands[linkPartnerId], gPlayer2CommandArgs1[linkPartnerId], gPlayer2CommandArgs2[linkPartnerId]);
-
     u8 objId = GetObjectEventIdByLocalId(OBJ_EVENT_ID_PLAYER_2);
     struct ObjectEvent *objEvent = &gObjectEvents[objId];
+
+    if (gPlayer2Commands[linkPartnerId] == P2_CMD_UPDATE_POSITION)
+    {
+        DebugPrintf("update position");
+        arg1 = gPlayer2CommandArgs1[linkPartnerId];
+        arg2 = gPlayer2CommandArgs2[linkPartnerId];
+        arg3 = gPlayer2CommandArgs3[linkPartnerId];
+
+        TryMoveObjectEventToMapCoords(OBJ_EVENT_ID_PLAYER_2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, arg1, arg2);
+        ObjectEventTurn(objEvent, arg3);
+
+        u16 metatileBehavior = MapGridGetMetatileBehaviorAt(arg1 + MAP_OFFSET, arg2 + MAP_OFFSET);
+
+        if (MetatileBehavior_IsSurfableWater(metatileBehavior) == TRUE
+        || (MetatileBehavior_IsBridgeOverWater(metatileBehavior) == TRUE && !IS_PLAYER_ONE))
+        {
+            ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_SURFING, gSaveBlock2Ptr->player2Gender));
+            gFieldEffectArguments[0] = arg1;
+            gFieldEffectArguments[1] = arg2;
+            gFieldEffectArguments[2] = objId;
+            if (objEvent->fieldEffectSpriteId)
+                DestroySprite(&gSprites[objEvent->fieldEffectSpriteId]);
+            objEvent->fieldEffectSpriteId = FieldEffectStart(FLDEFF_SURF_BLOB);
+            SetSurfBlob_BobState(objEvent->fieldEffectSpriteId, BOB_PLAYER_AND_MON);
+        }
+        else
+        {
+            ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
+        }
+
+        FlagSet(FLAG_RETURNING_TO_FIELD_LINK);
+        return;
+    }
+
+
+    if (gMain.callback2 != CB2_Overworld && !FlagGet(FLAG_RETURNING_TO_FIELD_LINK))
+        return;
+
+    if (gPlayer2Commands[linkPartnerId] != P2_CMD_NONE)
+        EnqueuePlayer2Command(gPlayer2Commands[linkPartnerId], gPlayer2CommandArgs1[linkPartnerId], gPlayer2CommandArgs2[linkPartnerId], gPlayer2CommandArgs3[linkPartnerId]);
 
     if (ObjectEventIsHeldMovementActive(objEvent))
         return;
 
-    enum Player2Command command;
-    u16 arg1, arg2;
-
-    PopPlayer2Command(&command, &arg1, &arg2);
+    PopPlayer2Command(&command, &arg1, &arg2, &arg3);
 
     if (command == P2_CMD_NONE)
     {
@@ -3162,6 +3213,12 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
         break;
     case P2_CMD_CANCEL_SAVE:
         FlagClear(FLAG_PLAYER_2_IS_SAVING);
+        break;
+    case P2_CMD_REQUEST_POSITION:
+        gPlayer2CommandToSend = P2_CMD_UPDATE_POSITION;
+        gPlayer2CommandArg1ToSend = gSaveBlock1Ptr->pos.x;
+        gPlayer2CommandArg2ToSend = gSaveBlock1Ptr->pos.y;
+        gPlayer2CommandArg3ToSend = gObjectEvents[gPlayerAvatar.objectEventId].facingDirection;
         break;
     case P2_CMD_NONE:
     default:

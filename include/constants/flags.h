@@ -117,8 +117,8 @@
 #define FLAG_DOING_CREDITS                         0x284
 #define FlAG_SHOW_PLAYER_2                         0x285
 #define FLAG_PLAYER_2_IS_SAVING                    0x286
+#define FLAG_RETURNING_TO_FIELD_LINK               0x287
 
-#define FLAG_UNUSED_0x287  0x287 // Unused Flag
 #define FLAG_UNUSED_0x288  0x288 // Unused Flag
 #define FLAG_UNUSED_0x289  0x289 // Unused Flag
 #define FLAG_UNUSED_0x28A  0x28A // Unused Flag

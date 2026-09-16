@@ -72,6 +72,7 @@ extern u16 gHeldKeyCodeToSend;
 extern u16 gPlayer2CommandToSend;
 extern u16 gPlayer2CommandArg1ToSend;
 extern u16 gPlayer2CommandArg2ToSend;
+extern u16 gPlayer2CommandArg3ToSend;
 extern void (*gFieldCallback)(void);
 extern bool8 (*gFieldCallback2)(void);
 extern u8 gLocalLinkPlayerId;
