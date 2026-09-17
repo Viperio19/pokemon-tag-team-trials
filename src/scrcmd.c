@@ -3587,6 +3587,7 @@ bool8 ScrCmd_setplayer2command(struct ScriptContext * ctx)
     gPlayer2CommandToSend = ScriptReadHalfword(ctx);
     gPlayer2CommandArg1ToSend = ScriptReadHalfword(ctx);
     gPlayer2CommandArg2ToSend = ScriptReadHalfword(ctx);
+    gPlayer2CommandArg3ToSend = ScriptReadHalfword(ctx);
 
     Script_RequestEffects(SCREFF_V1 | SCREFF_SAVE);
 

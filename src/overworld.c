@@ -3060,68 +3060,90 @@ static void PopPlayer2Command(enum Player2Command *command, u16 *arg1, u16 *arg2
 
 static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
 {
-    enum Player2Command command;
-    u16 arg1, arg2, arg3;
     u8 linkPartnerId = GetMultiplayerId() ^ 1;
     u8 objId = GetObjectEventIdByLocalId(OBJ_EVENT_ID_PLAYER_2);
     struct ObjectEvent *objEvent = &gObjectEvents[objId];
+    enum Player2Command command = gPlayer2Commands[linkPartnerId];
+    u16 arg1 = gPlayer2CommandArgs1[linkPartnerId];
+    u16 arg2 = gPlayer2CommandArgs2[linkPartnerId];
+    u16 arg3 = gPlayer2CommandArgs3[linkPartnerId];
+    s16 x, y;
 
-    if (gPlayer2Commands[linkPartnerId] == P2_CMD_UPDATE_POSITION)
+    // directly execute commands that can be instantly executed at any time (even while in scripts or menus)
+    if (command >= P2_CMD_INSTANT_COMMANDS_START)
     {
-        DebugPrintf("update position");
-        arg1 = gPlayer2CommandArgs1[linkPartnerId];
-        arg2 = gPlayer2CommandArgs2[linkPartnerId];
-        arg3 = gPlayer2CommandArgs3[linkPartnerId];
-
-        TryMoveObjectEventToMapCoords(OBJ_EVENT_ID_PLAYER_2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, arg1, arg2);
-        ObjectEventTurn(objEvent, arg3);
-
-        u16 metatileBehavior = MapGridGetMetatileBehaviorAt(arg1 + MAP_OFFSET, arg2 + MAP_OFFSET);
-
-        if (MetatileBehavior_IsSurfableWater(metatileBehavior) == TRUE
-        || (MetatileBehavior_IsBridgeOverWater(metatileBehavior) == TRUE && !IS_PLAYER_ONE))
+        DebugPrintf("instant execute %d", command);
+        switch (command)
         {
-            ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_SURFING, gSaveBlock2Ptr->player2Gender));
-            gFieldEffectArguments[0] = arg1;
-            gFieldEffectArguments[1] = arg2;
-            gFieldEffectArguments[2] = objId;
-            if (objEvent->fieldEffectSpriteId)
-                DestroySprite(&gSprites[objEvent->fieldEffectSpriteId]);
-            objEvent->fieldEffectSpriteId = FieldEffectStart(FLDEFF_SURF_BLOB);
-            SetSurfBlob_BobState(objEvent->fieldEffectSpriteId, BOB_PLAYER_AND_MON);
-        }
-        else
-        {
-            ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
+        case P2_CMD_REQUEST_POSITION:
+            gPlayer2CommandToSend = P2_CMD_UPDATE_POSITION;
+            gPlayer2CommandArg1ToSend = gSaveBlock1Ptr->pos.x;
+            gPlayer2CommandArg2ToSend = gSaveBlock1Ptr->pos.y;
+            gPlayer2CommandArg3ToSend = gObjectEvents[gPlayerAvatar.objectEventId].facingDirection;
+            break;
+        case P2_CMD_UPDATE_POSITION:
+            FlagSet(FLAG_RETURNING_TO_FIELD_LINK);
+
+            TryMoveObjectEventToMapCoords(OBJ_EVENT_ID_PLAYER_2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, arg1, arg2);
+            ObjectEventTurn(objEvent, arg3);
+
+            u16 metatileBehavior = MapGridGetMetatileBehaviorAt(arg1 + MAP_OFFSET, arg2 + MAP_OFFSET);
+
+            if (MetatileBehavior_IsSurfableWater(metatileBehavior) == TRUE
+            || (MetatileBehavior_IsBridgeOverWater(metatileBehavior) == TRUE && !IS_PLAYER_ONE))
+            {
+                ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_SURFING, gSaveBlock2Ptr->player2Gender));
+                gFieldEffectArguments[0] = arg1;
+                gFieldEffectArguments[1] = arg2;
+                gFieldEffectArguments[2] = objId;
+                if (objEvent->fieldEffectSpriteId)
+                    DestroySprite(&gSprites[objEvent->fieldEffectSpriteId]);
+                objEvent->fieldEffectSpriteId = FieldEffectStart(FLDEFF_SURF_BLOB);
+                SetSurfBlob_BobState(objEvent->fieldEffectSpriteId, BOB_PLAYER_AND_MON);
+            }
+            else
+                ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
+            break;
+        case P2_CMD_TRY_SAVE_AND_DISCONNECT:
+            FlagSet(FLAG_PLAYER_2_IS_SAVING);
+            break;
+        case P2_CMD_CANCEL_SAVE:
+            FlagClear(FLAG_PLAYER_2_IS_SAVING);
+            break;
+        default:
+            break;
         }
 
-        FlagSet(FLAG_RETURNING_TO_FIELD_LINK);
         return;
     }
 
 
+    // don't accept movement-based commands while in a menu
     if (gMain.callback2 != CB2_Overworld && !FlagGet(FLAG_RETURNING_TO_FIELD_LINK))
         return;
 
+    // try to enqueue the received command
     if (gPlayer2Commands[linkPartnerId] != P2_CMD_NONE)
         EnqueuePlayer2Command(gPlayer2Commands[linkPartnerId], gPlayer2CommandArgs1[linkPartnerId], gPlayer2CommandArgs2[linkPartnerId], gPlayer2CommandArgs3[linkPartnerId]);
 
+    // don't start new movement-based command if player 2 is still moving
     if (ObjectEventIsHeldMovementActive(objEvent))
         return;
 
+    // pop the next command in the queue
     PopPlayer2Command(&command, &arg1, &arg2, &arg3);
 
     if (command == P2_CMD_NONE)
     {
-        if (gPreviousPlayer2Command == P2_CMD_RUN || gPreviousPlayer2Command == P2_CMD_END_USE_SURF || gPreviousPlayer2Command == P2_CMD_END_USE_ROCK_CLIMB) // fix player standing still in running or jumping position
+        // fix player standing still in running or jumping position
+        if (gPreviousPlayer2Command == P2_CMD_RUN || gPreviousPlayer2Command == P2_CMD_END_USE_SURF || gPreviousPlayer2Command == P2_CMD_END_USE_ROCK_CLIMB)
             StartPlayer2Movement(sPlayer2CommandToMovement[P2_CMD_FACE_DIRECTION][objEvent->facingDirection - 1]);
         return;
     }
 
-    s16 x, y;
-
     gPreviousPlayer2Command = command;
 
+    // execute popped command
     switch (command)
     {
     case P2_CMD_FACE_DIRECTION:
