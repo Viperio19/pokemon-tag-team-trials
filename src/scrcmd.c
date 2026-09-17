@@ -1322,6 +1322,8 @@ bool8 ScrCmd_applymovement(struct ScriptContext *ctx)
 {
     u16 localId = VarGet(ScriptReadHalfword(ctx));
     const u8 *movementScript = (const u8 *)ScriptReadWord(ctx);
+    u16 p2Movement = ScriptReadHalfword(ctx);
+    enum Direction direction = ScriptReadHalfword(ctx);
     struct ObjectEvent *objEvent;
 
     Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
@@ -1342,6 +1344,21 @@ bool8 ScrCmd_applymovement(struct ScriptContext *ctx)
      && (movementScript < Common_Movement_FollowerSafeStart || movementScript > Common_Movement_FollowerSafeEnd))
     {
         ScriptHideFollower();
+    }
+    if (p2Movement != 0)
+    {
+        if (direction == 0)
+        {
+            gPlayer2CommandToSend = P2_CMD_APPLY_MOVEMENT;
+            gPlayer2CommandArg1ToSend = localId;
+            gPlayer2CommandArg2ToSend = p2Movement;
+        }
+        else
+        {
+            gPlayer2CommandToSend = p2Movement;
+            gPlayer2CommandArg1ToSend = direction;
+            gPlayer2CommandArg2ToSend = localId;
+        }
     }
     return FALSE;
 }
@@ -1552,6 +1569,7 @@ bool8 ScrCmd_resetobjectsubpriority(struct ScriptContext *ctx)
 
 bool8 ScrCmd_faceplayer(struct ScriptContext *ctx)
 {
+    u16 localId = VarGet(ScriptReadHalfword(ctx));
     Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
     if (PlayerHasFollowerNPC()
      && gObjectEvents[GetFollowerNPCObjectId()].invisible == FALSE
@@ -1580,6 +1598,12 @@ bool8 ScrCmd_faceplayer(struct ScriptContext *ctx)
     }
     if (gObjectEvents[gSelectedObjectEvent].active)
         ObjectEventFaceOppositeDirection(&gObjectEvents[gSelectedObjectEvent], GetPlayerFacingDirection());
+    if (localId != LOCALID_NONE)
+    {
+        gPlayer2CommandToSend = P2_CMD_FACE_DIRECTION;
+        gPlayer2CommandArg1ToSend = GetOppositeDirection(GetPlayerFacingDirection());
+        gPlayer2CommandArg2ToSend = localId;
+    }
     return FALSE;
 }
 
@@ -3585,9 +3609,9 @@ bool8 ScrCmd_waitflagorbbutton(struct ScriptContext *ctx)
 bool8 ScrCmd_setplayer2command(struct ScriptContext * ctx)
 {
     gPlayer2CommandToSend = ScriptReadHalfword(ctx);
-    gPlayer2CommandArg1ToSend = ScriptReadHalfword(ctx);
-    gPlayer2CommandArg2ToSend = ScriptReadHalfword(ctx);
-    gPlayer2CommandArg3ToSend = ScriptReadHalfword(ctx);
+    gPlayer2CommandArg1ToSend = VarGet(ScriptReadHalfword(ctx));
+    gPlayer2CommandArg2ToSend = VarGet(ScriptReadHalfword(ctx));
+    gPlayer2CommandArg3ToSend = VarGet(ScriptReadHalfword(ctx));
 
     Script_RequestEffects(SCREFF_V1 | SCREFF_SAVE);
 

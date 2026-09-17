@@ -2967,6 +2967,7 @@ void TrySetPlayer2DirectionCommand(enum Player2Command command, enum Direction d
 
     gPlayer2CommandToSend = command;
     gPlayer2CommandArg1ToSend = direction;
+    gPlayer2CommandArg2ToSend = LOCALID_PLAYER_2;
 }
 
 void SetPlayer2CommandEndRockSmash(void)
@@ -3010,6 +3011,16 @@ static const u8 *const sPlayer2CommandToMovement[][4] =
     [P2_CMD_JUMP_2] = {Common_Movement_Jump2Down, Common_Movement_Jump2Up, Common_Movement_Jump2Left, Common_Movement_Jump2Right},
     [P2_CMD_RIDE_WATER_CURRENT] = {Common_Movement_RideWaterCurrentDown, Common_Movement_RideWaterCurrentUp, Common_Movement_RideWaterCurrentLeft, Common_Movement_RideWaterCurrentRight},
     [P2_CMD_STOP_SURFING] = {Common_Movement_JumpSpecialDown, Common_Movement_JumpSpecialUp, Common_Movement_JumpSpecialLeft, Common_Movement_JumpSpecialRight},
+};
+
+static const u8 *const sPlayer2MovementIdToScript[] =
+{
+    [P2_MOVEMENT_DIGLETT_DIG_DOWN] = VolcanionCave_1F_Movement_DiglettDigDown,
+    [P2_MOVEMENT_MAGMA_GRUNT_M_CONFUSED] = VolcanionCave_1F_Movement_MagmaGruntMConfused,
+    [P2_MOVEMENT_DIGLETT_DIG_UP] = VolcanionCave_1F_Movement_DiglettDigUp,
+    [P2_MOVEMENT_MAGMA_GRUNT_M_SURPRISED] = VolcanionCave_1F_Movement_MagmaGruntMSurprised,
+    [P2_MOVEMENT_MAGMA_GRUNT_M_WATCH_BADGE_FALL_DOWN] = VolcanionCave_1F_Movement_MagmaGruntMWatchBadgeFallDown,
+    [P2_MOVEMENT_HEAT_BADGE_FALL_DOWN] = VolcanionCave_1F_Movement_BadgeFallDown,
 };
 
 static void StartPlayer2Movement(const u8 *movementScript)
@@ -3110,6 +3121,17 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
         case P2_CMD_CANCEL_SAVE:
             FlagClear(FLAG_PLAYER_2_IS_SAVING);
             break;
+        case P2_CMD_REMOVE_OBJECT:
+            RemoveObjectEventByLocalIdAndMap(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
+            break;
+        case P2_CMD_END_DROP_HEAT_BADGE:
+            FlagSet(FLAG_VOLCANION_CAVE_1F_GRUNT_DROPPED_BADGE);
+            FlagSet(FLAG_VOLCANION_CAVE_1F_DIGLETT_LEFT_SPOT);
+            FlagClear(FLAG_HIDE_VOLCANION_CAVE_1F_HEAT_BADGE);
+            SetObjEventTemplateCoords(LOCALID_1F_DIGLETT, 34, 17);
+            TryMoveObjectEventToMapCoords(LOCALID_1F_DIGLETT, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, 34, 17);
+            TrySpawnObjectEvent(LOCALID_1F_HEAT_BADGE, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
+            break;
         default:
             break;
         }
@@ -3156,7 +3178,7 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
     case P2_CMD_JUMP:
     case P2_CMD_JUMP_2:
     case P2_CMD_RIDE_WATER_CURRENT:
-        StartPlayer2Movement(sPlayer2CommandToMovement[command][arg1 - 1]);
+        ScriptMovement_StartObjectMovementScript(arg2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, sPlayer2CommandToMovement[command][arg1 - 1]);
         break;
     case P2_CMD_USE_FIELD_MOVE:
         ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_FIELD_MOVE, gSaveBlock2Ptr->player2Gender));
@@ -3230,19 +3252,14 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
         ObjectEventSetHeldMovement(objEvent, GetJumpSpecialMovementAction(sRockClimbMovement[arg1].jumpDir));
         SetSurfBlob_BobState(objEvent->fieldEffectSpriteId, BOB_NONE);
         break;
-    case P2_CMD_TRY_SAVE_AND_DISCONNECT:
-        FlagSet(FLAG_PLAYER_2_IS_SAVING);
+    case P2_CMD_ADD_OBJECT:
+        TrySpawnObjectEvent(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
+        if (arg2 != 0 && arg3 != 0)
+            TryMoveObjectEventToMapCoords(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, arg2, arg3);
         break;
-    case P2_CMD_CANCEL_SAVE:
-        FlagClear(FLAG_PLAYER_2_IS_SAVING);
+    case P2_CMD_APPLY_MOVEMENT:
+        ScriptMovement_StartObjectMovementScript(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, sPlayer2MovementIdToScript[arg2]);
         break;
-    case P2_CMD_REQUEST_POSITION:
-        gPlayer2CommandToSend = P2_CMD_UPDATE_POSITION;
-        gPlayer2CommandArg1ToSend = gSaveBlock1Ptr->pos.x;
-        gPlayer2CommandArg2ToSend = gSaveBlock1Ptr->pos.y;
-        gPlayer2CommandArg3ToSend = gObjectEvents[gPlayerAvatar.objectEventId].facingDirection;
-        break;
-    case P2_CMD_NONE:
     default:
         break;
     }

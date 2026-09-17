@@ -650,18 +650,12 @@
 	.endm
 
 	@ Applies the movement data at movements to the specified (localId) object. If no map is specified, then the current map is used.
-	.macro applymovement localId:req, movements:req, map
-		.ifb \map
-			.byte SCR_OP_APPLYMOVEMENT
-			.2byte \localId
-			.4byte \movements
-		.else
-			@ Really only useful if the object has followed from one map to another (e.g. Wally during the catching event).
-			.byte SCR_OP_APPLYMOVEMENTAT
-			.2byte \localId
-			.4byte \movements
-			map \map
-		.endif
+	.macro applymovement localId:req, movements:req, p2Movement=0, direction=0
+	.byte SCR_OP_APPLYMOVEMENT
+	.2byte \localId
+	.4byte \movements
+	.2byte \p2Movement
+	.2byte \direction
 	.endm
 
 	.macro movementandmessage localId:req, movements:req, text:req
@@ -757,8 +751,9 @@
 	.endm
 
 	@ Turns the currently selected object (if there is one) to face the player.
-	.macro faceplayer
+	.macro faceplayer localId=LOCALID_NONE
 	.byte SCR_OP_FACEPLAYER
+	.2byte \localId
 	.endm
 
 	@ Turns the specified object in the specified direction.

@@ -244,60 +244,64 @@ VolcanionCave_1F_EventScript_MagmaGruntM::
 	goto_if_set FLAG_VOLCANION_CAVE_1F_GRUNT_DROPPED_BADGE, VolcanionCave_1F_EventScript_MagmaGruntMDroppedBadge
 	setflag FLAG_VOLCANION_CAVE_1F_GRUNT_DROPPED_BADGE
 	setflag FLAG_VOLCANION_CAVE_1F_DIGLETT_LEFT_SPOT
-	faceplayer
+	faceplayer LOCALID_1F_MAGMA_GRUNT_M
 	message VolcanionCave_1F_Text_MagmaGruntMLoveDiglett
 	waitmessage
 	closemessage
-	applymovement LOCALID_1F_MAGMA_GRUNT_M, Common_Movement_WalkInPlaceRight
+	applymovement LOCALID_1F_MAGMA_GRUNT_M, Common_Movement_WalkInPlaceRight, P2_CMD_WALK_IN_PLACE, DIR_EAST
 	waitmovement 0
 	message VolcanionCave_1F_Text_MagmaGruntMLookAtDiglett
 	waitmessage
 	closemessage
 	playse SE_M_DIG
-	applymovement LOCALID_1F_DIGLETT, VolcanionCave_1F_Movement_DiglettDigDown
+	applymovement LOCALID_1F_DIGLETT, VolcanionCave_1F_Movement_DiglettDigDown, P2_MOVEMENT_DIGLETT_DIG_DOWN
 	waitmovement 0
 	playse SE_M_DIZZY_PUNCH
-	applymovement LOCALID_1F_MAGMA_GRUNT_M, VolcanionCave_1F_Movement_MagmaGruntMConfused
+	applymovement LOCALID_1F_MAGMA_GRUNT_M, VolcanionCave_1F_Movement_MagmaGruntMConfused, P2_MOVEMENT_MAGMA_GRUNT_M_CONFUSED
 	waitmovement 0
 	delay 20
 	playse SE_M_DIG
-	applymovement LOCALID_1F_DIGLETT, VolcanionCave_1F_Movement_DiglettDigUp
+	applymovement LOCALID_1F_DIGLETT, VolcanionCave_1F_Movement_DiglettDigUp, P2_MOVEMENT_DIGLETT_DIG_UP
 	waitmovement 0
 	playmoncry SPECIES_DIGLETT, CRY_MODE_NORMAL
 	playse SE_PIN
-	applymovement LOCALID_1F_MAGMA_GRUNT_M, VolcanionCave_1F_Movement_MagmaGruntMSurprised
+	applymovement LOCALID_1F_MAGMA_GRUNT_M, VolcanionCave_1F_Movement_MagmaGruntMSurprised, P2_MOVEMENT_MAGMA_GRUNT_M_SURPRISED
 	waitmovement 0
 	delay 20
 	setobjectxyperm LOCALID_1F_DIGLETT, 34, 17
 	addobject LOCALID_1F_HEAT_BADGE
 	setobjectxy LOCALID_1F_HEAT_BADGE, 33, 17
 	clearflag FLAG_HIDE_VOLCANION_CAVE_1F_HEAT_BADGE
-	applymovement LOCALID_1F_MAGMA_GRUNT_M, VolcanionCave_1F_Movement_MagmaGruntMWatchBadgeFallDown
-	applymovement LOCALID_1F_HEAT_BADGE, VolcanionCave_1F_Movement_BadgeFallDown
+	setplayer2command P2_CMD_ADD_OBJECT, LOCALID_1F_HEAT_BADGE, 33, 17
+	delay 2
+	applymovement LOCALID_1F_HEAT_BADGE, VolcanionCave_1F_Movement_BadgeFallDown, P2_MOVEMENT_HEAT_BADGE_FALL_DOWN
+	delay 2
+	applymovement LOCALID_1F_MAGMA_GRUNT_M, VolcanionCave_1F_Movement_MagmaGruntMWatchBadgeFallDown, P2_MOVEMENT_MAGMA_GRUNT_M_WATCH_BADGE_FALL_DOWN
 	delay 16
 	playse SE_PIN
 	waitmovement 0
+	setplayer2command P2_CMD_END_DROP_HEAT_BADGE
 	delay 20
 	msgbox VolcanionCave_1F_Text_MagmaGruntMDroppedBadge
 	closemessage
-	applymovement LOCALID_1F_MAGMA_GRUNT_M, Common_Movement_WalkInPlaceRight
+	applymovement LOCALID_1F_MAGMA_GRUNT_M, Common_Movement_WalkInPlaceRight, P2_CMD_WALK_IN_PLACE, DIR_EAST
 	waitmovement 0
 	release
 	end
 
 VolcanionCave_1F_EventScript_MagmaGruntMDroppedBadge::
 	goto_if_set FLAG_HIDE_VOLCANION_CAVE_1F_HEAT_BADGE, VolcanionCave_1F_EventScript_MagmaGruntMBadgeStolen
-	faceplayer
+	faceplayer LOCALID_1F_MAGMA_GRUNT_M
 	msgbox VolcanionCave_1F_Text_MagmaGruntMCoolDiglett
 	closemessage
-	applymovement LOCALID_1F_MAGMA_GRUNT_M, Common_Movement_WalkInPlaceRight
+	applymovement LOCALID_1F_MAGMA_GRUNT_M, Common_Movement_WalkInPlaceRight, P2_CMD_WALK_IN_PLACE, DIR_EAST
 	waitmovement 0
 	release
 	end
 
 VolcanionCave_1F_EventScript_MagmaGruntMBadgeStolen::
 	msgbox VolcanionCave_1F_Text_MagmaGruntMHideoutPassword
-	faceplayer
+	faceplayer LOCALID_1F_MAGMA_GRUNT_M
 	msgbox VolcanionCave_1F_Text_MagmaGruntMGetALoadOfDiglett
 	closemessage
 	waitse
@@ -370,7 +374,7 @@ VolcanionCave_1F_Text_MagmaGruntMLoveDiglett::
 VolcanionCave_1F_Text_MagmaGruntMLookAtDiglett::
 	.string "{SPEAKER NAME_MAGMA COLOR_MAGMA}I've been trying to get a closer look\n"
 	.string "at this little guy for an hour now,\l"
-	.string "but it doesn't seem like it's inter-{PAUSE 40}$"
+	.string "but it doesn't seem like it's inter-{PAUSE 20}$"
 
 VolcanionCave_1F_Text_MagmaGruntMDroppedBadge::
 	.string "{SPEAKER NAME_MAGMA COLOR_MAGMA}Aw DIGLETTS!{PAUSE 20} That was my HEAT BADGE…\p"
@@ -403,8 +407,9 @@ VolcanionCave_1F_Text_MagmaGruntMWoahThereDiglett::
 	.string "POKENAV number!$"
 
 VolcanionCave_1F_EventScript_HeatBadge::
+	setplayer2command P2_CMD_REMOVE_OBJECT, VAR_LAST_TALKED
 	removeobject VAR_LAST_TALKED
-	playfanfare MUS_OBTAIN_BADGE
+	playfanfare MUS_OBTAIN_ITEM
 	message VolcanionCave_1F_Text_ObtainedHeatBadge
 	waitfanfare
 	closemessage
@@ -416,7 +421,7 @@ VolcanionCave_1F_Text_ObtainedHeatBadge::
 
 VolcanionCave_1F_EventScript_Diglett::
 	lock
-	faceplayer
+	faceplayer LOCALID_1F_DIGLETT
 	callnative IsPlayerOne
 	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_1F_EventScript_DiglettMagma
 	goto VolcanionCave_1F_EventScript_DiglettAqua
@@ -524,12 +529,13 @@ VolcanionCave_1F_Text_NoRepels::
 	.string "(You now smell like eggs and repel.)$"
 
 VolcanionCave_1F_EventScript_RemoveLastTalked::
+	setplayer2command P2_CMD_REMOVE_OBJECT, VAR_LAST_TALKED
 	removeobject VAR_LAST_TALKED
 	return
 
 VolcanionCave_1F_EventScript_Tirtouga::
 	lock
-	faceplayer
+	faceplayer VAR_LAST_TALKED
 	playmoncry SPECIES_TIRTOUGA, CRY_MODE_ENCOUNTER
 	msgbox VolcanionCave_1F_Text_TirtougaCry, MSGBOX_DEFAULT
 	waitmoncry
@@ -552,7 +558,7 @@ VolcanionCave_1F_Text_TirtougaCry::
 
 VolcanionCave_1F_EventScript_Cubone::
 	lock
-	faceplayer
+	faceplayer VAR_LAST_TALKED
 	playmoncry SPECIES_CUBONE, CRY_MODE_ENCOUNTER
 	msgbox VolcanionCave_1F_Text_CuboneCry, MSGBOX_DEFAULT
 	waitmoncry
@@ -643,7 +649,7 @@ VolcanionCave_1F_Text_RockIsGone::
 
 VolcanionCave_1F_EventScript_Golem::
 	lock
-	faceplayer
+	faceplayer VAR_LAST_TALKED
 	playmoncry SPECIES_GOLEM_ALOLA, CRY_MODE_ENCOUNTER
 	message VolcanionCave_1F_Text_GolemCry
 	waitmoncry
