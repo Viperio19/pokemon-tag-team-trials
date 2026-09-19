@@ -461,7 +461,7 @@ EventScript_Player2_TrySaveAndDisconnect::
 Player2_EventScript_StartSaveAndDisconnect::
 	message Player2_Text_WaitingForOtherPlayerSave
 	waitmessage
-	setplayer2command P2_CMD_TRY_SAVE_AND_DISCONNECT
+	setplayer2command P2_CMD_CONTROL_FLAG, FLAG_PLAYER_2_IS_SAVING, 1
 	waitflagorbbutton FLAG_PLAYER_2_IS_SAVING
 	goto_if_unset FLAG_PLAYER_2_IS_SAVING, Player2_EventScript_CancelSaveAndDisconnect
 	clearflag FLAG_PLAYER_2_IS_SAVING
@@ -475,7 +475,7 @@ Player2_EventScript_StartSaveAndDisconnect::
 	end
 
 Player2_EventScript_CancelSaveAndDisconnect::
-	setplayer2command P2_CMD_CANCEL_SAVE
+	setplayer2command P2_CMD_CONTROL_FLAG, FLAG_PLAYER_2_IS_SAVING, 0
 	release
 	end
 

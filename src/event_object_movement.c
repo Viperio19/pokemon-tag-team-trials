@@ -10562,8 +10562,9 @@ void UnfreezeObjectEvent(struct ObjectEvent *objectEvent)
 void UnfreezeObjectEvents(void)
 {
     u8 i;
+    u8 p2ObjEventId = GetObjectEventIdByLocalId(OBJ_EVENT_ID_PLAYER_2);
     for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
-        if (gObjectEvents[i].active)
+        if (gObjectEvents[i].active && i != p2ObjEventId)
             UnfreezeObjectEvent(&gObjectEvents[i]);
 }
 

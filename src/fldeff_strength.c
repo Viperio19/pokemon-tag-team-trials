@@ -47,8 +47,7 @@ bool8 FldEff_UseStrength(void)
 // Just passes control back to EventScript_UseStrength
 static void StartStrengthFieldEffect(void)
 {
-    gPlayer2CommandToSend = P2_CMD_END_FIELD_MOVE;
-    gPlayer2CommandArg1ToSend = gFieldEffectArguments[2];
+    EnqueuePlayer2CommandToSend(P2_CMD_END_FIELD_MOVE, gFieldEffectArguments[2], 0, 0);
     FieldEffectActiveListRemove(FLDEFF_USE_STRENGTH);
     ScriptContext_Enable();
 }

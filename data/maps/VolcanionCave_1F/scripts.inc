@@ -273,9 +273,7 @@ VolcanionCave_1F_EventScript_MagmaGruntM::
 	setobjectxy LOCALID_1F_HEAT_BADGE, 33, 17
 	clearflag FLAG_HIDE_VOLCANION_CAVE_1F_HEAT_BADGE
 	setplayer2command P2_CMD_ADD_OBJECT, LOCALID_1F_HEAT_BADGE, 33, 17
-	delay 2
 	applymovement LOCALID_1F_HEAT_BADGE, VolcanionCave_1F_Movement_BadgeFallDown, P2_MOVEMENT_HEAT_BADGE_FALL_DOWN
-	delay 2
 	applymovement LOCALID_1F_MAGMA_GRUNT_M, VolcanionCave_1F_Movement_MagmaGruntMWatchBadgeFallDown, P2_MOVEMENT_MAGMA_GRUNT_M_WATCH_BADGE_FALL_DOWN
 	delay 16
 	playse SE_PIN
@@ -306,9 +304,9 @@ VolcanionCave_1F_EventScript_MagmaGruntMBadgeStolen::
 	closemessage
 	waitse
 	playmoncry SPECIES_DIGLETT, CRY_MODE_NORMAL
-	applymovement LOCALID_1F_DIGLETT, VolcanionCave_1F_Movement_DiglettSurprised
+	applymovement LOCALID_1F_DIGLETT, VolcanionCave_1F_Movement_DiglettAskNumber, P2_MOVEMENT_DIGLETT_ASK_NUMBER
 	waitmoncry
-	applymovement LOCALID_1F_MAGMA_GRUNT_M, Common_Movement_WalkInPlaceRight
+	applymovement LOCALID_1F_MAGMA_GRUNT_M, Common_Movement_WalkInPlaceRight, P2_CMD_WALK_IN_PLACE, DIR_EAST
 	waitmovement 0
 	msgbox VolcanionCave_1F_Text_MagmaGruntMWoahThereDiglett
 	closemessage
@@ -362,8 +360,9 @@ VolcanionCave_1F_Movement_BadgeFallDown::
 	jump_down
 	step_end
 
-VolcanionCave_1F_Movement_DiglettSurprised::
+VolcanionCave_1F_Movement_DiglettAskNumber::
 	emote_exclamation_mark
+	walk_in_place_left
 	step_end
 
 VolcanionCave_1F_Text_MagmaGruntMLoveDiglett::

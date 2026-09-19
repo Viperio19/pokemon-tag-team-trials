@@ -1348,17 +1348,9 @@ bool8 ScrCmd_applymovement(struct ScriptContext *ctx)
     if (p2Movement != 0)
     {
         if (direction == 0)
-        {
-            gPlayer2CommandToSend = P2_CMD_APPLY_MOVEMENT;
-            gPlayer2CommandArg1ToSend = localId;
-            gPlayer2CommandArg2ToSend = p2Movement;
-        }
+            EnqueuePlayer2CommandToSend(P2_CMD_APPLY_MOVEMENT, localId, p2Movement, 0);
         else
-        {
-            gPlayer2CommandToSend = p2Movement;
-            gPlayer2CommandArg1ToSend = direction;
-            gPlayer2CommandArg2ToSend = localId;
-        }
+            EnqueuePlayer2CommandToSend(p2Movement, direction, localId, 0);
     }
     return FALSE;
 }
@@ -1599,11 +1591,7 @@ bool8 ScrCmd_faceplayer(struct ScriptContext *ctx)
     if (gObjectEvents[gSelectedObjectEvent].active)
         ObjectEventFaceOppositeDirection(&gObjectEvents[gSelectedObjectEvent], GetPlayerFacingDirection());
     if (localId != LOCALID_NONE)
-    {
-        gPlayer2CommandToSend = P2_CMD_FACE_DIRECTION;
-        gPlayer2CommandArg1ToSend = GetOppositeDirection(GetPlayerFacingDirection());
-        gPlayer2CommandArg2ToSend = localId;
-    }
+        EnqueuePlayer2CommandToSend(P2_CMD_FACE_DIRECTION, GetOppositeDirection(GetPlayerFacingDirection()), localId, 0);
     return FALSE;
 }
 
@@ -3608,10 +3596,10 @@ bool8 ScrCmd_waitflagorbbutton(struct ScriptContext *ctx)
 
 bool8 ScrCmd_setplayer2command(struct ScriptContext * ctx)
 {
-    gPlayer2CommandToSend = ScriptReadHalfword(ctx);
-    gPlayer2CommandArg1ToSend = VarGet(ScriptReadHalfword(ctx));
-    gPlayer2CommandArg2ToSend = VarGet(ScriptReadHalfword(ctx));
-    gPlayer2CommandArg3ToSend = VarGet(ScriptReadHalfword(ctx));
+    EnqueuePlayer2CommandToSend(ScriptReadHalfword(ctx),
+                                VarGet(ScriptReadHalfword(ctx)),
+                                VarGet(ScriptReadHalfword(ctx)),
+                                VarGet(ScriptReadHalfword(ctx)));
 
     Script_RequestEffects(SCREFF_V1 | SCREFF_SAVE);
 

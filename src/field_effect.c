@@ -3500,7 +3500,7 @@ static void SurfFieldEffect_End(struct Task *task)
     struct ObjectEvent *followerObject = GetFollowerObject();
     if (ObjectEventClearHeldMovementIfFinished(objectEvent))
     {
-        gPlayer2CommandToSend = P2_CMD_END_USE_SURF;
+        EnqueuePlayer2CommandToSend(P2_CMD_END_USE_SURF, 0, 0, 0);
         gPlayerAvatar.preventStep = FALSE;
         gPlayerAvatar.flags &= ~PLAYER_AVATAR_FLAG_CONTROLLABLE;
         ObjectEventSetHeldMovement(objectEvent, GetFaceDirectionMovementAction(objectEvent->movementDirection));
@@ -4491,7 +4491,7 @@ static bool8 RockClimb_WaitJumpOnRockClimbBlob(struct Task *task, struct ObjectE
 {
     if (ObjectEventClearHeldMovementIfFinished(objectEvent))
     {
-        gPlayer2CommandToSend = P2_CMD_BOB_ROCK_CLIMB;
+        EnqueuePlayer2CommandToSend(P2_CMD_BOB_ROCK_CLIMB, 0, 0, 0);
         SetSurfBlob_BobState(objectEvent->fieldEffectSpriteId, BOB_PLAYER_AND_MON);
         switch (objectEvent->facingDirection)
         {

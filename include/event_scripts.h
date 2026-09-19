@@ -739,6 +739,7 @@ extern const u8 Common_Movement_JumpUp[];
 extern const u8 Common_Movement_JumpDown[];
 extern const u8 Common_Movement_JumpRight[];
 extern const u8 Common_Movement_JumpLeft[];
+extern const u8 Common_Movement_ExclamationMark[];
 extern const u8 Common_Movement_RockSmashBreak[];
 
 extern const u8 VolcanionCave_1F_Movement_DiglettDigDown[];
@@ -747,6 +748,7 @@ extern const u8 VolcanionCave_1F_Movement_DiglettDigUp[];
 extern const u8 VolcanionCave_1F_Movement_MagmaGruntMSurprised[];
 extern const u8 VolcanionCave_1F_Movement_MagmaGruntMWatchBadgeFallDown[];
 extern const u8 VolcanionCave_1F_Movement_BadgeFallDown[];
+extern const u8 VolcanionCave_1F_Movement_DiglettAskNumber[];
 
 extern const u8 EventScript_CancelMessageBox[];
 extern const u8 Common_EventScript_ShowPokemonCenterSign[];

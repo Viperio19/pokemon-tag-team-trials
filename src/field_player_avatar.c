@@ -1099,9 +1099,7 @@ static bool8 TryPushBoulder(s16 x, s16 y, enum Direction direction)
              && MetatileBehavior_IsNonAnimDoor(MapGridGetMetatileBehaviorAt(x, y)) == FALSE
              && MapGridGetMetatileBehaviorAt(x, y) != MB_GEM)
             {
-                gPlayer2CommandToSend = P2_CMD_PUSH_BOULDER;
-                gPlayer2CommandArg1ToSend = gObjectEvents[objectEventId].localId;
-                gPlayer2CommandArg2ToSend = direction;
+                EnqueuePlayer2CommandToSend(P2_CMD_PUSH_BOULDER, gObjectEvents[objectEventId].localId, direction, 0);
                 StartStrengthAnim(objectEventId, direction);
                 return TRUE;
             }
@@ -1885,7 +1883,7 @@ void SetPlayerInvisibility(bool8 invisible)
 
 void SetPlayerAvatarFieldMove(void)
 {
-    gPlayer2CommandToSend = P2_CMD_USE_FIELD_MOVE;
+    EnqueuePlayer2CommandToSend(P2_CMD_USE_FIELD_MOVE, 0, 0, 0);
     EndORASDowsing();
     ObjectEventSetGraphicsId(&gObjectEvents[gPlayerAvatar.objectEventId], GetPlayerAvatarGraphicsIdByStateId(PLAYER_AVATAR_STATE_FIELD_MOVE));
     StartSpriteAnim(&gSprites[gPlayerAvatar.spriteId], ANIM_FIELD_MOVE);

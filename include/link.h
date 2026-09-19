@@ -1,13 +1,14 @@
 #ifndef GUARD_LINK_H
 #define GUARD_LINK_H
 
+#include "constants/p2_commands.h"
+
 #define MAX_LINK_PLAYERS 4
 #define MAX_RFU_PLAYERS 5
 #define CMD_LENGTH 8
 #define QUEUE_CAPACITY 50
 #define OVERWORLD_RECV_QUEUE_MAX 3
 #define BLOCK_BUFFER_SIZE 0x100
-#define P2_CMD_QUEUE_SIZE 10
 
 #define LINK_SLAVE 0
 #define LINK_MASTER 8
@@ -308,13 +309,13 @@ void SetWirelessCommType0(void);
 bool32 IsLinkRecvQueueAtOverworldMax(void);
 
 extern u16 gLinkPartnersHeldKeys[6];
-extern u16 gPlayer2Commands[6];
-extern u16 gPlayer2CommandArgs1[6];
-extern u16 gPlayer2CommandArgs2[6];
-extern u16 gPlayer2CommandArgs3[6];
-extern u16 gPlayer2CommandsQueue[4][P2_CMD_QUEUE_SIZE];
-extern u16 gPreviousPlayer2Command;
-extern bool8 gReceivedPlayer2Input;
+extern u16 gReceivedP2CommandIds[6];
+extern u16 gReceivedP2CommandArg1s[6];
+extern u16 gReceivedP2CommandArg2s[6];
+extern u16 gReceivedP2CommandArg3s[6];
+extern u16 gReceivedP2CommandsQueue[4][P2_CMD_QUEUE_SIZE];
+extern u16 gPreviousP2Command;
+extern bool8 gHasReceivedPlayer2Input;
 extern u16 gPlayerFacingDirection;
 extern u32 gLinkDebugSeed;
 extern struct LinkPlayerBlock gLocalLinkPlayerBlock;

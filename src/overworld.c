@@ -210,10 +210,7 @@ COMMON_DATA void (*gFieldCallback)(void) = NULL;
 COMMON_DATA bool8 (*gFieldCallback2)(void) = NULL;
 COMMON_DATA u8 gLocalLinkPlayerId = 0; // This is our player id in a multiplayer mode.
 COMMON_DATA u8 gFieldLinkPlayerCount = 0;
-COMMON_DATA u16 gPlayer2CommandToSend = 0;
-COMMON_DATA u16 gPlayer2CommandArg1ToSend = 0;
-COMMON_DATA u16 gPlayer2CommandArg2ToSend = 0;
-COMMON_DATA u16 gPlayer2CommandArg3ToSend = 0;
+COMMON_DATA u16 gP2CommandsToSendQueue[4][P2_CMD_QUEUE_SIZE] = {0};
 
 u8 gTimeOfDay;
 struct TimeBlendSettings gTimeBlend;
@@ -2510,19 +2507,20 @@ static bool32 ReturnToFieldLink(u8 *state)
         (*state)++;
         break;
     case 3:
-        gPlayer2CommandToSend = P2_CMD_REQUEST_POSITION;
+        memset(&gReceivedP2CommandsQueue, 0, sizeof(gReceivedP2CommandsQueue));
+        EnqueuePlayer2CommandToSend(P2_CMD_REQUEST_POSITION, 0, 0, 0);
         InitCurrentFlashLevelScanlineEffect();
         InitOverworldGraphicsRegisters();
         InitTextBoxGfxAndPrinters();
         (*state)++;
         break;
     case 4:
-        gPlayer2CommandToSend = P2_CMD_REQUEST_POSITION;
+        EnqueuePlayer2CommandToSend(P2_CMD_REQUEST_POSITION, 0, 0, 0);
         ResetFieldCamera();
         (*state)++;
         break;
     case 5:
-        gPlayer2CommandToSend = P2_CMD_REQUEST_POSITION;
+        EnqueuePlayer2CommandToSend(P2_CMD_REQUEST_POSITION, 0, 0, 0);
         CopyPrimaryTilesetToVram(gMapHeader.mapLayout);
         (*state)++;
         break;
@@ -2966,21 +2964,34 @@ static bool32 IsAnyPlayerInLinkState(u16 state)
 //     }
 // }
 
+void EnqueuePlayer2CommandToSend(enum Player2Command command, u16 arg1, u16 arg2, u16 arg3)
+{
+    DebugPrintf("enqueue to send %d", command);
+
+    for (u8 i = 0; i < P2_CMD_QUEUE_SIZE; i++)
+    {
+        if (gP2CommandsToSendQueue[0][i] == P2_CMD_NONE)
+        {
+            gP2CommandsToSendQueue[0][i] = command;
+            gP2CommandsToSendQueue[1][i] = arg1;
+            gP2CommandsToSendQueue[2][i] = arg2;
+            gP2CommandsToSendQueue[3][i] = arg3;
+            return;
+        }
+    }
+}
+
 void TrySetPlayer2DirectionCommand(enum Player2Command command, enum Direction direction)
 {
     if (direction < DIR_SOUTH || direction > DIR_EAST)
         return;
 
-    gPlayer2CommandToSend = command;
-    gPlayer2CommandArg1ToSend = direction;
-    gPlayer2CommandArg2ToSend = LOCALID_PLAYER_2;
+    EnqueuePlayer2CommandToSend(command, direction, LOCALID_PLAYER_2, 0);
 }
 
 void SetPlayer2CommandEndRockSmash(void)
 {
-    gPlayer2CommandToSend = P2_CMD_END_ROCK_SMASH;
-    gPlayer2CommandArg1ToSend = gFieldEffectArguments[2];
-    gPlayer2CommandArg2ToSend = VarGet(VAR_LAST_TALKED);
+    EnqueuePlayer2CommandToSend(P2_CMD_END_ROCK_SMASH, gFieldEffectArguments[2], VarGet(VAR_LAST_TALKED), 0);
 }
 
 struct RockClimbRide
@@ -3027,6 +3038,8 @@ static const u8 *const sPlayer2MovementIdToScript[] =
     [P2_MOVEMENT_MAGMA_GRUNT_M_SURPRISED] = VolcanionCave_1F_Movement_MagmaGruntMSurprised,
     [P2_MOVEMENT_MAGMA_GRUNT_M_WATCH_BADGE_FALL_DOWN] = VolcanionCave_1F_Movement_MagmaGruntMWatchBadgeFallDown,
     [P2_MOVEMENT_HEAT_BADGE_FALL_DOWN] = VolcanionCave_1F_Movement_BadgeFallDown,
+    [P2_MOVEMENT_DIGLETT_ASK_NUMBER] = VolcanionCave_1F_Movement_DiglettAskNumber,
+    [P2_MOVEMENT_EXCLAMATION_MARK] = Common_Movement_ExclamationMark,
 };
 
 static void StartPlayer2Movement(const u8 *movementScript)
@@ -3034,45 +3047,45 @@ static void StartPlayer2Movement(const u8 *movementScript)
     ScriptMovement_StartObjectMovementScript(LOCALID_PLAYER_2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, movementScript);
 }
 
-static void EnqueuePlayer2Command(enum Player2Command command, u16 arg1, u16 arg2, u16 arg3)
+static void EnqueueReceivedPlayer2Command(enum Player2Command command, u16 arg1, u16 arg2, u16 arg3)
 {
     DebugPrintf("enqueue %d", command);
 
     for (u8 i = 0; i < P2_CMD_QUEUE_SIZE; i++)
     {
-        if (gPlayer2CommandsQueue[0][i] == P2_CMD_NONE)
+        if (gReceivedP2CommandsQueue[0][i] == P2_CMD_NONE)
         {
-            gPlayer2CommandsQueue[0][i] = command;
-            gPlayer2CommandsQueue[1][i] = arg1;
-            gPlayer2CommandsQueue[2][i] = arg2;
-            gPlayer2CommandsQueue[3][i] = arg3;
+            gReceivedP2CommandsQueue[0][i] = command;
+            gReceivedP2CommandsQueue[1][i] = arg1;
+            gReceivedP2CommandsQueue[2][i] = arg2;
+            gReceivedP2CommandsQueue[3][i] = arg3;
             return;
         }
     }
 }
 
-static void PopPlayer2Command(enum Player2Command *command, u16 *arg1, u16 *arg2, u16 *arg3)
+static void PopReceivedPlayer2Command(enum Player2Command *command, u16 *arg1, u16 *arg2, u16 *arg3)
 {
-    *command = gPlayer2CommandsQueue[0][0];
-    *arg1 = gPlayer2CommandsQueue[1][0];
-    *arg2 = gPlayer2CommandsQueue[2][0];
-    *arg3 = gPlayer2CommandsQueue[3][0];
+    *command = gReceivedP2CommandsQueue[0][0];
+    *arg1 = gReceivedP2CommandsQueue[1][0];
+    *arg2 = gReceivedP2CommandsQueue[2][0];
+    *arg3 = gReceivedP2CommandsQueue[3][0];
 
     if (*command != 0)
         DebugPrintf("pop %d", *command);
 
     for (u8 i = 0; i < P2_CMD_QUEUE_SIZE - 1; i++)
     {
-        gPlayer2CommandsQueue[0][i] = gPlayer2CommandsQueue[0][i + 1];
-        gPlayer2CommandsQueue[1][i] = gPlayer2CommandsQueue[1][i + 1];
-        gPlayer2CommandsQueue[2][i] = gPlayer2CommandsQueue[2][i + 1];
-        gPlayer2CommandsQueue[3][i] = gPlayer2CommandsQueue[3][i + 1];
+        gReceivedP2CommandsQueue[0][i] = gReceivedP2CommandsQueue[0][i + 1];
+        gReceivedP2CommandsQueue[1][i] = gReceivedP2CommandsQueue[1][i + 1];
+        gReceivedP2CommandsQueue[2][i] = gReceivedP2CommandsQueue[2][i + 1];
+        gReceivedP2CommandsQueue[3][i] = gReceivedP2CommandsQueue[3][i + 1];
     }
 
-    gPlayer2CommandsQueue[0][P2_CMD_QUEUE_SIZE - 1] = P2_CMD_NONE;
-    gPlayer2CommandsQueue[1][P2_CMD_QUEUE_SIZE - 1] = 0;
-    gPlayer2CommandsQueue[2][P2_CMD_QUEUE_SIZE - 1] = 0;;
-    gPlayer2CommandsQueue[3][P2_CMD_QUEUE_SIZE - 1] = 0;
+    gReceivedP2CommandsQueue[0][P2_CMD_QUEUE_SIZE - 1] = P2_CMD_NONE;
+    gReceivedP2CommandsQueue[1][P2_CMD_QUEUE_SIZE - 1] = 0;
+    gReceivedP2CommandsQueue[2][P2_CMD_QUEUE_SIZE - 1] = 0;;
+    gReceivedP2CommandsQueue[3][P2_CMD_QUEUE_SIZE - 1] = 0;
 }
 
 static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
@@ -3080,17 +3093,17 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
     u8 linkPartnerId = GetMultiplayerId() ^ 1;
     u8 objId = GetObjectEventIdByLocalId(OBJ_EVENT_ID_PLAYER_2);
     struct ObjectEvent *objEvent = &gObjectEvents[objId];
-    enum Player2Command command = gPlayer2Commands[linkPartnerId];
-    u16 arg1 = gPlayer2CommandArgs1[linkPartnerId];
-    u16 arg2 = gPlayer2CommandArgs2[linkPartnerId];
-    u16 arg3 = gPlayer2CommandArgs3[linkPartnerId];
+    enum Player2Command command = gReceivedP2CommandIds[linkPartnerId];
+    u16 arg1 = gReceivedP2CommandArg1s[linkPartnerId];
+    u16 arg2 = gReceivedP2CommandArg2s[linkPartnerId];
+    u16 arg3 = gReceivedP2CommandArg3s[linkPartnerId];
     s16 x, y;
 
-    if (!gReceivedPlayer2Input)
+    if (!gHasReceivedPlayer2Input)
     {
         if (keys[linkPartnerId] == LINK_KEY_CODE_NULL || keys[linkPartnerId] == LINK_KEY_CODE_EMPTY)
             return;
-        gReceivedPlayer2Input = TRUE;
+        gHasReceivedPlayer2Input = TRUE;
     }
 
     // directly execute commands that can be instantly executed at any time (even while in scripts or menus)
@@ -3100,10 +3113,7 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
         switch (command)
         {
         case P2_CMD_REQUEST_POSITION:
-            gPlayer2CommandToSend = P2_CMD_UPDATE_POSITION;
-            gPlayer2CommandArg1ToSend = gSaveBlock1Ptr->pos.x;
-            gPlayer2CommandArg2ToSend = gSaveBlock1Ptr->pos.y;
-            gPlayer2CommandArg3ToSend = gObjectEvents[gPlayerAvatar.objectEventId].facingDirection;
+            EnqueuePlayer2CommandToSend(P2_CMD_UPDATE_POSITION, gSaveBlock1Ptr->pos.x, gSaveBlock1Ptr->pos.y, gObjectEvents[gPlayerAvatar.objectEventId].facingDirection);
             break;
         case P2_CMD_UPDATE_POSITION:
             FlagSet(FLAG_RETURNING_TO_FIELD_LINK);
@@ -3128,11 +3138,11 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
             else
                 ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
             break;
-        case P2_CMD_TRY_SAVE_AND_DISCONNECT:
-            FlagSet(FLAG_PLAYER_2_IS_SAVING);
-            break;
-        case P2_CMD_CANCEL_SAVE:
-            FlagClear(FLAG_PLAYER_2_IS_SAVING);
+        case P2_CMD_CONTROL_FLAG:
+            if (arg2)
+                FlagSet(arg1);
+            else
+                FlagClear(arg1);
             break;
         case P2_CMD_REMOVE_OBJECT:
             RemoveObjectEventByLocalIdAndMap(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
@@ -3152,31 +3162,30 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
         return;
     }
 
-
     // don't accept movement-based commands while in a menu
     if (gMain.callback2 != CB2_Overworld && !FlagGet(FLAG_RETURNING_TO_FIELD_LINK))
         return;
 
     // try to enqueue the received command
-    if (gPlayer2Commands[linkPartnerId] != P2_CMD_NONE)
-        EnqueuePlayer2Command(gPlayer2Commands[linkPartnerId], gPlayer2CommandArgs1[linkPartnerId], gPlayer2CommandArgs2[linkPartnerId], gPlayer2CommandArgs3[linkPartnerId]);
+    if (gReceivedP2CommandIds[linkPartnerId] != P2_CMD_NONE)
+        EnqueueReceivedPlayer2Command(gReceivedP2CommandIds[linkPartnerId], gReceivedP2CommandArg1s[linkPartnerId], gReceivedP2CommandArg2s[linkPartnerId], gReceivedP2CommandArg3s[linkPartnerId]);
 
     // don't start new movement-based command if player 2 is still moving
     if (ObjectEventIsHeldMovementActive(objEvent))
         return;
 
     // pop the next command in the queue
-    PopPlayer2Command(&command, &arg1, &arg2, &arg3);
+    PopReceivedPlayer2Command(&command, &arg1, &arg2, &arg3);
 
     if (command == P2_CMD_NONE)
     {
         // fix player standing still in running or jumping position
-        if (gPreviousPlayer2Command == P2_CMD_RUN || gPreviousPlayer2Command == P2_CMD_END_USE_SURF || gPreviousPlayer2Command == P2_CMD_END_USE_ROCK_CLIMB)
+        if (gPreviousP2Command == P2_CMD_RUN || gPreviousP2Command == P2_CMD_END_USE_SURF || gPreviousP2Command == P2_CMD_END_USE_ROCK_CLIMB)
             StartPlayer2Movement(sPlayer2CommandToMovement[P2_CMD_FACE_DIRECTION][objEvent->facingDirection - 1]);
         return;
     }
 
-    gPreviousPlayer2Command = command;
+    gPreviousP2Command = command;
 
     // execute popped command
     switch (command)
@@ -3351,7 +3360,7 @@ static void ResetPlayerHeldKeys(u16 *keys)
 static u16 KeyInterCB_SelfIdle(u32 key)
 {
     if (ArePlayerFieldControlsLocked() == TRUE)
-        return LINK_KEY_CODE_EMPTY;
+        return LINK_KEY_CODE_IDLE;
     if (GetLinkRecvQueueLength() > 4)
         return LINK_KEY_CODE_HANDLE_RECV_QUEUE;
     if (GetLinkSendQueueLength() <= 4)

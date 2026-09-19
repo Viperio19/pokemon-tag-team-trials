@@ -5,7 +5,7 @@ Common_Movement_QuestionMark:
 	emote_question_mark
 	step_end
 
-Common_Movement_ExclamationMark:
+Common_Movement_ExclamationMark::
 	emote_exclamation_mark
 	step_end
 

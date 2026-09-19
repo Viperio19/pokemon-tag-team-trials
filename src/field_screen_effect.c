@@ -667,9 +667,10 @@ static void Task_DoCableClubWarp(u8 taskId)
 
 void DoCableClubWarp(void)
 {
-    memset(&gPlayer2CommandsQueue, 0, sizeof(gPlayer2CommandsQueue));
-    memset(&gPlayer2Commands, 0, sizeof(gPlayer2Commands));
-    gReceivedPlayer2Input = 0;
+    memset(&gP2CommandsToSendQueue, 0, sizeof(gP2CommandsToSendQueue));
+    memset(&gReceivedP2CommandsQueue, 0, sizeof(gReceivedP2CommandsQueue));
+    memset(&gReceivedP2CommandIds, 0, sizeof(gReceivedP2CommandIds));
+    gHasReceivedPlayer2Input = 0;
     gPlayerFacingDirection = gObjectEvents[gPlayerAvatar.objectEventId].facingDirection;
     LockPlayerFieldControls();
     TryFadeOutOldMapMusic();
