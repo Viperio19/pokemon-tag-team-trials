@@ -1184,6 +1184,11 @@ static bool8 TryArrowWarp(struct MapPosition *position, u16 metatileBehavior, en
 
     if (IsArrowWarpMetatileBehavior(metatileBehavior, direction) == TRUE)
     {
+        if (IsTagTeamTrialsLinkActive())
+        {
+            ScriptContext_SetupScript(EventScript_Player2_PleaseDontLeave);
+            return TRUE;
+        }
         StorePlayerStateAndSetupWarp(position, warpEventId);
         DoWarp();
         return TRUE;

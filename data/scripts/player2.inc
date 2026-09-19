@@ -496,3 +496,12 @@ Player2_EventScript_Save::
 	setvar VAR_SAVE_ON_FRAME, 0
 	forcesave
 	end
+
+EventScript_Player2_PleaseDontLeave::
+	message Player2_Text_PleaseDontLeave
+	waitmessage
+	closemessage
+	end
+
+Player2_Text_PleaseDontLeave::
+	.string "You can't leave while connected.{PAUSE 40}$"

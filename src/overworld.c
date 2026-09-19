@@ -1068,6 +1068,12 @@ bool8 MetatileBehavior_IsSurfableInSeafoamIslands(u16 metatileBehavior)
 
 static enum Direction GetAdjustedInitialDirection(struct InitialPlayerAvatarState *playerStruct, u8 transitionFlags, u16 metatileBehavior, enum MapType mapType)
 {
+    if (gPlayerFacingDirection != DIR_NONE)
+    {
+        enum Direction dir = gPlayerFacingDirection;
+        gPlayerFacingDirection = DIR_NONE;
+        return dir;
+    }
     if (FlagGet(FLAG_DOING_PLAYER_SWITCH))
         return gSaveBlock2Ptr->player2FacingDirection;
     else if (FlagGet(FLAG_SYS_CRUISE_MODE) && mapType == MAP_TYPE_OCEAN_ROUTE)
@@ -3079,6 +3085,13 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
     u16 arg2 = gPlayer2CommandArgs2[linkPartnerId];
     u16 arg3 = gPlayer2CommandArgs3[linkPartnerId];
     s16 x, y;
+
+    if (!gReceivedPlayer2Input)
+    {
+        if (keys[linkPartnerId] == LINK_KEY_CODE_NULL || keys[linkPartnerId] == LINK_KEY_CODE_EMPTY)
+            return;
+        gReceivedPlayer2Input = TRUE;
+    }
 
     // directly execute commands that can be instantly executed at any time (even while in scripts or menus)
     if (command >= P2_CMD_INSTANT_COMMANDS_START)

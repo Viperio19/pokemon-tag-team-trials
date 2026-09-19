@@ -669,6 +669,8 @@ void DoCableClubWarp(void)
 {
     memset(&gPlayer2CommandsQueue, 0, sizeof(gPlayer2CommandsQueue));
     memset(&gPlayer2Commands, 0, sizeof(gPlayer2Commands));
+    gReceivedPlayer2Input = 0;
+    gPlayerFacingDirection = gObjectEvents[gPlayerAvatar.objectEventId].facingDirection;
     LockPlayerFieldControls();
     TryFadeOutOldMapMusic();
     WarpFadeOutScreen();

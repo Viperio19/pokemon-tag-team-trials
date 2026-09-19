@@ -314,6 +314,8 @@ extern u16 gPlayer2CommandArgs2[6];
 extern u16 gPlayer2CommandArgs3[6];
 extern u16 gPlayer2CommandsQueue[4][P2_CMD_QUEUE_SIZE];
 extern u16 gPreviousPlayer2Command;
+extern bool8 gReceivedPlayer2Input;
+extern u16 gPlayerFacingDirection;
 extern u32 gLinkDebugSeed;
 extern struct LinkPlayerBlock gLocalLinkPlayerBlock;
 extern bool8 gLinkErrorOccurred;
