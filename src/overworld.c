@@ -2989,7 +2989,7 @@ void TrySetPlayer2DirectionCommand(enum Player2Command command, enum Direction d
     EnqueuePlayer2CommandToSend(command, direction, LOCALID_PLAYER_2, 0);
 }
 
-void SetPlayer2CommandEndRockSmash(void)
+void Enqueueplayer2commandEndRockSmash(void)
 {
     EnqueuePlayer2CommandToSend(P2_CMD_END_ROCK_SMASH, gFieldEffectArguments[2], VarGet(VAR_LAST_TALKED), 0);
 }
@@ -3137,6 +3137,8 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
             }
             else
                 ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
+
+            ObjectEventClearHeldMovementIfActive(objEvent);
             break;
         case P2_CMD_CONTROL_FLAG:
             if (arg2)
@@ -3215,6 +3217,8 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
         StartStrengthAnim(GetObjectEventIdByLocalId(arg1), arg2);
         break;
     case P2_CMD_USE_ROCK_SMASH:
+        ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_SURFING, gSaveBlock2Ptr->player2Gender));
+        ObjectEventClearHeldMovementIfFinished(objEvent);
         ScriptMovement_StartObjectMovementScript(arg2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, Common_Movement_RockSmashBreak);
         break;
     case P2_CMD_END_ROCK_SMASH:

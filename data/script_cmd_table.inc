@@ -255,7 +255,7 @@ gScriptCmdTable::
 	script_cmd_table_entry SCR_OP_GETBRAILLESTRINGWIDTH         ScrCmd_getbraillestringwidth,       requests_effects=1  @ 0xe6
 	script_cmd_table_entry SCR_OP_SETFONTTYPE			        ScrCmd_setfonttype,       			requests_effects=1  @ 0xe7
 	script_cmd_table_entry SCR_OP_WAITFLAGORBBUTTON			    ScrCmd_waitflagorbbutton,       	requests_effects=1  @ 0xe8
-	script_cmd_table_entry SCR_OP_SETPLAYER2COMMAND			    ScrCmd_setplayer2command,       	requests_effects=1  @ 0xe9
+	script_cmd_table_entry SCR_OP_ENQUEUEPLAYER2COMMAND			    ScrCmd_enqueueplayer2command,       	requests_effects=1  @ 0xe9
 
 	.if ALLOCATE_SCRIPT_CMD_TABLE
 gScriptCmdTableEnd::

@@ -3594,7 +3594,7 @@ bool8 ScrCmd_waitflagorbbutton(struct ScriptContext *ctx)
     return TRUE;
 }
 
-bool8 ScrCmd_setplayer2command(struct ScriptContext * ctx)
+bool8 ScrCmd_enqueueplayer2command(struct ScriptContext * ctx)
 {
     EnqueuePlayer2CommandToSend(ScriptReadHalfword(ctx),
                                 VarGet(ScriptReadHalfword(ctx)),

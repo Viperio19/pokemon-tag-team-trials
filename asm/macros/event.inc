@@ -2026,8 +2026,8 @@
 	.2byte \flagId
 	.endm
 
-	.macro setplayer2command command:req, arg1=0, arg2=0, arg3=0
-	.byte SCR_OP_SETPLAYER2COMMAND
+	.macro enqueueplayer2command command:req, arg1=0, arg2=0, arg3=0
+	.byte SCR_OP_ENQUEUEPLAYER2COMMAND
 	.2byte \command
 	.2byte \arg1
 	.2byte \arg2

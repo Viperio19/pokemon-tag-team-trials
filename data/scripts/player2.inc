@@ -385,12 +385,14 @@ EventScript_Player2_Connect::
 	end
 
 Player2_AbortLinkTryAgain::
+	call_if_eq VAR_VOLCANION_CAVE_1F_STATE, 0, Player2_Set1FStateNoIntro
 	special CloseLink
 	msgbox CableClub_Text_PleaseVisitAgain, MSGBOX_DEFAULT
 	release
 	end
 
 Player2_LinkSuccess::
+	call_if_eq VAR_VOLCANION_CAVE_1F_STATE, 0, Player2_Set1FStateMultiplayerIntro
 	callnative StoreLinkPlayerName
 	setvar VAR_0x8004, USING_TRADE_CENTER
 	copyvar VAR_CABLE_CLUB_STATE, VAR_0x8004
@@ -398,6 +400,14 @@ Player2_LinkSuccess::
 	setflag FlAG_SHOW_PLAYER_2
 	special DoCableClubWarp
 	end
+
+Player2_Set1FStateNoIntro::
+	setvar VAR_VOLCANION_CAVE_1F_STATE, 1
+	return
+
+Player2_Set1FStateMultiplayerIntro::
+	setvar VAR_VOLCANION_CAVE_1F_STATE, 2
+	return
 
 EventScript_Player2_Multiplayer::
 	lock
@@ -461,7 +471,7 @@ EventScript_Player2_TrySaveAndDisconnect::
 Player2_EventScript_StartSaveAndDisconnect::
 	message Player2_Text_WaitingForOtherPlayerSave
 	waitmessage
-	setplayer2command P2_CMD_CONTROL_FLAG, FLAG_PLAYER_2_IS_SAVING, 1
+	enqueueplayer2command P2_CMD_CONTROL_FLAG, FLAG_PLAYER_2_IS_SAVING, 1
 	waitflagorbbutton FLAG_PLAYER_2_IS_SAVING
 	goto_if_unset FLAG_PLAYER_2_IS_SAVING, Player2_EventScript_CancelSaveAndDisconnect
 	clearflag FLAG_PLAYER_2_IS_SAVING
@@ -475,7 +485,7 @@ Player2_EventScript_StartSaveAndDisconnect::
 	end
 
 Player2_EventScript_CancelSaveAndDisconnect::
-	setplayer2command P2_CMD_CONTROL_FLAG, FLAG_PLAYER_2_IS_SAVING, 0
+	enqueueplayer2command P2_CMD_CONTROL_FLAG, FLAG_PLAYER_2_IS_SAVING, 0
 	release
 	end
 
@@ -486,7 +496,7 @@ Player2_Text_AskSave::
 	.string "Would you like to save the game?$"
 
 Player2_Text_WaitingForOtherPlayerSave::
-	.string "Waiting for other player to save…\n"
+	.string "Waiting for the other player to save…\n"
 	.string "… … B Button: Cancel.$"
 
 Player2_Text_ClosingConnection::

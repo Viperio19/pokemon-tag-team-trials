@@ -44,64 +44,99 @@ VolcanionCave_1F_EventScript_HidePlayers::
 VolcanionCave_1F_OnFrame:
 	map_script_2 VAR_SAVE_ON_FRAME, 1, Player2_EventScript_Save
 	map_script_2 VAR_VOLCANION_CAVE_1F_STATE, 0, VolcanionCave_1F_EventScript_EnterCave
+	map_script_2 VAR_VOLCANION_CAVE_1F_STATE, 2, VolcanionCave_1F_EventScript_IntroStartMultiplayer
 	map_script_2 VAR_OLD_ROD_STATE, 10, VolcanionCave_1F_EventScript_DropOldRod
 	.2byte 0
 
+#define LOCALID_PLAYER_AQUA  VAR_0x800A
+#define LOCALID_PLAYER_MAGMA VAR_0x800B
+
 VolcanionCave_1F_EventScript_EnterCave::
 	lock
-	setvar VAR_VOLCANION_CAVE_1F_STATE, 1
+	callnative IsPlayerOne
+	call_if_eq VAR_RESULT, TRUE, VolcanionCave_3F_EventScript_SetLocalIdsPlayer1
+	call_if_eq VAR_RESULT, FALSE, VolcanionCave_3F_EventScript_SetLocalIdsPlayer2
 	callnative IsMultiplayer
 	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_1F_EventScript_EnterCaveMultiplayer
-	applymovement LOCALID_PLAYER_2, VolcanionCave_1F_Movement_Player2EnterCave
+	applymovement LOCALID_PLAYER_AQUA, VolcanionCave_1F_Movement_Player2EnterCave
 	waitmovement 0
-	applymovement LOCALID_PLAYER, VolcanionCave_1F_Movement_PlayerEnterCave
-	waitmovement 0
-	delay 30
-	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
-	applymovement LOCALID_PLAYER_2, Common_Movement_WalkInPlaceFasterRight
+	applymovement LOCALID_PLAYER_MAGMA, VolcanionCave_1F_Movement_PlayerEnterCave
 	waitmovement 0
 	delay 30
-	applymovement LOCALID_PLAYER_2, Common_Movement_WalkInPlaceRight
+VolcanionCave_1F_EventScript_IntroStartMultiplayer::
+	applymovement LOCALID_PLAYER_MAGMA, Common_Movement_WalkInPlaceFasterLeft
+	applymovement LOCALID_PLAYER_AQUA, Common_Movement_WalkInPlaceFasterRight
+	waitmovement 0
+	delay 30
+	applymovement LOCALID_PLAYER_AQUA, Common_Movement_WalkInPlaceRight
 	message VolcanionCave_1F_Text_IntroOhNo
 	waitmovement 0
 	waitmessage
-	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceLeft
+	applymovement LOCALID_PLAYER_MAGMA, Common_Movement_WalkInPlaceLeft
 	message VolcanionCave_1F_Text_IntroWeirdo
 	waitmovement 0
 	waitmessage
-	applymovement LOCALID_PLAYER_2, Common_Movement_WalkInPlaceRight
+	applymovement LOCALID_PLAYER_AQUA, Common_Movement_WalkInPlaceRight
 	message VolcanionCave_1F_Text_IntroDontStare
 	waitmessage
 	waitmovement 0
-	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceLeft
+	applymovement LOCALID_PLAYER_MAGMA, Common_Movement_WalkInPlaceLeft
 	message VolcanionCave_1F_Text_IntroLookTheSame
 	waitmovement 0
 	waitmessage
-	applymovement LOCALID_PLAYER_2, Common_Movement_WalkInPlaceRight
+	applymovement LOCALID_PLAYER_AQUA, Common_Movement_WalkInPlaceRight
 	message VolcanionCave_1F_Text_IntroBeatPoochyena
 	waitmovement 0
 	waitmessage
-	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceLeft
+	applymovement LOCALID_PLAYER_MAGMA, Common_Movement_WalkInPlaceLeft
 	message VolcanionCave_1F_Text_IntroHowDoYouKnow
 	waitmovement 0
 	waitmessage
-	applymovement LOCALID_PLAYER_2, Common_Movement_WalkInPlaceRight
+	applymovement LOCALID_PLAYER_AQUA, Common_Movement_WalkInPlaceRight
 	message VolcanionCave_1F_Text_IntroSmellLikeEggs
 	waitmovement 0
 	waitmessage
-	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceLeft
+	applymovement LOCALID_PLAYER_MAGMA, Common_Movement_WalkInPlaceLeft
 	message VolcanionCave_1F_Text_IntroJobToDo
 	waitmovement 0
 	waitmessage
-	applymovement LOCALID_PLAYER_2, Common_Movement_WalkInPlaceRight
+	applymovement LOCALID_PLAYER_AQUA, Common_Movement_WalkInPlaceRight
 	message VolcanionCave_1F_Text_IntroTellMeTwice
 	waitmovement 0
 	waitmessage
-	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceLeft
+	applymovement LOCALID_PLAYER_MAGMA, Common_Movement_WalkInPlaceLeft
 	message VolcanionCave_1F_Text_IntroScrewsLoose
 	waitmovement 0
 	waitmessage
+	closemessage
+	setvar VAR_VOLCANION_CAVE_1F_STATE, 1
 	callnative UpdatePlayer2Pos
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_1F_EventScript_StartWaitingForPlayer2
+	release
+	end
+
+VolcanionCave_1F_EventScript_SetLocalIdsPlayer1::
+	setvar LOCALID_PLAYER_AQUA, LOCALID_PLAYER
+	setvar LOCALID_PLAYER_MAGMA, LOCALID_PLAYER_2
+	return
+
+VolcanionCave_1F_EventScript_SetLocalIdsPlayer2::
+	setvar LOCALID_PLAYER_AQUA, LOCALID_PLAYER_2
+	setvar LOCALID_PLAYER_MAGMA, LOCALID_PLAYER
+	return
+
+VolcanionCave_1F_EventScript_StartWaitingForPlayer2::
+	delay 10
+	message VolcanionCave_1F_Text_WaitingForOtherPlayer
+	waitmessage
+	enqueueplayer2command P2_CMD_CONTROL_FLAG, FLAG_PLAYER_2_FINISHED_SCRIPT, 1
+VolcanionCave_1F_EventScript_WaitForPlayer2::
+	waitflagorbbutton FLAG_PLAYER_2_FINISHED_SCRIPT
+	goto_if_unset FLAG_PLAYER_2_FINISHED_SCRIPT, VolcanionCave_1F_EventScript_WaitForPlayer2
+	clearflag FLAG_PLAYER_2_FINISHED_SCRIPT
+	delay 10
+	closemessage
 	release
 	end
 
@@ -110,7 +145,7 @@ VolcanionCave_1F_EventScript_EnterCaveMultiplayer::
 	call_if_eq VAR_RESULT, TRUE, VolcanionCave_1F_EventScript_Player1AquaEnter
 	call_if_eq VAR_RESULT, FALSE, VolcanionCave_1F_EventScript_Player1MagmaEnter
 	waitmovement 0
-	@ goto EventScript_Player2_Connect
+	goto EventScript_Player2_Connect
 	release
 	end
 
@@ -185,6 +220,10 @@ VolcanionCave_1F_Text_IntroScrewsLoose::
 	.string "useful, but you never know…)\p"
 	.string "(I'm sure {HESHE_1}'ll make for a\n"
 	.string "decent meatshield in a pinch.){FONT_NORMAL}\p$"
+
+VolcanionCave_1F_Text_WaitingForOtherPlayer::
+	.string "Waiting for the other player\n"
+	.string "to finish the cutscene…$"
 
 VolcanionCave_1F_EventScript_DropOldRod::
 	lock
@@ -272,13 +311,13 @@ VolcanionCave_1F_EventScript_MagmaGruntM::
 	addobject LOCALID_1F_HEAT_BADGE
 	setobjectxy LOCALID_1F_HEAT_BADGE, 33, 17
 	clearflag FLAG_HIDE_VOLCANION_CAVE_1F_HEAT_BADGE
-	setplayer2command P2_CMD_ADD_OBJECT, LOCALID_1F_HEAT_BADGE, 33, 17
+	enqueueplayer2command P2_CMD_ADD_OBJECT, LOCALID_1F_HEAT_BADGE, 33, 17
 	applymovement LOCALID_1F_HEAT_BADGE, VolcanionCave_1F_Movement_BadgeFallDown, P2_MOVEMENT_HEAT_BADGE_FALL_DOWN
 	applymovement LOCALID_1F_MAGMA_GRUNT_M, VolcanionCave_1F_Movement_MagmaGruntMWatchBadgeFallDown, P2_MOVEMENT_MAGMA_GRUNT_M_WATCH_BADGE_FALL_DOWN
 	delay 16
 	playse SE_PIN
 	waitmovement 0
-	setplayer2command P2_CMD_END_DROP_HEAT_BADGE
+	enqueueplayer2command P2_CMD_END_DROP_HEAT_BADGE
 	delay 20
 	msgbox VolcanionCave_1F_Text_MagmaGruntMDroppedBadge
 	closemessage
@@ -406,7 +445,7 @@ VolcanionCave_1F_Text_MagmaGruntMWoahThereDiglett::
 	.string "POKENAV number!$"
 
 VolcanionCave_1F_EventScript_HeatBadge::
-	setplayer2command P2_CMD_REMOVE_OBJECT, VAR_LAST_TALKED
+	enqueueplayer2command P2_CMD_REMOVE_OBJECT, VAR_LAST_TALKED
 	removeobject VAR_LAST_TALKED
 	playfanfare MUS_OBTAIN_ITEM
 	message VolcanionCave_1F_Text_ObtainedHeatBadge
@@ -528,7 +567,7 @@ VolcanionCave_1F_Text_NoRepels::
 	.string "(You now smell like eggs and repel.)$"
 
 VolcanionCave_1F_EventScript_RemoveLastTalked::
-	setplayer2command P2_CMD_REMOVE_OBJECT, VAR_LAST_TALKED
+	enqueueplayer2command P2_CMD_REMOVE_OBJECT, VAR_LAST_TALKED
 	removeobject VAR_LAST_TALKED
 	return
 
@@ -596,7 +635,7 @@ VolcanionCave_1F_EventScript_SmashRock:: @ fallthrough
 	applymovement VAR_LAST_TALKED, Movement_SmashRock
 	waitmovement 0
 	removeobject VAR_LAST_TALKED
-	callnative SetPlayer2CommandEndRockSmash
+	callnative Enqueueplayer2commandEndRockSmash
 	delay 10
 	call_if_eq VAR_FACING, DIR_NORTH, VolcanionCave_1F_EventScript_PlayerWalkInPlaceNorth
 	call_if_eq VAR_FACING, DIR_SOUTH, VolcanionCave_1F_EventScript_PlayerWalkInPlaceSouth
