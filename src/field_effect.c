@@ -4588,7 +4588,7 @@ static bool8 RockClimb_StopRockClimbInit(struct Task *task, struct ObjectEvent *
     }
 
     RockClimbDust(objectEvent, DIR_NONE);   //dust on final spot
-    TrySetPlayer2DirectionCommand(P2_CMD_END_USE_ROCK_CLIMB, objectEvent->movementDirection);
+    TrySetPlayer2DirectionCommand(P2_CMD_JUMP_AFTER_ROCK_CLIMB, objectEvent->movementDirection);
     ObjectEventSetHeldMovement(objectEvent, GetJumpSpecialMovementAction(sRockClimbMovement[objectEvent->movementDirection].jumpDir));
     SetSurfBlob_BobState(objectEvent->fieldEffectSpriteId, BOB_NONE);
     task->tState++;
@@ -4600,6 +4600,7 @@ static bool8 RockClimb_WaitStopRockClimb(struct Task *task, struct ObjectEvent *
     struct ObjectEvent *followerObject = GetFollowerObject();
     if (ObjectEventClearHeldMovementIfFinished(objectEvent))
     {
+        TrySetPlayer2DirectionCommand(P2_CMD_END_USE_ROCK_CLIMB, objectEvent->facingDirection);
         ObjectEventSetGraphicsId(objectEvent, GetPlayerAvatarGraphicsIdByStateId(PLAYER_AVATAR_STATE_NORMAL));
         ObjectEventSetHeldMovement(objectEvent, GetFaceDirectionMovementAction(objectEvent->facingDirection));
         gPlayerAvatar.preventStep = FALSE;

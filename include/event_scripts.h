@@ -3,6 +3,7 @@
 
 extern const u8 EventScript_Player2_Singleplayer[];
 extern const u8 EventScript_Player2_Multiplayer[];
+extern const u8 EventScript_Player2_GotInteractedWith[];
 extern const u8 EventScript_Player2_ReadyToBattle[];
 extern const u8 EventScript_Player2_Connect[];
 extern const u8 EventScript_Player2_TrySaveAndDisconnect[];

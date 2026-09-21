@@ -119,12 +119,16 @@ Player2_Singleplayer_Talk::
 	goto_if_ne VAR_CURRENT_HP_BAR_COLOR, 3, Player2_Message_Room3Main
 	goto_if_ne VAR_VOLCANION_CAVE_3F_PIKACHU_STATE, 100, Player2_Message_Room3Main
 	goto_if_ne VAR_ZINNIA_STATE, 1, Player2_Message_Room3Main
-	msgbox Player2_Text_PreVolcanion, MSGBOX_NPC
+	msgbox Player2_Text_PreVolcanion, MSGBOX_DEFAULT
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_TalkFinish
 	release
 	end
 	
 Player2_Message_Talk::
-	msgbox Player2_Text_Talk, MSGBOX_NPC
+	msgbox Player2_Text_Talk, MSGBOX_DEFAULT
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_TalkFinish
 	release
 	end
 
@@ -144,7 +148,9 @@ Player2_Text_Talk::
 	.string "Good luck, sucker!!$"
 
 Player2_Message_PreGolem::
-	msgbox Player2_Text_PreGolem, MSGBOX_NPC
+	msgbox Player2_Text_PreGolem, MSGBOX_DEFAULT
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_TalkFinish
 	release
 	end
 
@@ -166,7 +172,9 @@ Player2_Text_PreGolem::
 	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}Wait… I said that all out LOUD???$"
 
 Player2_Message_PreRoom2::
-	msgbox Player2_Text_PreRoom2, MSGBOX_NPC
+	msgbox Player2_Text_PreRoom2, MSGBOX_DEFAULT
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_TalkFinish
 	release
 	end
 
@@ -179,7 +187,9 @@ Player2_Text_PreRoom2::
 	.string "leave me alone, then.$"
 
 Player2_Message_MudSliding::
-	msgbox Player2_Text_MudSliding, MSGBOX_NPC
+	msgbox Player2_Text_MudSliding, MSGBOX_DEFAULT
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_TalkFinish
 	release
 	end
 
@@ -194,7 +204,9 @@ Player2_Text_MudSliding::
 	.string "{PLAYER_AQUA}. Do something about this.$"
 
 Player2_Message_Exeggutor::
-	msgbox Player2_Text_Exeggutor, MSGBOX_NPC
+	msgbox Player2_Text_Exeggutor, MSGBOX_DEFAULT
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_TalkFinish
 	release
 	end
 
@@ -211,7 +223,9 @@ Player2_Text_Exeggutor::
 	.string "{FONT 5}(Wasn't there a switch…?){FONT_NORMAL}$"
 
 Player2_Message_MagmaWall::
-	msgbox Player2_Text_MagmaWall, MSGBOX_NPC
+	msgbox Player2_Text_MagmaWall, MSGBOX_DEFAULT
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_TalkFinish
 	release
 	end
 
@@ -228,7 +242,9 @@ Player2_Text_MagmaWall::
 	.string "your way into clearing a path for me.$"
 
 Player2_Message_Holes::
-	msgbox Player2_Text_Holes, MSGBOX_NPC
+	msgbox Player2_Text_Holes, MSGBOX_DEFAULT
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_TalkFinish
 	release
 	end
 
@@ -252,7 +268,9 @@ Player2_Text_Holes::
 	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}He's the pride and joy of TEAM AQUA!!$"
 
 Player2_Message_PreRoom3::
-	msgbox Player2_Text_PreRoom3, MSGBOX_NPC
+	msgbox Player2_Text_PreRoom3, MSGBOX_DEFAULT
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_TalkFinish
 	release
 	end
 
@@ -285,7 +303,9 @@ Player2_Text_PreRoom3::
 	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}Yep. {PAUSE 40}Figured.$"
 
 Player2_Message_Room3Main::
-	msgbox Player2_Text_Room3Main, MSGBOX_NPC
+	msgbox Player2_Text_Room3Main, MSGBOX_DEFAULT
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_TalkFinish
 	release
 	end
 
@@ -311,15 +331,18 @@ Player2_Singleplayer_Cancel::
 	callnative IsPlayerOne
 	call_if_eq VAR_RESULT, TRUE, Player2Magma_Singleplayer_Cancel
 	call_if_eq VAR_RESULT, FALSE, Player2Aqua_Singleplayer_Cancel
+	waitmessage
+	delay 40
+	closemessage
 	release
 	end
 
 Player2Aqua_Singleplayer_Cancel::
-	msgbox Player2Aqua_Text_Cancel, MSGBOX_DEFAULT
+	message Player2Aqua_Text_Cancel
 	return
 
 Player2Magma_Singleplayer_Cancel::
-	msgbox Player2Magma_Text_Cancel, MSGBOX_DEFAULT
+	message Player2Magma_Text_Cancel
 	return
 
 Player2Magma_Message_HiPlayer::
@@ -411,12 +434,22 @@ Player2_Set1FStateMultiplayerIntro::
 
 EventScript_Player2_Multiplayer::
 	lock
+	setvar VAR_P2_INTERACTION_STATE, 0
+	setvar VAR_P2_INTERACTION_COUNTDOWN, 0
+	enqueueplayer2command P2_CMD_INTERACT
+Player2_Multiplayer_WaitResponse::
+	delay 1
+	addvar VAR_P2_INTERACTION_COUNTDOWN, 1
+	goto_if_eq VAR_P2_INTERACTION_COUNTDOWN, 50, Player2_Multiplayer_OtherPlayerBusy
+	goto_if_eq VAR_P2_INTERACTION_STATE, 0, Player2_Multiplayer_WaitResponse
+	goto_if_eq VAR_P2_INTERACTION_STATE, 10, Player2_Multiplayer_OtherPlayerBusy
 	faceplayer
 	callnative IsPlayerOne
-	goto_if_eq VAR_RESULT, FALSE, Player2Magma_Text_HiPlayer
-	message Player2Aqua_Text_HiPlayer
+	call_if_eq VAR_RESULT, TRUE, Player2Magma_Message_HiPlayer
+	call_if_eq VAR_RESULT, FALSE, Player2Aqua_Message_HiPlayer
 	waitmessage
-	multichoicedefault 21, 6, MULTI_PLAYER_2, 0, FALSE
+	goto_if_eq VAR_VOLCANION_CAVE_2F_STATE, 0, Player2_Multiplayer_MultiChoiceNoTrade
+	multichoicedefault 21, 6, MULTI_PLAYER_2_TRADE, 0, FALSE
 	switch VAR_RESULT
 	case 0, Player2_Multiplayer_Trade
 	case 1, Player2_Multiplayer_Talk
@@ -425,20 +458,97 @@ EventScript_Player2_Multiplayer::
 	release
 	end
 
+Player2_Multiplayer_OtherPlayerBusy::
+	setvar VAR_P2_INTERACTION_STATE, 0
+	message Player2_Text_OtherPlayerBusy
+	waitmessage
+	delay 20
+	closemessage
+	release
+	end
+
+Player2_Multiplayer_MultiChoiceNoTrade::
+	multichoicedefault 21, 8, MULTI_PLAYER_2, 0, FALSE
+	switch VAR_RESULT
+	case 0, Player2_Multiplayer_Talk
+	case 1, Player2_Multiplayer_Cancel
+	case MULTI_B_PRESSED, Player2_Multiplayer_Cancel
+	release
+	end
+
+Player2_Multiplayer_Talk::
+	enqueueplayer2command P2_CMD_SET_INTERACTION_VAR, 2
+	goto Player2_Singleplayer_Talk
+	end
+
 Player2_Multiplayer_Trade::
+	enqueueplayer2command P2_CMD_SET_INTERACTION_VAR, 3
 	setvar VAR_0x8005, 0
 	special PlayerEnteredTradeSeat
 	end
 
-Player2_Multiplayer_Talk::
-	msgbox Player2_Text_Talk, MSGBOX_NPC
+Player2_Multiplayer_Cancel::
+	enqueueplayer2command P2_CMD_SET_INTERACTION_VAR, 4
+	callnative IsPlayerOne
+	call_if_eq VAR_RESULT, TRUE, Player2Magma_Singleplayer_Cancel
+	call_if_eq VAR_RESULT, FALSE, Player2Aqua_Singleplayer_Cancel
+	waitmessage
+	delay 40
+	closemessage
 	release
 	end
 
-Player2_Multiplayer_Cancel::
-	msgbox Player2Aqua_Text_Cancel, MSGBOX_NPC
+Player2_Text_OtherPlayerBusy::
+	.string "The other player is busy…$"
+
+EventScript_Player2_GotInteractedWith::
+	lock
+	applymovement LOCALID_PLAYER, Common_Movement_FacePlayer2
+	callnative IsPlayerOne
+	call_if_eq VAR_RESULT, TRUE, Player2Aqua_Message_HiPlayer
+	call_if_eq VAR_RESULT, FALSE, Player2Magma_Message_HiPlayer
+	waitmessage
+Player2_Multiplayer_WaitOtherPlayerDecision::
+	delay 1
+	goto_if_eq VAR_P2_INTERACTION_STATE, 2, Player2_Singleplayer_Talk
+	goto_if_eq VAR_P2_INTERACTION_STATE, 3, Player2_Multiplayer_Trade
+	goto_if_eq VAR_P2_INTERACTION_STATE, 4, Player2_Multiplayer_CancelInverted
+	goto Player2_Multiplayer_WaitOtherPlayerDecision
+	end
+
+Player2_Multiplayer_CancelInverted::
+	setvar VAR_P2_INTERACTION_STATE, 0
+	callnative IsPlayerOne
+	call_if_eq VAR_RESULT, TRUE, Player2Aqua_Singleplayer_Cancel
+	call_if_eq VAR_RESULT, FALSE, Player2Magma_Singleplayer_Cancel
+	waitmessage
+	delay 40
+	closemessage
 	release
 	end
+
+Player2_Text_WaitingForOtherPlayerChoice::
+	.string "Waiting for the other player to make\n"
+	.string "a choice…$"
+
+Player2_Multiplayer_TalkFinish::
+	closemessage
+	delay 10
+	message Player2_Text_WaitingForOtherPlayerToFinish
+	waitmessage
+	delay 10
+	enqueueplayer2command P2_CMD_SET_INTERACTION_VAR, 0
+Player2_Multiplayer_WaitOtherPlayerFinish::
+	delay 1
+	goto_if_ne VAR_P2_INTERACTION_STATE, 0, Player2_Multiplayer_WaitOtherPlayerFinish
+	delay 10
+	closemessage
+	release
+	end
+
+Player2_Text_WaitingForOtherPlayerToFinish::
+	.string "Waiting for the other player\n"
+	.string "to finish the cutscene…$"
 
 EventScript_Player2_ReadyToBattle::
 	lock

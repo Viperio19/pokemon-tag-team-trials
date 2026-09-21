@@ -132,7 +132,7 @@ VolcanionCave_1F_EventScript_StartWaitingForPlayer2::
 	waitmessage
 	enqueueplayer2command P2_CMD_CONTROL_FLAG, FLAG_PLAYER_2_FINISHED_SCRIPT, 1
 VolcanionCave_1F_EventScript_WaitForPlayer2::
-	waitflagorbbutton FLAG_PLAYER_2_FINISHED_SCRIPT
+	delay 1
 	goto_if_unset FLAG_PLAYER_2_FINISHED_SCRIPT, VolcanionCave_1F_EventScript_WaitForPlayer2
 	clearflag FLAG_PLAYER_2_FINISHED_SCRIPT
 	delay 10

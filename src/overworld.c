@@ -3146,6 +3146,18 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
             else
                 FlagClear(arg1);
             break;
+        case P2_CMD_SET_INTERACTION_VAR:
+            VarSet(VAR_P2_INTERACTION_STATE, arg1);
+            break;
+        case P2_CMD_INTERACT:
+            if (gMain.callback2 == CB2_Overworld && !ArePlayerFieldControlsLocked())
+            {
+                EnqueuePlayer2CommandToSend(P2_CMD_SET_INTERACTION_VAR, 1, 0, 0);
+                ScriptContext_SetupScript(EventScript_Player2_GotInteractedWith);
+            }
+            else
+                EnqueuePlayer2CommandToSend(P2_CMD_SET_INTERACTION_VAR, 10, 0, 0);
+            break;
         case P2_CMD_REMOVE_OBJECT:
             RemoveObjectEventByLocalIdAndMap(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
             break;
@@ -3248,6 +3260,7 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
         StartPlayer2Movement(sPlayer2CommandToMovement[P2_CMD_STOP_SURFING][arg1 - 1]);
         break;
     case P2_CMD_END_STOP_SURFING:
+    case P2_CMD_END_USE_ROCK_CLIMB:
         ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
         StartPlayer2Movement(sPlayer2CommandToMovement[P2_CMD_FACE_DIRECTION][arg1 - 1]);
         DestroySprite(&gSprites[objEvent->fieldEffectSpriteId]);
@@ -3273,8 +3286,7 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
         PlaySE(SE_M_ROCK_THROW);
         RockClimbDust(objEvent, arg1);
         break;
-    case P2_CMD_END_USE_ROCK_CLIMB:
-        ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
+    case P2_CMD_JUMP_AFTER_ROCK_CLIMB:
         ObjectEventSetHeldMovement(objEvent, GetJumpSpecialMovementAction(sRockClimbMovement[arg1].jumpDir));
         SetSurfBlob_BobState(objEvent->fieldEffectSpriteId, BOB_NONE);
         break;
