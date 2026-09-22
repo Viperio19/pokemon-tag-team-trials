@@ -3159,7 +3159,7 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
                 EnqueuePlayer2CommandToSend(P2_CMD_SET_INTERACTION_VAR, 10, 0, 0);
             break;
         case P2_CMD_REMOVE_OBJECT:
-            RemoveObjectEventByLocalIdAndMap(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
+            RemoveAnyObjectEventByLocalIdAndMap(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
             break;
         case P2_CMD_END_DROP_HEAT_BADGE:
             FlagSet(FLAG_VOLCANION_CAVE_1F_GRUNT_DROPPED_BADGE);
@@ -3236,7 +3236,7 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
     case P2_CMD_END_ROCK_SMASH:
         ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
         StartSpriteAnim(&gSprites[objEvent->spriteId], arg1);
-        RemoveObjectEventByLocalIdAndMap(arg2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
+        RemoveAnyObjectEventByLocalIdAndMap(arg2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
         break;
     case P2_CMD_USE_SURF:
         ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_SURFING, gSaveBlock2Ptr->player2Gender));

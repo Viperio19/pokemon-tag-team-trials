@@ -1692,6 +1692,14 @@ void RemoveObjectEvent(struct ObjectEvent *objectEvent)
     objectEvent->graphicsId = objectEvent->shiny = 0;
 }
 
+void RemoveAnyObjectEventByLocalIdAndMap(u8 localId, u8 mapNum, u8 mapGroup)
+{
+    u8 objectEventId;
+    FlagSet(GetObjectEventFlagIdByLocalIdAndMap(localId, mapNum, mapGroup));
+    if (!TryGetObjectEventIdByLocalIdAndMap(localId, mapNum, mapGroup, &objectEventId))
+        RemoveObjectEvent(&gObjectEvents[objectEventId]);
+}
+
 void RemoveObjectEventByLocalIdAndMap(u8 localId, u8 mapNum, u8 mapGroup)
 {
     u8 objectEventId;
