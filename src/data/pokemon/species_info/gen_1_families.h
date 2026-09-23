@@ -9947,8 +9947,8 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
 
     [SPECIES_GOLEM_ALOLA] =
     {
-        .baseHP        = 80,
-        .baseAttack    = 120,
+        .baseHP        = 55,
+        .baseAttack    = 180,
         .baseDefense   = 130,
         .baseSpeed     = 45,
         .baseSpAttack  = 55,
