@@ -90,7 +90,7 @@
 #define LINKTYPE_TRADE_SETUP           0x1133
 #define LINKTYPE_TRADE_DISCONNECTED    0x1144
 #define LINKTYPE_BATTLE                0x2211
-#define LINKTYPE_UNUSED_BATTLE         0x2222 // Unused, inferred from gap
+#define LINKTYPE_LINK_MULTI            0x2222
 #define LINKTYPE_SINGLE_BATTLE         0x2233
 #define LINKTYPE_DOUBLE_BATTLE         0x2244
 #define LINKTYPE_MULTI_BATTLE          0x2255

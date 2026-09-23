@@ -596,6 +596,10 @@ void TryBattleLinkup(void)
             gLinkType = LINKTYPE_BATTLE_TOWER_OPEN;
 
         break;
+    case USING_LINK_MULTI:
+        minPlayers = 2;
+        gLinkType = LINKTYPE_LINK_MULTI;
+        break;
     }
 
     CreateLinkupTask(minPlayers, maxPlayers);
@@ -749,6 +753,9 @@ u8 CreateTask_ReestablishCableClubLink(void)
     case USING_RECORD_CORNER:
         gLinkType = LINKTYPE_RECORD_MIX_AFTER;
         break;
+    case USING_LINK_MULTI:
+        gLinkType = LINKTYPE_LINK_MULTI;
+        break;
     }
 
     return CreateTask(Task_ReestablishLink, 80);
@@ -824,6 +831,9 @@ static void SetLinkBattleTypeFlags(int linkService)
         break;
     case USING_BATTLE_TOWER:
         gBattleTypeFlags = BATTLE_TYPE_BATTLE_TOWER | BATTLE_TYPE_DOUBLE | BATTLE_TYPE_LINK | BATTLE_TYPE_TRAINER | BATTLE_TYPE_MULTI;
+        break;
+    case USING_LINK_MULTI:
+        gBattleTypeFlags = BATTLE_TYPE_BATTLE_TOWER | BATTLE_TYPE_DOUBLE | BATTLE_TYPE_LINK | BATTLE_TYPE_MULTI;
         break;
     }
 }

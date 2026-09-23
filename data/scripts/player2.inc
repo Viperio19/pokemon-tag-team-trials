@@ -625,3 +625,178 @@ EventScript_Player2_PleaseDontLeave::
 
 Player2_Text_PleaseDontLeave::
 	.string "You can't leave while connected.{PAUSE 40}$"
+
+
+Player2_EventScript_DoLinkBossBattle::
+	setwildbattle SPECIES_GOLEM_ALOLA, 35, TRUE
+	goto LinkMultiBattle_EventScript_TryConnectForLinkMultiBattle
+	special SavePlayerParty
+	setvar VAR_FRONTIER_BATTLE_MODE, NOT_FRONTIER_MODE_LINK_MULTIS
+	message gText_PleaseWaitForLink
+	waitmessage
+	enqueueplayer2command P2_CMD_CONTROL_FLAG, FLAG_PLAYER_2_READY_FOR_LINK_BATTLE, 1
+Player2_Multiplayer_WaitOtherPlayerBattle::
+	delay 1
+	goto_if_unset FLAG_PLAYER_2_READY_FOR_LINK_BATTLE, Player2_Multiplayer_WaitOtherPlayerBattle
+	clearflag FLAG_PLAYER_2_READY_FOR_LINK_BATTLE
+	delay 10
+	message LinkMultiBattle_Text_InitiatingLinkBattle
+	waitmessage
+	setwildbattle SPECIES_GOLEM_ALOLA, 35, TRUE
+	special DoLinkMultiBattle
+	waitstate
+	special SavePlayerParty
+	special BattleTowerReconnectLink
+	gotobeatenscript
+	releaseall
+	end
+
+LinkMultiBattle_EventScript_TryNoIntroLinkMultiBattle::
+	goto LinkMultiBattle_EventScript_ChoosePokemon
+
+LinkMultiBattle_EventScript_ChoosePokemon::
+	special SavePlayerParty
+	setvar VAR_FRONTIER_BATTLE_MODE, NOT_FRONTIER_MODE_LINK_MULTIS
+	fadescreen FADE_TO_BLACK
+	setvar VAR_0x8004, FRONTIER_LVL_OPEN
+	setvar VAR_0x8005, MULTI_PARTY_SIZE
+	special ChooseHalfPartyForBattle
+	goto_if_eq VAR_RESULT, 0, LinkMultiBattle_EventScript_DoRegularBattle
+	goto LinkMultiBattle_EventScript_PrepareParty
+
+LinkMultiBattle_EventScript_PrepareParty::
+	frontier_set FRONTIER_DATA_SELECTED_MON_ORDER
+	setvar VAR_0x8004, FRONTIER_UTIL_FUNC_SET_PARTY_ORDER
+	setvar VAR_0x8005, MULTI_PARTY_SIZE
+	special CallFrontierUtilFunc
+	goto LinkMultiBattle_EventScript_TryConnectForLinkMultiBattle
+	end
+
+LinkMultiBattle_EventScript_TryConnectForLinkMultiBattle::
+	specialvar VAR_RESULT, IsWirelessAdapterConnected
+	goto_if_eq VAR_RESULT, TRUE, LinkMultiBattle_EventScript_TryWirelessLink
+	goto LinkMultiBattle_EventScript_TryCableLink
+
+LinkMultiBattle_EventScript_TryCableLink::
+	message gText_PleaseWaitForLink
+	waitmessage
+	setvar VAR_0x8004, USING_LINK_MULTI
+	setvar VAR_0x8005, 0
+	special TryBattleLinkup
+	goto_if_eq VAR_RESULT, LINKUP_SUCCESS, LinkMultiBattle_EventScript_DoLinkMultiBattle
+	goto_if_eq VAR_RESULT, LINKUP_SOMEONE_NOT_READY, LinkMultiBattle_EventScript_CableLinkFailed
+	goto_if_eq VAR_RESULT, LINKUP_DIFF_SELECTIONS, LinkMultiBattle_EventScript_CableLinkFailed
+	goto_if_eq VAR_RESULT, LINKUP_WRONG_NUM_PLAYERS, LinkMultiBattle_EventScript_CableLinkFailed
+	goto_if_eq VAR_RESULT, LINKUP_FAILED, LinkMultiBattle_EventScript_CableLinkFailed
+	goto_if_eq VAR_RESULT, LINKUP_CONNECTION_ERROR, LinkMultiBattle_EventScript_CableLinkFailed
+	goto_if_eq VAR_RESULT, LINKUP_FAILED_BATTLE_TOWER, LinkMultiBattle_EventScript_CableLinkFailed
+	end
+
+LinkMultiBattle_EventScript_CableLinkSuccessful::
+	goto LinkMultiBattle_EventScript_CheckSameTrainer
+
+LinkMultiBattle_EventScript_CableLinkFailed::
+	special CloseLink
+	message LinkMultiBattle_Text_LinkConnectionFailed
+	waitmessage
+	delay 60
+	goto LinkMultiBattle_EventScript_DoRegularBattle
+
+LinkMultiBattle_EventScript_TryWirelessLink::
+	setvar VAR_0x8004, LINK_GROUP_BATTLE_TOWER
+	goto LinkMultiBattle_EventScript_ChooseLeader
+	end
+
+LinkMultiBattle_EventScript_ChooseLeader::
+	message CableClub_Text_ChooseGroupLeaderOfTwo
+	waitmessage
+	multichoice 16, 6, MULTI_LINK_LEADER, FALSE
+	switch VAR_RESULT
+	case 0, LinkMultiBattle_EventScript_TryJoinGroup
+	case 1, LinkMultiBattle_EventScript_TryBecomeLeader
+	case 2, LinkMultiBattle_EventScript_CableLinkFailed
+	case MULTI_B_PRESSED, LinkMultiBattle_EventScript_CableLinkFailed
+	end
+
+LinkMultiBattle_EventScript_TryBecomeLeader::
+	call CableClub_EventScript_TryBecomeLinkLeader
+	goto_if_eq VAR_RESULT, LINKUP_SUCCESS, LinkMultiBattle_EventScript_DoLinkMultiBattle
+	goto_if_eq VAR_RESULT, LINKUP_FAILED, LinkMultiBattle_EventScript_ChooseLeader
+	goto_if_eq VAR_RESULT, LINKUP_RETRY_ROLE_ASSIGN, LinkMultiBattle_EventScript_TryBecomeLeader
+	goto_if_eq VAR_RESULT, LINKUP_FAILED_BATTLE_TOWER, LinkMultiBattle_EventScript_CableLinkFailed
+	release
+	return
+
+LinkMultiBattle_EventScript_TryJoinGroup::
+	call CableClub_EventScript_TryJoinLinkGroup
+	goto_if_eq VAR_RESULT, LINKUP_SUCCESS, LinkMultiBattle_EventScript_DoLinkMultiBattle
+	goto_if_eq VAR_RESULT, LINKUP_FAILED, LinkMultiBattle_EventScript_ChooseLeader
+	goto_if_eq VAR_RESULT, LINKUP_RETRY_ROLE_ASSIGN, LinkMultiBattle_EventScript_TryJoinGroup
+	goto_if_eq VAR_RESULT, LINKUP_FAILED_BATTLE_TOWER, LinkMultiBattle_EventScript_CableLinkFailed
+	release
+	return
+
+LinkMultiBattle_EventScript_WirelessLinkSuccessful::
+	goto LinkMultiBattle_EventScript_CheckSameTrainer
+	end
+
+LinkMultiBattle_EventScript_CheckSameTrainer::
+	setvar VAR_RESULT, 0
+	setvar VAR_0x8009, FALSE
+LinkMultiBattle_EventScript_WaitForCheckSameTrainer::
+	goto_if_lt VAR_RESULT, 7, LinkMultiBattle_EventScript_WaitForCheckSameTrainer
+	goto_if_eq VAR_RESULT, 8, LinkMultiBattle_EventScript_CloseLinkAndDoRegularBattle
+	goto_if_eq VAR_0x8009, TRUE, LinkMultiBattle_EventScript_SelectedDifferentTrainer
+	goto LinkMultiBattle_EventScript_DoLinkMultiBattle
+
+LinkMultiBattle_EventScript_CloseLinkAndDoRegularBattle::
+	special CloseLink
+	goto LinkMultiBattle_EventScript_DoRegularBattle
+
+LinkMultiBattle_EventScript_SelectedDifferentTrainer::
+	special CloseLink
+	msgbox LinkMultiBattle_Text_SelectedDifferentTrainer, MSGBOX_DEFAULT
+	goto LinkMultiBattle_EventScript_DoRegularBattle
+
+LinkMultiBattle_EventScript_DoRegularBattle::
+	special LoadPlayerParty
+	@ goto EventScript_InitiateSoloBattle
+	end
+
+LinkMultiBattle_EventScript_DoRegularNoIntroBattle::
+	@ goto EventScript_InitiateNoIntroSoloBattle
+	end
+
+LinkMultiBattle_EventScript_DoLinkMultiBattle::
+	message LinkMultiBattle_Text_InitiatingLinkBattle
+	waitmessage
+	special DoLinkMultiBattle
+	waitstate
+	special SavePlayerParty
+	tower_closelink
+	gotobeatenscript
+	releaseall
+	end
+
+LinkMultiBattle_EventScript_GoToPostBattleScript::
+	gotopostbattlescript
+
+LinkMultiBattle_Text_SelectedDifferentTrainer:
+	.string "The other player selected a\n"
+	.string "different trainer.$"
+
+LinkMultiBattle_Text_InitiatingLinkBattle:
+	.string "Initiating link battle.$"
+
+LinkMenu_Text_DoYouWantToConnect:
+	.string "Do you want to connect to\n"
+	.string "another player?$"
+
+LinkMenu_Text_LinkIsAlreadyEstablished:
+	.string "Link is already established.$"
+
+LinkMultiBattle_Text_LinkConnectionEstablished:
+	.string "Link established!$"
+
+LinkMultiBattle_Text_LinkConnectionFailed:
+	.string "Link failed.$"

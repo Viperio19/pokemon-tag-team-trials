@@ -641,3 +641,4 @@ gSpecials::
 	def_special CheckAddCoins
 	def_special ChooseGoldeen, waitstate=1
 	def_special IsTagTeamTrialsLinkActive
+	def_special DoLinkMultiBattle

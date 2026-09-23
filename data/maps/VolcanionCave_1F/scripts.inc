@@ -714,6 +714,7 @@ VolcanionCave_1F_EventScript_DoGolemMultiBattle::
 	clearflag FLAG_PLAYER_2_READY_TO_BATTLE_TOGETHER
 	setwildbattle SPECIES_GOLEM_ALOLA, 35, TRUE
 	multi_fixed_players_vs_wild PARTNER_PLAYER_2
+VolcanionCave_1F_EventScript_GolemMultiBattleEnd::
 	specialvar VAR_RESULT, GetBattleOutcome
 	goto_if_eq VAR_RESULT, B_OUTCOME_WON, VolcanionCave_1F_EventScript_DefeatedGolem
 	release
@@ -721,14 +722,15 @@ VolcanionCave_1F_EventScript_DoGolemMultiBattle::
 
 VolcanionCave_1F_EventScript_GetReadyForGolemMultiBattleMagma::
 	msgbox VolcanionCave_1F_Text_BattleTogetherMagmaWell, MSGBOX_DEFAULT
-	setflag FLAG_PLAYER_2_READY_TO_BATTLE_TOGETHER
-	callnative SwitchCharacters
-	waitstate
-	release
-	end
+	goto VolcanionCave_1F_EventScript_GetReadyForGolemMultiBattle
 
 VolcanionCave_1F_EventScript_GetReadyForGolemMultiBattleAqua::
 	msgbox VolcanionCave_1F_Text_BattleTogetherAquaFine, MSGBOX_DEFAULT
+	goto VolcanionCave_1F_EventScript_GetReadyForGolemMultiBattle
+
+VolcanionCave_1F_EventScript_GetReadyForGolemMultiBattle::
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_EventScript_DoLinkBossBattle
 	setflag FLAG_PLAYER_2_READY_TO_BATTLE_TOGETHER
 	callnative SwitchCharacters
 	waitstate

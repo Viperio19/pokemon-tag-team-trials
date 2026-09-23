@@ -119,8 +119,8 @@
 #define FLAG_PLAYER_2_IS_SAVING                    0x286
 #define FLAG_RETURNING_TO_FIELD_LINK               0x287
 #define FLAG_PLAYER_2_FINISHED_SCRIPT              0x288
+#define FLAG_PLAYER_2_READY_FOR_LINK_BATTLE        0x289
 
-#define FLAG_UNUSED_0x289  0x289 // Unused Flag
 #define FLAG_UNUSED_0x28A  0x28A // Unused Flag
 #define FLAG_UNUSED_0x28B  0x28B // Unused Flag
 #define FLAG_UNUSED_0x28C  0x28C // Unused Flag

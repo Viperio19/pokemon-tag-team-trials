@@ -676,17 +676,19 @@ static const u8 sBattleTowerPartySizes2[] =
     [FRONTIER_MODE_DOUBLES]     = FRONTIER_DOUBLES_PARTY_SIZE,
     [FRONTIER_MODE_MULTIS]      = FRONTIER_MULTI_PARTY_SIZE,
     [FRONTIER_MODE_LINK_MULTIS] = FRONTIER_MULTI_PARTY_SIZE,
+    [NOT_FRONTIER_MODE_LINK_MULTIS] = FRONTIER_MULTI_PARTY_SIZE,
 };
 
 // Unknown, unused data
 static const u16 sUnused[] = { 179, 141, 200, 183 };
 
-static const u8 sBattleTowerPartySizes[FRONTIER_MODE_COUNT] =
+static const u8 sBattleTowerPartySizes[FRONTIER_MODE_COUNT + 1] =
 {
     [FRONTIER_MODE_SINGLES]     = FRONTIER_PARTY_SIZE,
     [FRONTIER_MODE_DOUBLES]     = FRONTIER_DOUBLES_PARTY_SIZE,
     [FRONTIER_MODE_MULTIS]      = FRONTIER_MULTI_PARTY_SIZE,
     [FRONTIER_MODE_LINK_MULTIS] = FRONTIER_MULTI_PARTY_SIZE,
+    [NOT_FRONTIER_MODE_LINK_MULTIS] = FRONTIER_MULTI_PARTY_SIZE,
 };
 
 static const u16 sRecordTrainerSpeechWon[] =
@@ -2032,7 +2034,7 @@ static void FillTentTrainerParty_(u16 trainerId, u8 firstMonId, u8 monCount)
 
 void TrySetLinkBattleTowerEnemyPartyLevel(void)
 {
-    if (!TESTING)
+    if (!TESTING && !(gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER))
     {
         if (gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_RECORDED_LINK))
         {

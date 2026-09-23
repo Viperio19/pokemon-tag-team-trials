@@ -5175,7 +5175,7 @@ u16 GetBattleBGM(void)
             return MUS_RG_VS_LEGEND;
         }
     }
-    else if (gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_RECORDED_LINK))
+    else if (gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_RECORDED_LINK) && !(gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER))
     {
         return MUS_VS_TRAINER;
     }

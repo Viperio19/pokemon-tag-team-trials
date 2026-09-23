@@ -1586,6 +1586,11 @@ static void HandleBattleVariantEndParty(void)
     FlagClear(B_FLAG_SKY_BATTLE);
 }
 
+void BattleSetup_SetCBEndTrainerBattle(void)
+{
+    gMain.savedCallback = CB2_EndTrainerBattle;
+}
+
 static void CB2_EndTrainerBattle(void)
 {
     HandleBattleVariantEndParty();

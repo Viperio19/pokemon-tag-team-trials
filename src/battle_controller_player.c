@@ -1208,6 +1208,40 @@ void HandleMoveSwitching(enum BattlerId battler)
     }
 }
 
+static void SetMultiLinkBattleEndCallbacks(enum BattlerId battler)
+{
+    if (gWirelessCommType == 0)
+    {
+        if (gReceivedRemoteLinkPlayers == 0)
+        {
+            m4aSongNumStop(SE_LOW_HEALTH);
+            gMain.inBattle = FALSE;
+            gMain.callback1 = gPreBattleCallback1;
+            SetMainCallback2(gMain.savedCallback);
+            ResetSpriteData();
+            FreeAllWindowBuffers();
+            FreeMonSpritesGfx();
+            FreeBattleResources();
+            FreeBattleSpritesData();
+        }
+    }
+    else
+    {
+        if (IsLinkTaskFinished())
+        {
+            m4aSongNumStop(SE_LOW_HEALTH);
+            gMain.inBattle = FALSE;
+            gMain.callback1 = gPreBattleCallback1;
+            SetMainCallback2(gMain.savedCallback);
+            ResetSpriteData();
+            FreeAllWindowBuffers();
+            FreeMonSpritesGfx();
+            FreeBattleResources();
+            FreeBattleSpritesData();
+        }
+    }
+}
+
 static void SetLinkBattleEndCallbacks(enum BattlerId battler)
 {
     if (gWirelessCommType == 0)
@@ -1252,7 +1286,10 @@ void SetBattleEndCallbacks(enum BattlerId battler)
                 else
                     SetLinkStandbyCallback();
 
-                gBattlerControllerFuncs[battler] = SetLinkBattleEndCallbacks;
+                if (gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER)
+                    gBattlerControllerFuncs[battler] = SetMultiLinkBattleEndCallbacks;
+                else
+                    gBattlerControllerFuncs[battler] = SetLinkBattleEndCallbacks;
             }
         }
         else

@@ -2929,11 +2929,17 @@ BattleScript_LocalBattleLostEnd::
 	waitmessage B_WAIT_TIME_LONG
 	printstring STRINGID_PLAYERWHITEOUT3
 	waitmessage B_WAIT_TIME_LONG
+	jumpifnotbattletype BATTLE_TYPE_MULTIPLAYER, BattleScript_LocalBattleLostEnd2
+	endlinkbattle
+BattleScript_LocalBattleLostEnd2::
 	end2
 .else
 	printstring STRINGID_PLAYERWHITEOUT3
 	waitmessage B_WAIT_TIME_LONG
 BattleScript_LocalBattleLostEnd::
+	jumpifnotbattletype BATTLE_TYPE_MULTIPLAYER, BattleScript_LocalBattleLostEnd2
+	endlinkbattle
+BattleScript_LocalBattleLostEnd2::
 	end2
 .endif
 
@@ -2957,6 +2963,9 @@ BattleScript_LocalBattleLostDoTrainer2WinText::
 	waitstate
 	printstring STRINGID_TRAINER2WINTEXT
 BattleScript_LocalBattleLostEnd_::
+	jumpifnotbattletype BATTLE_TYPE_MULTIPLAYER, BattleScript_LocalBattleLostEnd2_
+	endlinkbattle
+BattleScript_LocalBattleLostEnd2_::
 	end2
 
 BattleScript_FrontierLinkBattleLost::
@@ -2976,6 +2985,32 @@ BattleScript_FrontierLinkBattleLost::
 	endlinkbattle
 BattleScript_FrontierLinkBattleLostEnd::
 	waitmessage B_WAIT_TIME_LONG
+	end2
+
+BattleScript_LinkMultiBattleWonOrLost::
+	jumpifbattletype BATTLE_TYPE_TWO_OPPONENTS, BattleScript_LinkMultiTwoTrainersDefeated
+	printstring STRINGID_PLAYERDEFEATEDTRAINER1
+	goto BattleScript_LinkMultiBattleWonLoseTexts
+BattleScript_LinkMultiTwoTrainersDefeated::
+	printstring STRINGID_TWOENEMIESDEFEATED
+BattleScript_LinkMultiBattleWonLoseTexts::
+	trainerslidein BS_OPPONENT1
+	waitstate
+	printstring STRINGID_TRAINER1LOSETEXT
+	jumpifnotbattletype BATTLE_TYPE_TWO_OPPONENTS, BattleScript_LinkMultiBattleWonReward
+	trainerslideout BS_OPPONENT1
+	waitstate
+	trainerslidein BS_OPPONENT2
+	waitstate
+	printstring STRINGID_TRAINER2LOSETEXT
+BattleScript_LinkMultiBattleWonReward::
+	getmoneyreward
+	printstring STRINGID_PLAYERGOTMONEY
+	waitmessage B_WAIT_TIME_LONG
+BattleScript_LinkMultiPayDayMoneyAndPickUpItems::
+	givepaydaymoney
+	pickup
+	endlinkbattle
 	end2
 
 BattleScript_LinkBattleWonOrLost::
@@ -5491,6 +5526,10 @@ BattleScript_BerryFocusEnergy::
 
 BattleScript_ActionSelectionItemsCantBeUsed::
 	printselectionstring STRINGID_ITEMSCANTBEUSEDNOW
+	endselectionscript
+
+BattleScript_ActionSelectionCantRunFromTrainer::
+	printselectionstring STRINGID_NORUNNINGFROMTRAINERS
 	endselectionscript
 
 BattleScript_FlushMessageBox::
