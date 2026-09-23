@@ -580,7 +580,7 @@ VolcanionCave_2F_Text_AquaGruntPostBattle2:
 
 VolcanionCave_2F_Text_AquaGruntPostBattle:
 	.string "{SPEAKER NAME_AQUA COLOR_AQUA}Just throw it in the water,\n"
-	.string "you'll get the hang of it no problem!\p"
+	.string "you'll get the hang of it no problem!$"
 
 VolcanionCave_2F_Text_AquaGruntVictory:
 	.string "{SPEAKER NAME_AQUA COLOR_AQUA}Nice try chum, but you aren't\n"
