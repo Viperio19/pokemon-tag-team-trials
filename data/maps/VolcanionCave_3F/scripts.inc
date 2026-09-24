@@ -50,7 +50,8 @@ VolcanionCave_3F_EventScript_SpawnHiddenPlayer2::
 	end
 
 VolcanionCave_3F_OnFrame:
-	map_script_2 VAR_SAVE_ON_FRAME, 1, Player2_EventScript_Save
+	map_script_2 VAR_ACTION_ON_FRAME, 1, Player2_EventScript_Save
+	map_script_2 VAR_ACTION_ON_FRAME, 2, Player2_EventScript_ConnectForMultiplayerBattle
 	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 0, VolcanionCave_3F_EventScript_EnterCave
 	.2byte 0
 

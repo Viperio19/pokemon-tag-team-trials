@@ -70,7 +70,8 @@ VolcanionCave_2F_EventScript_SetOldRodPosition::
 	return
 
 VolcanionCave_2F_OnFrame:
-	map_script_2 VAR_SAVE_ON_FRAME, 1, Player2_EventScript_Save
+	map_script_2 VAR_ACTION_ON_FRAME, 1, Player2_EventScript_Save
+	map_script_2 VAR_ACTION_ON_FRAME, 2, Player2_EventScript_ConnectForMultiplayerBattle
 	map_script_2 VAR_VOLCANION_CAVE_2F_STATE, 0, VolcanionCave_2F_EventScript_EnterCave
 	map_script_2 VAR_OLD_ROD_STATE, 10, VolcanionCave_2F_EventScript_DropOldRod
 	.2byte 0

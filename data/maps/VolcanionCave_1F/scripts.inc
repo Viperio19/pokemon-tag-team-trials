@@ -42,7 +42,8 @@ VolcanionCave_1F_EventScript_HidePlayers::
 	return
 
 VolcanionCave_1F_OnFrame:
-	map_script_2 VAR_SAVE_ON_FRAME, 1, Player2_EventScript_Save
+	map_script_2 VAR_ACTION_ON_FRAME, 1, Player2_EventScript_Save
+	map_script_2 VAR_ACTION_ON_FRAME, 2, Player2_EventScript_ConnectForMultiplayerBattle
 	map_script_2 VAR_VOLCANION_CAVE_1F_STATE, 0, VolcanionCave_1F_EventScript_EnterCave
 	map_script_2 VAR_VOLCANION_CAVE_1F_STATE, 2, VolcanionCave_1F_EventScript_IntroStartMultiplayer
 	map_script_2 VAR_OLD_ROD_STATE, 10, VolcanionCave_1F_EventScript_DropOldRod
@@ -722,15 +723,20 @@ VolcanionCave_1F_EventScript_GolemMultiBattleEnd::
 
 VolcanionCave_1F_EventScript_GetReadyForGolemMultiBattleMagma::
 	msgbox VolcanionCave_1F_Text_BattleTogetherMagmaWell, MSGBOX_DEFAULT
-	goto VolcanionCave_1F_EventScript_GetReadyForGolemMultiBattle
+	goto VolcanionCave_1F_EventScript_TryStartGolemMultiplayerBattle
 
 VolcanionCave_1F_EventScript_GetReadyForGolemMultiBattleAqua::
 	msgbox VolcanionCave_1F_Text_BattleTogetherAquaFine, MSGBOX_DEFAULT
-	goto VolcanionCave_1F_EventScript_GetReadyForGolemMultiBattle
+	goto VolcanionCave_1F_EventScript_TryStartGolemMultiplayerBattle
+
+VolcanionCave_1F_EventScript_TryStartGolemMultiplayerBattle::
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_1F_EventScript_GetReadyForGolemMultiBattle
+	setwildbattle SPECIES_GOLEM_ALOLA, 5, TRUE
+	goto Player2_EventScript_DoLinkBossBattle
+	end
 
 VolcanionCave_1F_EventScript_GetReadyForGolemMultiBattle::
-	callnative IsMultiplayer
-	goto_if_eq VAR_RESULT, TRUE, Player2_EventScript_DoLinkBossBattle
 	setflag FLAG_PLAYER_2_READY_TO_BATTLE_TOGETHER
 	callnative SwitchCharacters
 	waitstate
@@ -749,6 +755,8 @@ VolcanionCave_1F_EventScript_DefeatedGolem::
 	delay 20
 	msgbox VolcanionCave_1F_Text_DidWeKillIt, MSGBOX_DEFAULT
 	setflag FLAG_DEFEATED_VOLCANION_CAVE_1F_GOLEM
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, EventScript_Player2_Connect
 	release
 	end
 

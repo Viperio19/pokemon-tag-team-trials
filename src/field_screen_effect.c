@@ -713,6 +713,7 @@ static void Task_ReturnToWorldFromLinkRoom(u8 taskId)
 
 void ReturnFromLinkRoom(void)
 {
+    gPlayerFacingDirection = gObjectEvents[gPlayerAvatar.objectEventId].facingDirection;
     CreateTask(Task_ReturnToWorldFromLinkRoom, 10);
 }
 

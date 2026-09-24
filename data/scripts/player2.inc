@@ -394,6 +394,8 @@ Player2Magma_Text_Cancel::
 	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}Alright, let's go.$"
 
 EventScript_Player2_Connect::
+	closemessage
+	delay 10
 	message gText_PleaseWaitForLink
 	waitmessage
 	special TryTradeLinkup
@@ -586,7 +588,7 @@ Player2_EventScript_StartSaveAndDisconnect::
 	goto_if_unset FLAG_PLAYER_2_IS_SAVING, Player2_EventScript_CancelSaveAndDisconnect
 	clearflag FLAG_PLAYER_2_IS_SAVING
 	clearflag FlAG_SHOW_PLAYER_2
-	setvar VAR_SAVE_ON_FRAME, 1
+	setvar VAR_ACTION_ON_FRAME, 1
 	message Player2_Text_ClosingConnection
 	waitmessage
 	closemessage
@@ -613,7 +615,7 @@ Player2_Text_ClosingConnection::
 	.string "Closing connection…{PAUSE 40}$"
 
 Player2_EventScript_Save::
-	setvar VAR_SAVE_ON_FRAME, 0
+	setvar VAR_ACTION_ON_FRAME, 0
 	forcesave
 	end
 
@@ -628,10 +630,11 @@ Player2_Text_PleaseDontLeave::
 
 
 Player2_EventScript_DoLinkBossBattle::
-	setwildbattle SPECIES_GOLEM_ALOLA, 5, TRUE
-	goto LinkMultiBattle_EventScript_TryConnectForLinkMultiBattle
 	special SavePlayerParty
-	setvar VAR_FRONTIER_BATTLE_MODE, NOT_FRONTIER_MODE_LINK_MULTIS
+	closemessage
+	delay 10
+	callnative IsTagTeamTrialsLinkActive
+	goto_if_eq VAR_RESULT, FALSE, Player2_EventScript_ConnectForMultiplayerBattle
 	message gText_PleaseWaitForLink
 	waitmessage
 	enqueueplayer2command P2_CMD_CONTROL_FLAG, FLAG_PLAYER_2_READY_FOR_LINK_BATTLE, 1
@@ -639,40 +642,17 @@ Player2_Multiplayer_WaitOtherPlayerBattle::
 	delay 1
 	goto_if_unset FLAG_PLAYER_2_READY_FOR_LINK_BATTLE, Player2_Multiplayer_WaitOtherPlayerBattle
 	clearflag FLAG_PLAYER_2_READY_FOR_LINK_BATTLE
-	delay 10
-	message LinkMultiBattle_Text_InitiatingLinkBattle
+	setvar VAR_ACTION_ON_FRAME, 2
+	message Player2_Text_ClosingConnection
 	waitmessage
-	setwildbattle SPECIES_GOLEM_ALOLA, 35, TRUE
-	special DoLinkMultiBattle
-	waitstate
-	special SavePlayerParty
-	special BattleTowerReconnectLink
-	gotobeatenscript
-	releaseall
+	closemessage
+	callnative UpdatePlayer2Pos
+	callnative SetWarpCurrentPosition
+	special ReturnFromLinkRoom
 	end
 
-LinkMultiBattle_EventScript_TryNoIntroLinkMultiBattle::
-	goto LinkMultiBattle_EventScript_ChoosePokemon
-
-LinkMultiBattle_EventScript_ChoosePokemon::
-	special SavePlayerParty
-	setvar VAR_FRONTIER_BATTLE_MODE, NOT_FRONTIER_MODE_LINK_MULTIS
-	fadescreen FADE_TO_BLACK
-	setvar VAR_0x8004, FRONTIER_LVL_OPEN
-	setvar VAR_0x8005, MULTI_PARTY_SIZE
-	special ChooseHalfPartyForBattle
-	goto_if_eq VAR_RESULT, 0, LinkMultiBattle_EventScript_DoRegularBattle
-	goto LinkMultiBattle_EventScript_PrepareParty
-
-LinkMultiBattle_EventScript_PrepareParty::
-	frontier_set FRONTIER_DATA_SELECTED_MON_ORDER
-	setvar VAR_0x8004, FRONTIER_UTIL_FUNC_SET_PARTY_ORDER
-	setvar VAR_0x8005, MULTI_PARTY_SIZE
-	special CallFrontierUtilFunc
-	goto LinkMultiBattle_EventScript_TryConnectForLinkMultiBattle
-	end
-
-LinkMultiBattle_EventScript_TryConnectForLinkMultiBattle::
+Player2_EventScript_ConnectForMultiplayerBattle::
+	setvar VAR_ACTION_ON_FRAME, 0
 	specialvar VAR_RESULT, IsWirelessAdapterConnected
 	goto_if_eq VAR_RESULT, TRUE, LinkMultiBattle_EventScript_TryWirelessLink
 	goto LinkMultiBattle_EventScript_TryCableLink
@@ -692,15 +672,14 @@ LinkMultiBattle_EventScript_TryCableLink::
 	goto_if_eq VAR_RESULT, LINKUP_FAILED_BATTLE_TOWER, LinkMultiBattle_EventScript_CableLinkFailed
 	end
 
-LinkMultiBattle_EventScript_CableLinkSuccessful::
-	goto LinkMultiBattle_EventScript_CheckSameTrainer
-
 LinkMultiBattle_EventScript_CableLinkFailed::
 	special CloseLink
 	message LinkMultiBattle_Text_LinkConnectionFailed
 	waitmessage
 	delay 60
-	goto LinkMultiBattle_EventScript_DoRegularBattle
+	special LoadPlayerParty
+	releaseall
+	end
 
 LinkMultiBattle_EventScript_TryWirelessLink::
 	setvar VAR_0x8004, LINK_GROUP_BATTLE_TOWER
@@ -736,37 +715,6 @@ LinkMultiBattle_EventScript_TryJoinGroup::
 	release
 	return
 
-LinkMultiBattle_EventScript_WirelessLinkSuccessful::
-	goto LinkMultiBattle_EventScript_CheckSameTrainer
-	end
-
-LinkMultiBattle_EventScript_CheckSameTrainer::
-	setvar VAR_RESULT, 0
-	setvar VAR_0x8009, FALSE
-LinkMultiBattle_EventScript_WaitForCheckSameTrainer::
-	goto_if_lt VAR_RESULT, 7, LinkMultiBattle_EventScript_WaitForCheckSameTrainer
-	goto_if_eq VAR_RESULT, 8, LinkMultiBattle_EventScript_CloseLinkAndDoRegularBattle
-	goto_if_eq VAR_0x8009, TRUE, LinkMultiBattle_EventScript_SelectedDifferentTrainer
-	goto LinkMultiBattle_EventScript_DoLinkMultiBattle
-
-LinkMultiBattle_EventScript_CloseLinkAndDoRegularBattle::
-	special CloseLink
-	goto LinkMultiBattle_EventScript_DoRegularBattle
-
-LinkMultiBattle_EventScript_SelectedDifferentTrainer::
-	special CloseLink
-	msgbox LinkMultiBattle_Text_SelectedDifferentTrainer, MSGBOX_DEFAULT
-	goto LinkMultiBattle_EventScript_DoRegularBattle
-
-LinkMultiBattle_EventScript_DoRegularBattle::
-	special LoadPlayerParty
-	@ goto EventScript_InitiateSoloBattle
-	end
-
-LinkMultiBattle_EventScript_DoRegularNoIntroBattle::
-	@ goto EventScript_InitiateNoIntroSoloBattle
-	end
-
 LinkMultiBattle_EventScript_DoLinkMultiBattle::
 	message LinkMultiBattle_Text_InitiatingLinkBattle
 	waitmessage
@@ -781,25 +729,8 @@ LinkMultiBattle_EventScript_Lost::
 	releaseall
 	end
 
-LinkMultiBattle_EventScript_GoToPostBattleScript::
-	gotopostbattlescript
-
-LinkMultiBattle_Text_SelectedDifferentTrainer:
-	.string "The other player selected a\n"
-	.string "different trainer.$"
-
 LinkMultiBattle_Text_InitiatingLinkBattle:
 	.string "Initiating link battle.$"
-
-LinkMenu_Text_DoYouWantToConnect:
-	.string "Do you want to connect to\n"
-	.string "another player?$"
-
-LinkMenu_Text_LinkIsAlreadyEstablished:
-	.string "Link is already established.$"
-
-LinkMultiBattle_Text_LinkConnectionEstablished:
-	.string "Link established!$"
 
 LinkMultiBattle_Text_LinkConnectionFailed:
 	.string "Link failed.$"

@@ -251,7 +251,7 @@
 #define VAR_GOLEM_ROCK_SLIDE_STATE                       0x40E1
 #define VAR_GOLEM_ROCK_SLIDE_TIMER                       0x40E2
 #define VAR_VOLCANION_CAVE_3F_PIKACHU_STATE              0x40E3
-#define VAR_SAVE_ON_FRAME                                0x40E4
+#define VAR_ACTION_ON_FRAME                                0x40E4
 #define VAR_VOLCANION_CAVE_2F_STRENGTH_BUTTON_3          0x40E5
 #define VAR_DAILY_SLOTS                                  0x40E6
 #define VAR_DAILY_WILDS                                  0x40E7
