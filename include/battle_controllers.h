@@ -407,7 +407,7 @@ void SetControllerToPlayer(enum BattlerId battler);
 void PlayerBufferExecCompleted(enum BattlerId battler);
 void SetBattleEndCallbacks(enum BattlerId battler);
 void PlayerHandleExpUpdate(enum BattlerId battler);
-enum TrainerPicID LinkPlayerGetTrainerPicId(u32 multiplayerId);
+enum TrainerPicID LinkPlayerGetTrainerPicId(u32 multiplayerId, bool8 player);
 void CB2_SetUpReshowBattleScreenAfterMenu(void);
 void CB2_SetUpReshowBattleScreenAfterMenu2(void);
 void Task_PlayerController_RestoreBgmAfterCry(u8 taskId);

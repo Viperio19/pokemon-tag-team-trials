@@ -628,7 +628,7 @@ Player2_Text_PleaseDontLeave::
 
 
 Player2_EventScript_DoLinkBossBattle::
-	setwildbattle SPECIES_GOLEM_ALOLA, 35, TRUE
+	setwildbattle SPECIES_GOLEM_ALOLA, 5, TRUE
 	goto LinkMultiBattle_EventScript_TryConnectForLinkMultiBattle
 	special SavePlayerParty
 	setvar VAR_FRONTIER_BATTLE_MODE, NOT_FRONTIER_MODE_LINK_MULTIS
@@ -774,7 +774,10 @@ LinkMultiBattle_EventScript_DoLinkMultiBattle::
 	waitstate
 	special SavePlayerParty
 	tower_closelink
-	gotobeatenscript
+	specialvar VAR_RESULT, GetBattleOutcome
+	goto_if_ne VAR_RESULT, B_OUTCOME_WON, LinkMultiBattle_EventScript_Lost
+	goto_if_unset FLAG_DEFEATED_VOLCANION_CAVE_1F_GOLEM, VolcanionCave_1F_EventScript_DefeatedGolem
+LinkMultiBattle_EventScript_Lost::
 	releaseall
 	end
 

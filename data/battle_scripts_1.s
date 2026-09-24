@@ -2988,28 +2988,6 @@ BattleScript_FrontierLinkBattleLostEnd::
 	end2
 
 BattleScript_LinkMultiBattleWonOrLost::
-	jumpifbattletype BATTLE_TYPE_TWO_OPPONENTS, BattleScript_LinkMultiTwoTrainersDefeated
-	printstring STRINGID_PLAYERDEFEATEDTRAINER1
-	goto BattleScript_LinkMultiBattleWonLoseTexts
-BattleScript_LinkMultiTwoTrainersDefeated::
-	printstring STRINGID_TWOENEMIESDEFEATED
-BattleScript_LinkMultiBattleWonLoseTexts::
-	trainerslidein BS_OPPONENT1
-	waitstate
-	printstring STRINGID_TRAINER1LOSETEXT
-	jumpifnotbattletype BATTLE_TYPE_TWO_OPPONENTS, BattleScript_LinkMultiBattleWonReward
-	trainerslideout BS_OPPONENT1
-	waitstate
-	trainerslidein BS_OPPONENT2
-	waitstate
-	printstring STRINGID_TRAINER2LOSETEXT
-BattleScript_LinkMultiBattleWonReward::
-	getmoneyreward
-	printstring STRINGID_PLAYERGOTMONEY
-	waitmessage B_WAIT_TIME_LONG
-BattleScript_LinkMultiPayDayMoneyAndPickUpItems::
-	givepaydaymoney
-	pickup
 	endlinkbattle
 	end2
 

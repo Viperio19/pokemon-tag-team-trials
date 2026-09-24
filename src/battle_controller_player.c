@@ -1922,12 +1922,15 @@ static void PlayerHandleLoadMonSprite(enum BattlerId battler)
     gBattlerControllerFuncs[battler] = CompleteOnBattlerSpritePosX_0;
 }
 
-enum TrainerPicID LinkPlayerGetTrainerPicId(u32 multiplayerId)
+enum TrainerPicID LinkPlayerGetTrainerPicId(u32 multiplayerId, bool8 isPlayer)
 {
     u8 gender = gLinkPlayers[multiplayerId].gender;
     enum GameVersion version = gLinkPlayers[multiplayerId].version & 0xFF;
 
-    return GetPlayerTrainerPic(gender, version);
+    if (isPlayer == TRUE)
+        return GetPlayerTrainerPic(gender, version);
+
+    return GetPlayer2TrainerPic(gender, version);
 }
 
 static enum TrainerPicID PlayerGetTrainerBackPicId(enum BattlerId battler)
@@ -1937,7 +1940,7 @@ static enum TrainerPicID PlayerGetTrainerBackPicId(enum BattlerId battler)
     if (gBattleTypeFlags & BATTLE_TYPE_PLAYER_2_PARTNER && battler == GetBattlerAtPosition(B_POSITION_PLAYER_RIGHT))
         trainerPicId = GetPlayer2TrainerPic(gSaveBlock2Ptr->player2Gender, GAME_VERSION);
     else if (gBattleTypeFlags & BATTLE_TYPE_LINK)
-        trainerPicId = LinkPlayerGetTrainerPicId(GetMultiplayerId());
+        trainerPicId = LinkPlayerGetTrainerPicId(GetMultiplayerId(), TRUE);
     else
         trainerPicId = GetPlayerTrainerPic(gSaveBlock2Ptr->playerGender, GAME_VERSION);
 

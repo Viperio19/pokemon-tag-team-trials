@@ -1586,9 +1586,9 @@ static void HandleBattleVariantEndParty(void)
     FlagClear(B_FLAG_SKY_BATTLE);
 }
 
-void BattleSetup_SetCBEndTrainerBattle(void)
+void BattleSetup_SetCBEndScriptedWildBattle(void)
 {
-    gMain.savedCallback = CB2_EndTrainerBattle;
+    gMain.savedCallback = CB2_EndScriptedWildBattle;
 }
 
 static void CB2_EndTrainerBattle(void)

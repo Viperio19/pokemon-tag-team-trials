@@ -114,7 +114,7 @@ gText_Intro_CourtneyPlayer2_Welcome::
 	.string "he can to make me do his job for him.\p"
 	.string "To give you a quick summary, we are\n"
 	.string "at VOLCANO CANYON following reports\l"
-	.string "of a LEGENDARY FIRE-TYPE POKéMON\l"
+	.string "of a LEGENDARY FIRE-TYPE POKéMON.\p"
 	.string "Speaking of FIRE-TYPES, I have some\n"
 	.string "wonderful news for you.\p"
 	.string "No, you have not been FIRED.\p"
