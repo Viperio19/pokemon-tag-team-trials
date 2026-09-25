@@ -57,6 +57,7 @@
 #include "save.h"
 #include "save_location.h"
 #include "script.h"
+#include "script_movement.h"
 #include "script_pokemon_util.h"
 #include "secret_base.h"
 #include "sound.h"
@@ -127,7 +128,7 @@ static bool32 LoadMapInStepsLocal(u8 *, bool32);
 static bool32 LoadMapInStepsLink(u8 *);
 static bool32 ReturnToFieldLocal(u8 *);
 static bool32 ReturnToFieldLink(u8 *);
-static void InitObjectEventsLink(void);
+// static void InitObjectEventsLink(void);
 static void InitObjectEventsLocal(void);
 static void InitOverworldGraphicsRegisters(void);
 static u8 GetSpriteForLinkedPlayer(u8);
@@ -135,8 +136,8 @@ static u16 KeyInterCB_SendNothing(u32);
 static void ResetMirageTowerAndSaveBlockPtrs(void);
 static void ResetScreenForMapLoad(void);
 // static void OffsetCameraFocusByLinkPlayerId(void);
-static void SpawnLinkPlayers(void);
-static void SetCameraToTrackGuestPlayer(void);
+// static void SpawnLinkPlayers(void);
+// static void SetCameraToTrackGuestPlayer(void);
 static void ResumeMap(bool32);
 static void SetCameraToTrackPlayer(void);
 static void InitObjectEventsReturnToField(void);
@@ -150,38 +151,36 @@ static void UpdateAllLinkPlayers(u16 *, s32);
 static enum Direction FlipVerticalAndClearForced(u8, u8);
 static u8 LinkPlayerGetCollision(u8, enum Direction, s16, s16);
 static void CreateLinkPlayerSprite(u8, enum GameVersion);
-static void GetLinkPlayerCoords(u8, s16 *, s16 *);
-static u8 GetLinkPlayerFacingDirection(u8);
-static u8 GetLinkPlayerElevation(u8);
-static u8 GetLinkPlayerIdAt(s16, s16);
-static void SetPlayerFacingDirection(u8, u8);
-static void ZeroObjectEvent(struct ObjectEvent *);
-static void SpawnLinkPlayerObjectEvent(u8);
-static void InitLinkPlayerObjectEventPos(struct ObjectEvent *, s16, s16);
+// static void GetLinkPlayerCoords(u8, s16 *, s16 *);
+// static u8 GetLinkPlayerFacingDirection(u8);
+// static u8 GetLinkPlayerElevation(u8);
+// static u8 GetLinkPlayerIdAt(s16, s16);
+// static void SetPlayerFacingDirection(u8, u8);
+// static void ZeroObjectEvent(struct ObjectEvent *);
+// static void SpawnLinkPlayerObjectEvent(u8);
+// static void InitLinkPlayerObjectEventPos(struct ObjectEvent *, s16, s16);
 static u8 GetSpriteForLinkedPlayer(u8);
-static void RunTerminateLinkScript(void);
+// static void RunTerminateLinkScript(void);
 static u32 GetLinkSendQueueLength(void);
-static void ZeroLinkPlayerObjectEvent(struct LinkPlayerObjectEvent *);
-static const u8 *TryInteractWithPlayer(struct CableClubPlayer *);
-static u16 GetDirectionForEventScript(const u8 *);
-static void InitLinkPlayerQueueScript(void);
-static void InitLinkRoomStartMenuScript(void);
-static void RunInteractLocalPlayerScript(const u8 *);
-static void RunConfirmLeaveCableClubScript(void);
-static void InitMenuBasedScript(const u8 *);
-static void LoadCableClubPlayer(s32, s32, struct CableClubPlayer *);
-static bool32 IsCableClubPlayerUnfrozen(struct CableClubPlayer *);
-static bool32 CanCableClubPlayerPressStart(struct CableClubPlayer *);
-static const u8 *TryGetTileEventScript(struct CableClubPlayer *);
-static bool32 PlayerIsAtSouthExit(struct CableClubPlayer *);
-static const u8 *TryInteractWithPlayer(struct CableClubPlayer *);
+// static void ZeroLinkPlayerObjectEvent(struct LinkPlayerObjectEvent *);
+// static const u8 *TryInteractWithPlayer(struct CableClubPlayer *);
+// static u16 GetDirectionForEventScript(const u8 *);
+// static void InitLinkPlayerQueueScript(void);
+// static void InitLinkRoomStartMenuScript(void);
+// static void RunInteractLocalPlayerScript(const u8 *);
+// static void RunConfirmLeaveCableClubScript(void);
+// static void InitMenuBasedScript(const u8 *);
+// static void LoadCableClubPlayer(s32, s32, struct CableClubPlayer *);
+// static bool32 IsCableClubPlayerUnfrozen(struct CableClubPlayer *);
+// static bool32 CanCableClubPlayerPressStart(struct CableClubPlayer *);
+// static const u8 *TryGetTileEventScript(struct CableClubPlayer *);
+// static bool32 PlayerIsAtSouthExit(struct CableClubPlayer *);
 static u16 KeyInterCB_DeferToRecvQueue(u32);
 static u16 KeyInterCB_DeferToSendQueue(u32);
 static void ResetPlayerHeldKeys(u16 *);
 static u16 KeyInterCB_SelfIdle(u32);
 static u16 KeyInterCB_DeferToEventScript(u32);
-static u16 GetDirectionForDpadKey(u16);
-static void CB1_OverworldLink(void);
+// static u16 GetDirectionForDpadKey(u16);
 static void SetKeyInterceptCallback(u16 (*func)(u32));
 static void SetFieldVBlankCallback(void);
 static void FieldClearVBlankHBlankCallbacks(void);
@@ -211,6 +210,7 @@ COMMON_DATA void (*gFieldCallback)(void) = NULL;
 COMMON_DATA bool8 (*gFieldCallback2)(void) = NULL;
 COMMON_DATA u8 gLocalLinkPlayerId = 0; // This is our player id in a multiplayer mode.
 COMMON_DATA u8 gFieldLinkPlayerCount = 0;
+COMMON_DATA u16 gP2CommandsToSendQueue[4][P2_CMD_QUEUE_SIZE] = {0};
 
 u8 gTimeOfDay;
 struct TimeBlendSettings gTimeBlend;
@@ -1065,6 +1065,12 @@ bool8 MetatileBehavior_IsSurfableInSeafoamIslands(u16 metatileBehavior)
 
 static enum Direction GetAdjustedInitialDirection(struct InitialPlayerAvatarState *playerStruct, u8 transitionFlags, u16 metatileBehavior, enum MapType mapType)
 {
+    if (gPlayerFacingDirection != DIR_NONE)
+    {
+        enum Direction dir = gPlayerFacingDirection;
+        gPlayerFacingDirection = DIR_NONE;
+        return dir;
+    }
     if (FlagGet(FLAG_DOING_PLAYER_SWITCH))
         return gSaveBlock2Ptr->player2FacingDirection;
     else if (FlagGet(FLAG_SYS_CRUISE_MODE) && mapType == MAP_TYPE_OCEAN_ROUTE)
@@ -1663,6 +1669,14 @@ bool32 IsOverworldLinkActive(void)
         return FALSE;
 }
 
+bool32 IsTagTeamTrialsLinkActive(void)
+{
+    if (gMain.callback3 == CB1_OverworldLink)
+        return TRUE;
+    else
+        return FALSE;
+}
+
 static void DoCB1_Overworld(u16 newKeys, u16 heldKeys)
 {
     struct FieldInput inputStruct;
@@ -1894,6 +1908,11 @@ void SetMainCallback1(MainCallback cb)
     gMain.callback1 = cb;
 }
 
+void SetMainCallback3(MainCallback cb)
+{
+    gMain.callback3 = cb;
+}
+
 static bool8 RunFieldCallback(void)
 {
     if (gFieldCallback2)
@@ -2016,7 +2035,7 @@ static void CB2_LoadMapOnReturnToFieldCableClub(void)
     if (LoadMapInStepsLink(&gMain.state))
     {
         SetFieldVBlankCallback();
-        SetMainCallback1(CB1_OverworldLink);
+        SetMainCallback3(CB1_OverworldLink);
         ResetAllMultiplayerState();
         SetMainCallback2(CB2_Overworld);
     }
@@ -2024,7 +2043,7 @@ static void CB2_LoadMapOnReturnToFieldCableClub(void)
 
 void CB2_ReturnToField(void)
 {
-    if (IsOverworldLinkActive() == TRUE)
+    if (IsTagTeamTrialsLinkActive() == TRUE)
     {
         SetMainCallback2(CB2_ReturnToFieldLink);
     }
@@ -2046,8 +2065,13 @@ static void CB2_ReturnToFieldLocal(void)
 
 static void CB2_ReturnToFieldLink(void)
 {
+    StartSendingKeysToLink();
+    SetMainCallback3(CB1_OverworldLink);
     if (!Overworld_IsRecvQueueAtMax() && ReturnToFieldLink(&gMain.state))
+    {
+        FlagClear(FLAG_RETURNING_TO_FIELD_LINK);
         SetMainCallback2(CB2_Overworld);
+    }
 }
 
 void CB2_ReturnToFieldFromMultiplayer(void)
@@ -2213,6 +2237,15 @@ static bool32 LoadMapInStepsLink(u8 *state)
     switch (*state)
     {
     case 0:
+        struct LinkPlayer linkPlayer = gLinkPlayers[GetMultiplayerId() ^ 1];
+        gSaveBlock2Ptr->player2Gender = linkPlayer.gender;
+        SetPlayer2Pos(gSaveBlock1Ptr->location.mapGroup,
+                    gSaveBlock1Ptr->location.mapNum,
+                    linkPlayer.x,
+                    linkPlayer.y,
+                    linkPlayer.facingDirection,
+                    3);
+
         InitOverworldBgs();
         ScriptContext_Init();
         UnlockPlayerFieldControls();
@@ -2231,9 +2264,10 @@ static bool32 LoadMapInStepsLink(u8 *state)
         break;
     case 3:
         // OffsetCameraFocusByLinkPlayerId();
-        InitObjectEventsLink();
-        SpawnLinkPlayers();
-        SetCameraToTrackGuestPlayer();
+        InitObjectEventsLocal();
+        // SpawnLinkPlayers();
+        // SetCameraToTrackGuestPlayer();
+        SetCameraToTrackPlayer();
         (*state)++;
         break;
     case 4:
@@ -2473,16 +2507,20 @@ static bool32 ReturnToFieldLink(u8 *state)
         (*state)++;
         break;
     case 3:
+        memset(&gReceivedP2CommandsQueue, 0, sizeof(gReceivedP2CommandsQueue));
+        EnqueuePlayer2CommandToSend(P2_CMD_REQUEST_POSITION, 0, 0, 0);
         InitCurrentFlashLevelScanlineEffect();
         InitOverworldGraphicsRegisters();
         InitTextBoxGfxAndPrinters();
         (*state)++;
         break;
     case 4:
+        EnqueuePlayer2CommandToSend(P2_CMD_REQUEST_POSITION, 0, 0, 0);
         ResetFieldCamera();
         (*state)++;
         break;
     case 5:
+        EnqueuePlayer2CommandToSend(P2_CMD_REQUEST_POSITION, 0, 0, 0);
         CopyPrimaryTilesetToVram(gMapHeader.mapLayout);
         (*state)++;
         break;
@@ -2646,14 +2684,14 @@ static void ResumeMap(bool32 a1)
     TryStartMirageTowerPulseBlendEffect();
 }
 
-static void InitObjectEventsLink(void)
-{
-    gTotalCameraPixelOffsetX = 0;
-    gTotalCameraPixelOffsetY = 0;
-    ResetObjectEvents();
-    TrySpawnObjectEvents(0, 0);
-    TryRunOnWarpIntoMapScript();
-}
+// static void InitObjectEventsLink(void)
+// {
+//     gTotalCameraPixelOffsetX = 0;
+//     gTotalCameraPixelOffsetY = 0;
+//     ResetObjectEvents();
+//     TrySpawnObjectEvents(0, 0);
+//     TryRunOnWarpIntoMapScript();
+// }
 
 static void InitObjectEventsLocal(void)
 {
@@ -2687,10 +2725,10 @@ static void SetCameraToTrackPlayer(void)
     InitCameraUpdateCallback(gPlayerAvatar.spriteId);
 }
 
-static void SetCameraToTrackGuestPlayer(void)
-{
-    InitCameraUpdateCallback(GetSpriteForLinkedPlayer(gLocalLinkPlayerId));
-}
+// static void SetCameraToTrackGuestPlayer(void)
+// {
+//     InitCameraUpdateCallback(GetSpriteForLinkedPlayer(gLocalLinkPlayerId));
+// }
 
 // Duplicate function.
 static void SetCameraToTrackGuestPlayer_2(void)
@@ -2708,22 +2746,22 @@ static void SetCameraToTrackGuestPlayer_2(void)
 //     SetCameraFocusCoords(x + gLocalLinkPlayerId, y);
 // }
 
-static void SpawnLinkPlayers(void)
-{
-    u16 i;
-    u16 x, y;
+// static void SpawnLinkPlayers(void)
+// {
+//     u16 i;
+//     u16 x, y;
 
-    GetCameraFocusCoords(&x, &y);
-    x -= gLocalLinkPlayerId;
+//     GetCameraFocusCoords(&x, &y);
+//     x -= gLocalLinkPlayerId;
 
-    for (i = 0; i < gFieldLinkPlayerCount; i++)
-    {
-        SpawnLinkPlayerObjectEvent(i);
-        CreateLinkPlayerSprite(i, gLinkPlayers[i].version);
-    }
+//     for (i = 0; i < gFieldLinkPlayerCount; i++)
+//     {
+//         SpawnLinkPlayerObjectEvent(i);
+//         CreateLinkPlayerSprite(i, gLinkPlayers[i].version);
+//     }
 
-    ClearAllPlayerKeys();
-}
+//     ClearAllPlayerKeys();
+// }
 
 static void CreateLinkPlayerSprites(void)
 {
@@ -2733,7 +2771,7 @@ static void CreateLinkPlayerSprites(void)
 }
 
 
-static void CB1_OverworldLink(void)
+void CB1_OverworldLink(void)
 {
     if (gWirelessCommType == 0 || !IsRfuRecvQueueEmpty() || !IsSendingKeysToLink())
     {
@@ -2751,6 +2789,9 @@ static void CB1_OverworldLink(void)
         //
         // Note 2: There are some key intercept callbacks that treat the key as a player
         // ID. It's so hacky.
+        if (sPlayerKeyInterceptCallback == 0)
+            return;
+
         UpdateHeldKeyCode(sPlayerKeyInterceptCallback(selfId));
         ClearAllPlayerKeys();
     }
@@ -2813,130 +2854,452 @@ static bool32 IsAnyPlayerInLinkState(u16 state)
     return FALSE;
 }
 
-static void HandleLinkPlayerKeyInput(u32 playerId, u16 key, struct CableClubPlayer *trainer, u16 *forceFacing)
+// static void HandleLinkPlayerKeyInput(u32 playerId, u16 key, struct CableClubPlayer *trainer, u16 *forceFacing)
+// {
+//     const u8 *script;
+
+//     if (sPlayerLinkStates[playerId] == PLAYER_LINK_STATE_IDLE)
+//     {
+//         script = TryGetTileEventScript(trainer);
+//         if (script)
+//         {
+//             *forceFacing = GetDirectionForEventScript(script);
+//             sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_BUSY;
+//             if (trainer->isLocalPlayer)
+//             {
+//                 SetKeyInterceptCallback(KeyInterCB_DeferToEventScript);
+//                 RunInteractLocalPlayerScript(script);
+//             }
+//             return;
+//         }
+//         if (IsAnyPlayerInLinkState(PLAYER_LINK_STATE_EXITING_ROOM) == TRUE)
+//         {
+//             sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_BUSY;
+//             if (trainer->isLocalPlayer)
+//             {
+//                 SetKeyInterceptCallback(KeyInterCB_DeferToEventScript);
+//                 RunTerminateLinkScript();
+//             }
+//             return;
+//         }
+
+//         switch (key)
+//         {
+//         case LINK_KEY_CODE_START_BUTTON:
+//             if (CanCableClubPlayerPressStart(trainer))
+//             {
+//                 sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_BUSY;
+//                 if (trainer->isLocalPlayer)
+//                 {
+//                     SetKeyInterceptCallback(KeyInterCB_DeferToEventScript);
+//                     InitLinkRoomStartMenuScript();
+//                 }
+//             }
+//             break;
+//         case LINK_KEY_CODE_DPAD_DOWN:
+//             if (PlayerIsAtSouthExit(trainer) == TRUE)
+//             {
+//                 sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_BUSY;
+//                 if (trainer->isLocalPlayer)
+//                 {
+//                     SetKeyInterceptCallback(KeyInterCB_DeferToEventScript);
+//                     RunConfirmLeaveCableClubScript();
+//                 }
+//             }
+//             break;
+//         case LINK_KEY_CODE_A_BUTTON:
+//             script = TryInteractWithPlayer(trainer);
+//             if (script)
+//             {
+//                 sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_BUSY;
+//                 if (trainer->isLocalPlayer)
+//                 {
+//                     SetKeyInterceptCallback(KeyInterCB_DeferToEventScript);
+//                     InitMenuBasedScript(script);
+//                 }
+//             }
+//             break;
+//         case LINK_KEY_CODE_HANDLE_RECV_QUEUE:
+//             if (IsCableClubPlayerUnfrozen(trainer))
+//             {
+//                 sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_BUSY;
+//                 if (trainer->isLocalPlayer)
+//                 {
+//                     SetKeyInterceptCallback(KeyInterCB_DeferToRecvQueue);
+//                     InitLinkPlayerQueueScript();
+//                 }
+//             }
+//             break;
+//         case LINK_KEY_CODE_HANDLE_SEND_QUEUE:
+//             if (IsCableClubPlayerUnfrozen(trainer))
+//             {
+//                 sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_BUSY;
+//                 if (trainer->isLocalPlayer)
+//                 {
+//                     SetKeyInterceptCallback(KeyInterCB_DeferToSendQueue);
+//                     InitLinkPlayerQueueScript();
+//                 }
+//             }
+//             break;
+//         }
+//     }
+
+//     switch (key)
+//     {
+//     case LINK_KEY_CODE_EXIT_ROOM:
+//         sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_EXITING_ROOM;
+//         break;
+//     case LINK_KEY_CODE_READY:
+//         sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_READY;
+//         break;
+//     case LINK_KEY_CODE_IDLE:
+//         sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_IDLE;
+//         if (trainer->isLocalPlayer)
+//             SetKeyInterceptCallback(KeyInterCB_SelfIdle);
+//         break;
+//     case LINK_KEY_CODE_EXIT_SEAT:
+//         if (sPlayerLinkStates[playerId] == PLAYER_LINK_STATE_READY)
+//             sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_BUSY;
+//         break;
+//     }
+// }
+
+void EnqueuePlayer2CommandToSend(enum Player2Command command, u16 arg1, u16 arg2, u16 arg3)
 {
-    const u8 *script;
+    DebugPrintf("enqueue to send %d", command);
 
-    if (sPlayerLinkStates[playerId] == PLAYER_LINK_STATE_IDLE)
+    for (u8 i = 0; i < P2_CMD_QUEUE_SIZE; i++)
     {
-        script = TryGetTileEventScript(trainer);
-        if (script)
+        if (gP2CommandsToSendQueue[0][i] == P2_CMD_NONE)
         {
-            *forceFacing = GetDirectionForEventScript(script);
-            sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_BUSY;
-            if (trainer->isLocalPlayer)
-            {
-                SetKeyInterceptCallback(KeyInterCB_DeferToEventScript);
-                RunInteractLocalPlayerScript(script);
-            }
+            gP2CommandsToSendQueue[0][i] = command;
+            gP2CommandsToSendQueue[1][i] = arg1;
+            gP2CommandsToSendQueue[2][i] = arg2;
+            gP2CommandsToSendQueue[3][i] = arg3;
             return;
         }
-        if (IsAnyPlayerInLinkState(PLAYER_LINK_STATE_EXITING_ROOM) == TRUE)
+    }
+}
+
+void TrySetPlayer2DirectionCommand(enum Player2Command command, enum Direction direction)
+{
+    if (direction < DIR_SOUTH || direction > DIR_EAST)
+        return;
+
+    EnqueuePlayer2CommandToSend(command, direction, LOCALID_PLAYER_2, 0);
+}
+
+void Enqueueplayer2commandEndRockSmash(void)
+{
+    EnqueuePlayer2CommandToSend(P2_CMD_END_ROCK_SMASH, gFieldEffectArguments[2], VarGet(VAR_LAST_TALKED), 0);
+}
+
+struct RockClimbRide
+{
+    u8 action;
+    s8 dx;
+    s8 dy;
+    u8 jumpDir;
+};
+static const struct RockClimbRide sRockClimbMovement[] =
+{
+    [DIR_NONE] = {MOVEMENT_ACTION_WALK_FAST_DOWN, 0, 0, DIR_NONE},
+    [DIR_SOUTH] = {MOVEMENT_ACTION_WALK_FAST_DOWN, 0, -1, DIR_SOUTH},
+    [DIR_NORTH] = {MOVEMENT_ACTION_WALK_FAST_UP, 0, 1, DIR_NORTH},
+    [DIR_WEST] = {MOVEMENT_ACTION_WALK_FAST_LEFT, 1, 1, DIR_WEST},
+    [DIR_EAST] = {MOVEMENT_ACTION_WALK_FAST_RIGHT, -1, -1, DIR_EAST},
+    [DIR_SOUTHWEST] = {MOVEMENT_ACTION_WALK_FAST_DIAGONAL_DOWN_LEFT, 1, -1, DIR_WEST},
+    [DIR_SOUTHEAST] = {MOVEMENT_ACTION_WALK_FAST_DIAGONAL_DOWN_RIGHT, -1, -1, DIR_EAST},
+    [DIR_NORTHWEST] = {MOVEMENT_ACTION_WALK_FAST_DIAGONAL_UP_LEFT, 1, 1, DIR_WEST},
+    [DIR_NORTHEAST] = {MOVEMENT_ACTION_WALK_FAST_DIAGONAL_UP_RIGHT, -1, 1, DIR_EAST},
+};
+
+static const u8 *const sPlayer2CommandToMovement[][4] =
+{
+    [P2_CMD_NONE] = {Common_Movement_FaceDown, Common_Movement_FaceUp, Common_Movement_FaceLeft, Common_Movement_FaceRight},
+    [P2_CMD_FACE_DIRECTION] = {Common_Movement_FaceDown, Common_Movement_FaceUp, Common_Movement_FaceLeft, Common_Movement_FaceRight},
+    [P2_CMD_WALK_IN_PLACE] = {Common_Movement_WalkInPlaceDown, Common_Movement_WalkInPlaceUp, Common_Movement_WalkInPlaceLeft, Common_Movement_WalkInPlaceRight},
+    [P2_CMD_WALK_IN_PLACE_FAST] = {Common_Movement_WalkInPlaceFastDown, Common_Movement_WalkInPlaceFastUp, Common_Movement_WalkInPlaceFastLeft, Common_Movement_WalkInPlaceFastRight},
+    [P2_CMD_WALK_IN_PLACE_FASTER] = {Common_Movement_WalkInPlaceFasterDown, Common_Movement_WalkInPlaceFasterUp, Common_Movement_WalkInPlaceFasterLeft, Common_Movement_WalkInPlaceFasterRight},
+    [P2_CMD_WALK_NORMAL] = {Common_Movement_WalkDown, Common_Movement_WalkUp, Common_Movement_WalkLeft, Common_Movement_WalkRight},
+    [P2_CMD_WALK_FAST] = {Common_Movement_WalkDownFast, Common_Movement_WalkUpFast, Common_Movement_WalkLeftFast, Common_Movement_WalkRightFast},
+    [P2_CMD_RUN] = {Common_Movement_RunDown, Common_Movement_RunUp, Common_Movement_RunLeft, Common_Movement_RunRight},
+    [P2_CMD_JUMP] = {Common_Movement_JumpDown, Common_Movement_JumpUp, Common_Movement_JumpLeft, Common_Movement_JumpRight},
+    [P2_CMD_JUMP_2] = {Common_Movement_Jump2Down, Common_Movement_Jump2Up, Common_Movement_Jump2Left, Common_Movement_Jump2Right},
+    [P2_CMD_RIDE_WATER_CURRENT] = {Common_Movement_RideWaterCurrentDown, Common_Movement_RideWaterCurrentUp, Common_Movement_RideWaterCurrentLeft, Common_Movement_RideWaterCurrentRight},
+    [P2_CMD_STOP_SURFING] = {Common_Movement_JumpSpecialDown, Common_Movement_JumpSpecialUp, Common_Movement_JumpSpecialLeft, Common_Movement_JumpSpecialRight},
+};
+
+static const u8 *const sPlayer2MovementIdToScript[] =
+{
+    [P2_MOVEMENT_DIGLETT_DIG_DOWN] = VolcanionCave_1F_Movement_DiglettDigDown,
+    [P2_MOVEMENT_MAGMA_GRUNT_M_CONFUSED] = VolcanionCave_1F_Movement_MagmaGruntMConfused,
+    [P2_MOVEMENT_DIGLETT_DIG_UP] = VolcanionCave_1F_Movement_DiglettDigUp,
+    [P2_MOVEMENT_MAGMA_GRUNT_M_SURPRISED] = VolcanionCave_1F_Movement_MagmaGruntMSurprised,
+    [P2_MOVEMENT_MAGMA_GRUNT_M_WATCH_BADGE_FALL_DOWN] = VolcanionCave_1F_Movement_MagmaGruntMWatchBadgeFallDown,
+    [P2_MOVEMENT_HEAT_BADGE_FALL_DOWN] = VolcanionCave_1F_Movement_BadgeFallDown,
+    [P2_MOVEMENT_DIGLETT_ASK_NUMBER] = VolcanionCave_1F_Movement_DiglettAskNumber,
+    [P2_MOVEMENT_EXCLAMATION_MARK] = Common_Movement_ExclamationMark,
+};
+
+static void StartPlayer2Movement(const u8 *movementScript)
+{
+    ScriptMovement_StartObjectMovementScript(LOCALID_PLAYER_2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, movementScript);
+}
+
+static void EnqueueReceivedPlayer2Command(enum Player2Command command, u16 arg1, u16 arg2, u16 arg3)
+{
+    DebugPrintf("enqueue %d", command);
+
+    for (u8 i = 0; i < P2_CMD_QUEUE_SIZE; i++)
+    {
+        if (gReceivedP2CommandsQueue[0][i] == P2_CMD_NONE)
         {
-            sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_BUSY;
-            if (trainer->isLocalPlayer)
-            {
-                SetKeyInterceptCallback(KeyInterCB_DeferToEventScript);
-                RunTerminateLinkScript();
-            }
+            gReceivedP2CommandsQueue[0][i] = command;
+            gReceivedP2CommandsQueue[1][i] = arg1;
+            gReceivedP2CommandsQueue[2][i] = arg2;
+            gReceivedP2CommandsQueue[3][i] = arg3;
             return;
         }
-
-        switch (key)
-        {
-        case LINK_KEY_CODE_START_BUTTON:
-            if (CanCableClubPlayerPressStart(trainer))
-            {
-                sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_BUSY;
-                if (trainer->isLocalPlayer)
-                {
-                    SetKeyInterceptCallback(KeyInterCB_DeferToEventScript);
-                    InitLinkRoomStartMenuScript();
-                }
-            }
-            break;
-        case LINK_KEY_CODE_DPAD_DOWN:
-            if (PlayerIsAtSouthExit(trainer) == TRUE)
-            {
-                sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_BUSY;
-                if (trainer->isLocalPlayer)
-                {
-                    SetKeyInterceptCallback(KeyInterCB_DeferToEventScript);
-                    RunConfirmLeaveCableClubScript();
-                }
-            }
-            break;
-        case LINK_KEY_CODE_A_BUTTON:
-            script = TryInteractWithPlayer(trainer);
-            if (script)
-            {
-                sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_BUSY;
-                if (trainer->isLocalPlayer)
-                {
-                    SetKeyInterceptCallback(KeyInterCB_DeferToEventScript);
-                    InitMenuBasedScript(script);
-                }
-            }
-            break;
-        case LINK_KEY_CODE_HANDLE_RECV_QUEUE:
-            if (IsCableClubPlayerUnfrozen(trainer))
-            {
-                sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_BUSY;
-                if (trainer->isLocalPlayer)
-                {
-                    SetKeyInterceptCallback(KeyInterCB_DeferToRecvQueue);
-                    InitLinkPlayerQueueScript();
-                }
-            }
-            break;
-        case LINK_KEY_CODE_HANDLE_SEND_QUEUE:
-            if (IsCableClubPlayerUnfrozen(trainer))
-            {
-                sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_BUSY;
-                if (trainer->isLocalPlayer)
-                {
-                    SetKeyInterceptCallback(KeyInterCB_DeferToSendQueue);
-                    InitLinkPlayerQueueScript();
-                }
-            }
-            break;
-        }
     }
+}
 
-    switch (key)
+static void PopReceivedPlayer2Command(enum Player2Command *command, u16 *arg1, u16 *arg2, u16 *arg3)
+{
+    *command = gReceivedP2CommandsQueue[0][0];
+    *arg1 = gReceivedP2CommandsQueue[1][0];
+    *arg2 = gReceivedP2CommandsQueue[2][0];
+    *arg3 = gReceivedP2CommandsQueue[3][0];
+
+    if (*command != 0)
+        DebugPrintf("pop %d", *command);
+
+    for (u8 i = 0; i < P2_CMD_QUEUE_SIZE - 1; i++)
     {
-    case LINK_KEY_CODE_EXIT_ROOM:
-        sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_EXITING_ROOM;
-        break;
-    case LINK_KEY_CODE_READY:
-        sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_READY;
-        break;
-    case LINK_KEY_CODE_IDLE:
-        sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_IDLE;
-        if (trainer->isLocalPlayer)
-            SetKeyInterceptCallback(KeyInterCB_SelfIdle);
-        break;
-    case LINK_KEY_CODE_EXIT_SEAT:
-        if (sPlayerLinkStates[playerId] == PLAYER_LINK_STATE_READY)
-            sPlayerLinkStates[playerId] = PLAYER_LINK_STATE_BUSY;
-        break;
+        gReceivedP2CommandsQueue[0][i] = gReceivedP2CommandsQueue[0][i + 1];
+        gReceivedP2CommandsQueue[1][i] = gReceivedP2CommandsQueue[1][i + 1];
+        gReceivedP2CommandsQueue[2][i] = gReceivedP2CommandsQueue[2][i + 1];
+        gReceivedP2CommandsQueue[3][i] = gReceivedP2CommandsQueue[3][i + 1];
     }
+
+    gReceivedP2CommandsQueue[0][P2_CMD_QUEUE_SIZE - 1] = P2_CMD_NONE;
+    gReceivedP2CommandsQueue[1][P2_CMD_QUEUE_SIZE - 1] = 0;
+    gReceivedP2CommandsQueue[2][P2_CMD_QUEUE_SIZE - 1] = 0;;
+    gReceivedP2CommandsQueue[3][P2_CMD_QUEUE_SIZE - 1] = 0;
 }
 
 static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
 {
-    struct CableClubPlayer trainer;
-    s32 i;
+    u8 linkPartnerId = GetMultiplayerId() ^ 1;
+    u8 objId = GetObjectEventIdByLocalId(OBJ_EVENT_ID_PLAYER_2);
+    struct ObjectEvent *objEvent = &gObjectEvents[objId];
+    enum Player2Command command = gReceivedP2CommandIds[linkPartnerId];
+    u16 arg1 = gReceivedP2CommandArg1s[linkPartnerId];
+    u16 arg2 = gReceivedP2CommandArg2s[linkPartnerId];
+    u16 arg3 = gReceivedP2CommandArg3s[linkPartnerId];
+    s16 x, y;
 
-    for (i = 0; i < MAX_LINK_PLAYERS; i++)
+    if (!gHasReceivedPlayer2Input)
     {
-        u8 key = keys[i];
-        u16 setFacing = FACING_NONE;
-        LoadCableClubPlayer(i, selfId, &trainer);
-        HandleLinkPlayerKeyInput(i, key, &trainer, &setFacing);
-        if (sPlayerLinkStates[i] == PLAYER_LINK_STATE_IDLE)
-            setFacing = GetDirectionForDpadKey(key);
-        SetPlayerFacingDirection(i, setFacing);
+        if (keys[linkPartnerId] == LINK_KEY_CODE_NULL || keys[linkPartnerId] == LINK_KEY_CODE_EMPTY)
+            return;
+        gHasReceivedPlayer2Input = TRUE;
+    }
+
+    // directly execute commands that can be instantly executed at any time (even while in scripts or menus)
+    if (command >= P2_CMD_INSTANT_COMMANDS_START)
+    {
+        DebugPrintf("instant execute %d", command);
+        switch (command)
+        {
+        case P2_CMD_REQUEST_POSITION:
+            EnqueuePlayer2CommandToSend(P2_CMD_UPDATE_POSITION, gSaveBlock1Ptr->pos.x, gSaveBlock1Ptr->pos.y, gObjectEvents[gPlayerAvatar.objectEventId].facingDirection);
+            break;
+        case P2_CMD_UPDATE_POSITION:
+            FlagSet(FLAG_RETURNING_TO_FIELD_LINK);
+
+            TryMoveObjectEventToMapCoords(OBJ_EVENT_ID_PLAYER_2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, arg1, arg2);
+            ObjectEventTurn(objEvent, arg3);
+
+            u16 metatileBehavior = MapGridGetMetatileBehaviorAt(arg1 + MAP_OFFSET, arg2 + MAP_OFFSET);
+
+            if (MetatileBehavior_IsSurfableWater(metatileBehavior) == TRUE
+            || (MetatileBehavior_IsBridgeOverWater(metatileBehavior) == TRUE && !IS_PLAYER_ONE))
+            {
+                ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_SURFING, gSaveBlock2Ptr->player2Gender));
+                gFieldEffectArguments[0] = arg1;
+                gFieldEffectArguments[1] = arg2;
+                gFieldEffectArguments[2] = objId;
+                if (objEvent->fieldEffectSpriteId)
+                    DestroySprite(&gSprites[objEvent->fieldEffectSpriteId]);
+                objEvent->fieldEffectSpriteId = FieldEffectStart(FLDEFF_SURF_BLOB);
+                SetSurfBlob_BobState(objEvent->fieldEffectSpriteId, BOB_PLAYER_AND_MON);
+            }
+            else
+                ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
+
+            ObjectEventClearHeldMovementIfActive(objEvent);
+            break;
+        case P2_CMD_CONTROL_FLAG:
+            if (arg2)
+                FlagSet(arg1);
+            else
+                FlagClear(arg1);
+            break;
+        case P2_CMD_SET_INTERACTION_VAR:
+            VarSet(VAR_P2_INTERACTION_STATE, arg1);
+            break;
+        case P2_CMD_INTERACT:
+            if (gMain.callback2 == CB2_Overworld && !ArePlayerFieldControlsLocked())
+            {
+                EnqueuePlayer2CommandToSend(P2_CMD_SET_INTERACTION_VAR, 1, 0, 0);
+                ScriptContext_SetupScript(EventScript_Player2_GotInteractedWith);
+            }
+            else
+                EnqueuePlayer2CommandToSend(P2_CMD_SET_INTERACTION_VAR, 10, 0, 0);
+            break;
+        case P2_CMD_REMOVE_OBJECT:
+            RemoveAnyObjectEventByLocalIdAndMap(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
+            break;
+        case P2_CMD_END_DROP_HEAT_BADGE:
+            FlagSet(FLAG_VOLCANION_CAVE_1F_GRUNT_DROPPED_BADGE);
+            FlagSet(FLAG_VOLCANION_CAVE_1F_DIGLETT_LEFT_SPOT);
+            FlagClear(FLAG_HIDE_VOLCANION_CAVE_1F_HEAT_BADGE);
+            SetObjEventTemplateCoords(LOCALID_1F_DIGLETT, 34, 17);
+            TryMoveObjectEventToMapCoords(LOCALID_1F_DIGLETT, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, 34, 17);
+            TrySpawnObjectEvent(LOCALID_1F_HEAT_BADGE, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
+            break;
+        default:
+            break;
+        }
+
+        return;
+    }
+
+    // don't accept movement-based commands while in a menu
+    if (gMain.callback2 != CB2_Overworld && !FlagGet(FLAG_RETURNING_TO_FIELD_LINK))
+        return;
+
+    // try to enqueue the received command
+    if (gReceivedP2CommandIds[linkPartnerId] != P2_CMD_NONE)
+        EnqueueReceivedPlayer2Command(gReceivedP2CommandIds[linkPartnerId], gReceivedP2CommandArg1s[linkPartnerId], gReceivedP2CommandArg2s[linkPartnerId], gReceivedP2CommandArg3s[linkPartnerId]);
+
+    // don't start new movement-based command if player 2 is still moving
+    if (ObjectEventIsHeldMovementActive(objEvent))
+        return;
+
+    // pop the next command in the queue
+    PopReceivedPlayer2Command(&command, &arg1, &arg2, &arg3);
+
+    if (command == P2_CMD_NONE)
+    {
+        // fix player standing still in running or jumping position
+        if (gPreviousP2Command == P2_CMD_RUN || gPreviousP2Command == P2_CMD_END_USE_SURF || gPreviousP2Command == P2_CMD_END_USE_ROCK_CLIMB)
+            StartPlayer2Movement(sPlayer2CommandToMovement[P2_CMD_FACE_DIRECTION][objEvent->facingDirection - 1]);
+        return;
+    }
+
+    gPreviousP2Command = command;
+
+    // execute popped command
+    switch (command)
+    {
+    case P2_CMD_FACE_DIRECTION:
+    case P2_CMD_WALK_IN_PLACE:
+    case P2_CMD_WALK_IN_PLACE_FAST:
+    case P2_CMD_WALK_IN_PLACE_FASTER:
+    case P2_CMD_WALK_NORMAL:
+    case P2_CMD_WALK_FAST:
+    case P2_CMD_RUN:
+    case P2_CMD_JUMP:
+    case P2_CMD_JUMP_2:
+    case P2_CMD_RIDE_WATER_CURRENT:
+        ScriptMovement_StartObjectMovementScript(arg2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, sPlayer2CommandToMovement[command][arg1 - 1]);
+        break;
+    case P2_CMD_USE_FIELD_MOVE:
+        ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_FIELD_MOVE, gSaveBlock2Ptr->player2Gender));
+        StartSpriteAnim(&gSprites[objEvent->spriteId], ANIM_FIELD_MOVE);
+        ObjectEventSetHeldMovement(objEvent, MOVEMENT_ACTION_START_ANIM_IN_DIRECTION);
+        break;
+    case P2_CMD_END_FIELD_MOVE:
+        ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
+        StartSpriteAnim(&gSprites[objEvent->spriteId], arg1);
+        break;
+    case P2_CMD_PUSH_BOULDER:
+        StartStrengthAnim(GetObjectEventIdByLocalId(arg1), arg2);
+        break;
+    case P2_CMD_USE_ROCK_SMASH:
+        ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_SURFING, gSaveBlock2Ptr->player2Gender));
+        ObjectEventClearHeldMovementIfFinished(objEvent);
+        ScriptMovement_StartObjectMovementScript(arg2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, Common_Movement_RockSmashBreak);
+        break;
+    case P2_CMD_END_ROCK_SMASH:
+        ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
+        StartSpriteAnim(&gSprites[objEvent->spriteId], arg1);
+        RemoveAnyObjectEventByLocalIdAndMap(arg2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
+        break;
+    case P2_CMD_USE_SURF:
+        ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_SURFING, gSaveBlock2Ptr->player2Gender));
+        ObjectEventClearHeldMovementIfFinished(objEvent);
+        ObjectEventSetHeldMovement(objEvent, GetJumpSpecialMovementAction(arg1));
+
+        x = objEvent->currentCoords.x;
+        y = objEvent->currentCoords.y;
+        MoveCoords(arg1, &x, &y);
+    
+        gFieldEffectArguments[0] = x;
+        gFieldEffectArguments[1] = y;
+        gFieldEffectArguments[2] = objId;
+        objEvent->fieldEffectSpriteId = FieldEffectStart(FLDEFF_SURF_BLOB);
+        break;
+    case P2_CMD_END_USE_SURF:
+        SetSurfBlob_BobState(objEvent->fieldEffectSpriteId, BOB_PLAYER_AND_MON);
+        break;
+    case P2_CMD_STOP_SURFING:
+        SetSurfBlob_BobState(objEvent->fieldEffectSpriteId, BOB_JUST_MON);
+        StartPlayer2Movement(sPlayer2CommandToMovement[P2_CMD_STOP_SURFING][arg1 - 1]);
+        break;
+    case P2_CMD_END_STOP_SURFING:
+    case P2_CMD_END_USE_ROCK_CLIMB:
+        ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
+        StartPlayer2Movement(sPlayer2CommandToMovement[P2_CMD_FACE_DIRECTION][arg1 - 1]);
+        DestroySprite(&gSprites[objEvent->fieldEffectSpriteId]);
+        break;
+    case P2_CMD_USE_ROCK_CLIMB:
+        ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_SURFING, gSaveBlock2Ptr->player2Gender));
+        ObjectEventClearHeldMovementIfFinished(objEvent);
+        ObjectEventSetHeldMovement(objEvent, GetJumpSpecialMovementAction(arg1));
+        x = objEvent->currentCoords.x;
+        y = objEvent->currentCoords.y;
+        MoveCoords(arg1, &x, &y);
+    
+        gFieldEffectArguments[0] = x;
+        gFieldEffectArguments[1] = y;
+        gFieldEffectArguments[2] = objId;
+        objEvent->fieldEffectSpriteId = CreateRockClimbBlob();
+        break;
+    case P2_CMD_BOB_ROCK_CLIMB:
+        SetSurfBlob_BobState(objEvent->fieldEffectSpriteId, BOB_PLAYER_AND_MON);
+        break;
+    case P2_CMD_RIDE_ROCK_CLIMB:
+        ObjectEventSetHeldMovement(objEvent, sRockClimbMovement[arg1].action);
+        PlaySE(SE_M_ROCK_THROW);
+        RockClimbDust(objEvent, arg1);
+        break;
+    case P2_CMD_JUMP_AFTER_ROCK_CLIMB:
+        ObjectEventSetHeldMovement(objEvent, GetJumpSpecialMovementAction(sRockClimbMovement[arg1].jumpDir));
+        SetSurfBlob_BobState(objEvent->fieldEffectSpriteId, BOB_NONE);
+        break;
+    case P2_CMD_ADD_OBJECT:
+        TrySpawnObjectEvent(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
+        if (arg2 != 0 && arg3 != 0)
+            TryMoveObjectEventToMapCoords(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, arg2, arg3);
+        break;
+    case P2_CMD_APPLY_MOVEMENT:
+        ScriptMovement_StartObjectMovementScript(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, sPlayer2MovementIdToScript[arg2]);
+        break;
+    default:
+        break;
     }
 }
 
@@ -2949,7 +3312,7 @@ static void UpdateHeldKeyCode(u16 key)
 
     if (gWirelessCommType != 0
         && GetLinkSendQueueLength() > 1
-        && IsOverworldLinkActive() == TRUE
+        && IsTagTeamTrialsLinkActive() == TRUE
         && IsSendingKeysToLink() == TRUE)
     {
         switch (key)
@@ -2984,22 +3347,22 @@ static u16 KeyInterCB_ReadButtons(u32 key)
     return LINK_KEY_CODE_EMPTY;
 }
 
-static u16 GetDirectionForDpadKey(u16 key)
-{
-    switch (key)
-    {
-    case LINK_KEY_CODE_DPAD_RIGHT:
-        return FACING_RIGHT;
-    case LINK_KEY_CODE_DPAD_LEFT:
-        return FACING_LEFT;
-    case LINK_KEY_CODE_DPAD_UP:
-        return FACING_UP;
-    case LINK_KEY_CODE_DPAD_DOWN:
-        return FACING_DOWN;
-    default:
-        return FACING_NONE;
-    }
-}
+// static u16 GetDirectionForDpadKey(u16 key)
+// {
+//     switch (key)
+//     {
+//     case LINK_KEY_CODE_DPAD_RIGHT:
+//         return FACING_RIGHT;
+//     case LINK_KEY_CODE_DPAD_LEFT:
+//         return FACING_LEFT;
+//     case LINK_KEY_CODE_DPAD_UP:
+//         return FACING_UP;
+//     case LINK_KEY_CODE_DPAD_DOWN:
+//         return FACING_DOWN;
+//     default:
+//         return FACING_NONE;
+//     }
+// }
 
 // Overwrites the keys with 0x11
 static void ResetPlayerHeldKeys(u16 *keys)
@@ -3013,7 +3376,7 @@ static void ResetPlayerHeldKeys(u16 *keys)
 static u16 KeyInterCB_SelfIdle(u32 key)
 {
     if (ArePlayerFieldControlsLocked() == TRUE)
-        return LINK_KEY_CODE_EMPTY;
+        return LINK_KEY_CODE_IDLE;
     if (GetLinkRecvQueueLength() > 4)
         return LINK_KEY_CODE_HANDLE_RECV_QUEUE;
     if (GetLinkSendQueueLength() <= 4)
@@ -3186,163 +3549,166 @@ u16 SetStartedCableClubActivity(void)
     return 0;
 }
 
-static void LoadCableClubPlayer(s32 linkPlayerId, s32 myPlayerId, struct CableClubPlayer *trainer)
-{
-    s16 x, y;
+// static void LoadCableClubPlayer(s32 linkPlayerId, s32 myPlayerId, struct CableClubPlayer *trainer)
+// {
+//     s16 x, y;
 
-    trainer->playerId = linkPlayerId;
-    trainer->isLocalPlayer = (linkPlayerId == myPlayerId) ? 1 : 0;
-    trainer->movementMode = gLinkPlayerObjectEvents[linkPlayerId].movementMode;
-    trainer->facing = GetLinkPlayerFacingDirection(linkPlayerId);
-    GetLinkPlayerCoords(linkPlayerId, &x, &y);
-    trainer->pos.x = x;
-    trainer->pos.y = y;
-    trainer->pos.elevation = GetLinkPlayerElevation(linkPlayerId);
-    trainer->metatileBehavior = MapGridGetMetatileBehaviorAt(x, y);
-}
+//     trainer->playerId = linkPlayerId;
+//     trainer->isLocalPlayer = (linkPlayerId == myPlayerId) ? 1 : 0;
+//     trainer->movementMode = gLinkPlayerObjectEvents[linkPlayerId].movementMode;
+//     trainer->facing = GetLinkPlayerFacingDirection(linkPlayerId);
+//     GetLinkPlayerCoords(linkPlayerId, &x, &y);
+//     trainer->pos.x = x;
+//     trainer->pos.y = y;
+//     trainer->pos.elevation = GetLinkPlayerElevation(linkPlayerId);
+//     trainer->metatileBehavior = MapGridGetMetatileBehaviorAt(x, y);
+// }
 
-static bool32 IsCableClubPlayerUnfrozen(struct CableClubPlayer *player)
-{
-    u8 mode = player->movementMode;
-    if (mode == MOVEMENT_MODE_SCRIPTED || mode == MOVEMENT_MODE_FREE)
-        return TRUE;
-    else
-        return FALSE;
-}
+// static bool32 IsCableClubPlayerUnfrozen(struct CableClubPlayer *player)
+// {
+//     u8 mode = player->movementMode;
+//     if (mode == MOVEMENT_MODE_SCRIPTED || mode == MOVEMENT_MODE_FREE)
+//         return TRUE;
+//     else
+//         return FALSE;
+// }
 
-// Identical to IsCableClubPlayerUnfrozen
-static bool32 CanCableClubPlayerPressStart(struct CableClubPlayer *player)
-{
-    u8 mode = player->movementMode;
-    if (mode == MOVEMENT_MODE_SCRIPTED || mode == MOVEMENT_MODE_FREE)
-        return TRUE;
-    else
-        return FALSE;
-}
+// // Identical to IsCableClubPlayerUnfrozen
+// static bool32 CanCableClubPlayerPressStart(struct CableClubPlayer *player)
+// {
+//     u8 mode = player->movementMode;
+//     if (mode == MOVEMENT_MODE_SCRIPTED || mode == MOVEMENT_MODE_FREE)
+//         return TRUE;
+//     else
+//         return FALSE;
+// }
 
-static const u8 *TryGetTileEventScript(struct CableClubPlayer *player)
-{
-    if (player->movementMode != MOVEMENT_MODE_SCRIPTED)
-        return FACING_NONE;
-    return GetCoordEventScriptAtMapPosition(&player->pos);
-}
+// static const u8 *TryGetTileEventScript(struct CableClubPlayer *player)
+// {
+//     if (player->movementMode != MOVEMENT_MODE_SCRIPTED)
+//         return FACING_NONE;
+//     return GetCoordEventScriptAtMapPosition(&player->pos);
+// }
 
-static bool32 PlayerIsAtSouthExit(struct CableClubPlayer *player)
-{
-    if (player->movementMode != MOVEMENT_MODE_SCRIPTED && player->movementMode != MOVEMENT_MODE_FREE)
-        return FALSE;
-    else if (!MetatileBehavior_IsSouthArrowWarp(player->metatileBehavior))
-        return FALSE;
-    else if (player->facing != DIR_SOUTH)
-        return FALSE;
-    else
-        return TRUE;
-}
+// static bool32 PlayerIsAtSouthExit(struct CableClubPlayer *player)
+// {
+//     if (player->movementMode != MOVEMENT_MODE_SCRIPTED && player->movementMode != MOVEMENT_MODE_FREE)
+//         return FALSE;
+//     else if (!MetatileBehavior_IsSouthArrowWarp(player->metatileBehavior))
+//         return FALSE;
+//     else if (player->facing != DIR_SOUTH)
+//         return FALSE;
+//     else
+//         return TRUE;
+// }
 
-static const u8 *TryInteractWithPlayer(struct CableClubPlayer *player)
-{
-    struct MapPosition otherPlayerPos;
-    u8 linkPlayerId;
+// static const u8 *TryInteractWithPlayer(struct CableClubPlayer *player)
+// {
+//     struct MapPosition otherPlayerPos;
+//     u8 linkPlayerId;
 
-    if (player->movementMode != MOVEMENT_MODE_FREE && player->movementMode != MOVEMENT_MODE_SCRIPTED)
-        return FACING_NONE;
+//     if (player->movementMode != MOVEMENT_MODE_FREE && player->movementMode != MOVEMENT_MODE_SCRIPTED)
+//         return FACING_NONE;
 
-    otherPlayerPos = player->pos;
-    otherPlayerPos.x += gDirectionToVectors[player->facing].x;
-    otherPlayerPos.y += gDirectionToVectors[player->facing].y;
-    otherPlayerPos.elevation = ELEVATION_TRANSITION;
-    linkPlayerId = GetLinkPlayerIdAt(otherPlayerPos.x, otherPlayerPos.y);
+//     otherPlayerPos = player->pos;
+//     otherPlayerPos.x += gDirectionToVectors[player->facing].x;
+//     otherPlayerPos.y += gDirectionToVectors[player->facing].y;
+//     otherPlayerPos.elevation = ELEVATION_TRANSITION;
+//     linkPlayerId = GetLinkPlayerIdAt(otherPlayerPos.x, otherPlayerPos.y);
 
-    if (linkPlayerId != MAX_LINK_PLAYERS)
-    {
-        // if (!player->isLocalPlayer)
-        //     return CableClub_EventScript_TooBusyToNotice;
-        // else if (sPlayerLinkStates[linkPlayerId] != PLAYER_LINK_STATE_IDLE)
-        //     return CableClub_EventScript_TooBusyToNotice;
-        // else
-            return EventScript_Player2_Multiplayer;
-    }
+//     if (linkPlayerId != MAX_LINK_PLAYERS)
+//     {
+//         // if (!player->isLocalPlayer)
+//         //     return CableClub_EventScript_TooBusyToNotice;
+//         // else if (sPlayerLinkStates[linkPlayerId] != PLAYER_LINK_STATE_IDLE)
+//         //     return CableClub_EventScript_TooBusyToNotice;
+//         // else
+//             return EventScript_Player2_Multiplayer;
+//     }
 
-    return GetInteractedLinkPlayerScript(&otherPlayerPos, player->metatileBehavior, player->facing);
-}
+//     return GetInteractedLinkPlayerScript(&otherPlayerPos, player->metatileBehavior, player->facing);
+// }
 
 // This returns which direction to force the player to look when one of
 // these event scripts runs.
-static u16 GetDirectionForEventScript(const u8 *script)
-{
-    if (script == EventScript_BattleColosseum_4P_PlayerSpot0)
-        return FACING_FORCED_RIGHT;
-    else if (script == EventScript_BattleColosseum_4P_PlayerSpot1)
-        return FACING_FORCED_LEFT;
-    else if (script == EventScript_BattleColosseum_4P_PlayerSpot2)
-        return FACING_FORCED_RIGHT;
-    else if (script == EventScript_BattleColosseum_4P_PlayerSpot3)
-        return FACING_FORCED_LEFT;
-    else if (script == EventScript_RecordCenter_Spot0)
-        return FACING_FORCED_RIGHT;
-    else if (script == EventScript_RecordCenter_Spot1)
-        return FACING_FORCED_LEFT;
-    else if (script == EventScript_RecordCenter_Spot2)
-        return FACING_FORCED_RIGHT;
-    else if (script == EventScript_RecordCenter_Spot3)
-        return FACING_FORCED_LEFT;
-    else if (script == EventScript_BattleColosseum_2P_PlayerSpot0)
-        return FACING_FORCED_RIGHT;
-    else if (script == EventScript_BattleColosseum_2P_PlayerSpot1)
-        return FACING_FORCED_LEFT;
-    else if (script == EventScript_TradeCenter_Chair0)
-        return FACING_FORCED_RIGHT;
-    else if (script == EventScript_TradeCenter_Chair1)
-        return FACING_FORCED_LEFT;
-    else
-        return FACING_NONE;
-}
+// static u16 GetDirectionForEventScript(const u8 *script)
+// {
+//     if (script == EventScript_BattleColosseum_4P_PlayerSpot0)
+//         return FACING_FORCED_RIGHT;
+//     else if (script == EventScript_BattleColosseum_4P_PlayerSpot1)
+//         return FACING_FORCED_LEFT;
+//     else if (script == EventScript_BattleColosseum_4P_PlayerSpot2)
+//         return FACING_FORCED_RIGHT;
+//     else if (script == EventScript_BattleColosseum_4P_PlayerSpot3)
+//         return FACING_FORCED_LEFT;
+//     else if (script == EventScript_RecordCenter_Spot0)
+//         return FACING_FORCED_RIGHT;
+//     else if (script == EventScript_RecordCenter_Spot1)
+//         return FACING_FORCED_LEFT;
+//     else if (script == EventScript_RecordCenter_Spot2)
+//         return FACING_FORCED_RIGHT;
+//     else if (script == EventScript_RecordCenter_Spot3)
+//         return FACING_FORCED_LEFT;
+//     else if (script == EventScript_BattleColosseum_2P_PlayerSpot0)
+//         return FACING_FORCED_RIGHT;
+//     else if (script == EventScript_BattleColosseum_2P_PlayerSpot1)
+//         return FACING_FORCED_LEFT;
+//     else if (script == EventScript_TradeCenter_Chair0)
+//         return FACING_FORCED_RIGHT;
+//     else if (script == EventScript_TradeCenter_Chair1)
+//         return FACING_FORCED_LEFT;
+//     else
+//         return FACING_NONE;
+// }
 
-static void InitLinkPlayerQueueScript(void)
-{
-    LockPlayerFieldControls();
-}
+// static void InitLinkPlayerQueueScript(void)
+// {
+//     LockPlayerFieldControls();
+// }
 
-static void InitLinkRoomStartMenuScript(void)
-{
-    PlaySE(SE_WIN_OPEN);
-    ShowStartMenu();
-    LockPlayerFieldControls();
-}
+// static void InitLinkRoomStartMenuScript(void)
+// {
+//     PlaySE(SE_WIN_OPEN);
+//     ShowStartMenu();
+//     LockPlayerFieldControls();
+// }
 
-static void RunInteractLocalPlayerScript(const u8 *script)
-{
-    PlaySE(SE_SELECT);
-    ScriptContext_SetupScript(script);
-    LockPlayerFieldControls();
-}
+// static void RunInteractLocalPlayerScript(const u8 *script)
+// {
+//     PlaySE(SE_SELECT);
+//     ScriptContext_SetupScript(script);
+//     LockPlayerFieldControls();
+// }
 
-static void RunConfirmLeaveCableClubScript(void)
-{
-    PlaySE(SE_WIN_OPEN);
-    ScriptContext_SetupScript(EventScript_ConfirmLeaveCableClubRoom);
-    LockPlayerFieldControls();
-}
+// static void RunConfirmLeaveCableClubScript(void)
+// {
+//     PlaySE(SE_WIN_OPEN);
+//     ScriptContext_SetupScript(EventScript_ConfirmLeaveCableClubRoom);
+//     LockPlayerFieldControls();
+// }
 
-static void InitMenuBasedScript(const u8 *script)
-{
-    PlaySE(SE_SELECT);
-    ScriptContext_SetupScript(script);
-    LockPlayerFieldControls();
-}
+// static void InitMenuBasedScript(const u8 *script)
+// {
+//     PlaySE(SE_SELECT);
+//     ScriptContext_SetupScript(script);
+//     LockPlayerFieldControls();
+// }
 
-static void RunTerminateLinkScript(void)
-{
-    ScriptContext_SetupScript(EventScript_TerminateLink);
-    LockPlayerFieldControls();
-}
+// static void RunTerminateLinkScript(void)
+// {
+//     ScriptContext_SetupScript(EventScript_TerminateLink);
+//     LockPlayerFieldControls();
+// }
 
 bool32 Overworld_IsRecvQueueAtMax(void)
 {
-    if (!IsOverworldLinkActive())
+    if (!IsTagTeamTrialsLinkActive())
         return FALSE;
     if (GetLinkRecvQueueLength() >= OVERWORLD_RECV_QUEUE_MAX)
+    {
+        gLink.recvQueue.count--;
         sReceivingFromLink = TRUE;
+    }
     else
         sReceivingFromLink = FALSE;
     return sReceivingFromLink;
@@ -3354,7 +3720,7 @@ bool32 Overworld_RecvKeysFromLinkIsRunning(void)
 
     if (GetLinkRecvQueueLength() < OVERWORLD_RECV_QUEUE_MAX - 1)
         return FALSE;
-    else if (IsOverworldLinkActive() != TRUE)
+    else if (IsTagTeamTrialsLinkActive() != TRUE)
         return FALSE;
     else if (IsSendingKeysToLink() != TRUE)
         return FALSE;
@@ -3378,7 +3744,7 @@ bool32 Overworld_SendKeysToLinkIsRunning(void)
 {
     if (GetLinkSendQueueLength() < 2)
         return FALSE;
-    else if (IsOverworldLinkActive() != TRUE)
+    else if (IsTagTeamTrialsLinkActive() != TRUE)
         return FALSE;
     else if (IsSendingKeysToLink() != TRUE)
         return FALSE;
@@ -3406,20 +3772,20 @@ static u32 GetLinkSendQueueLength(void)
         return gLink.sendQueue.count;
 }
 
-static void ZeroLinkPlayerObjectEvent(struct LinkPlayerObjectEvent *linkPlayerObjEvent)
-{
-    memset(linkPlayerObjEvent, 0, sizeof(struct LinkPlayerObjectEvent));
-}
+// static void ZeroLinkPlayerObjectEvent(struct LinkPlayerObjectEvent *linkPlayerObjEvent)
+// {
+//     memset(linkPlayerObjEvent, 0, sizeof(struct LinkPlayerObjectEvent));
+// }
 
 void ClearLinkPlayerObjectEvents(void)
 {
     memset(gLinkPlayerObjectEvents, 0, sizeof(gLinkPlayerObjectEvents));
 }
 
-static void ZeroObjectEvent(struct ObjectEvent *objEvent)
-{
-    memset(objEvent, 0, sizeof(struct ObjectEvent));
-}
+// static void ZeroObjectEvent(struct ObjectEvent *objEvent)
+// {
+//     memset(objEvent, 0, sizeof(struct ObjectEvent));
+// }
 
 // Note: Emerald reuses the direction and range variables during Link mode
 // as special gender and direction values. The types and placement
@@ -3428,38 +3794,38 @@ static void ZeroObjectEvent(struct ObjectEvent *objEvent)
 // not even one can reference *byte* aligned bitfield members...
 #define linkDirection(obj) ((u8 *)obj)[offsetof(typeof(*obj), range)] // -> rangeX
 
-static void SpawnLinkPlayerObjectEvent(u8 linkPlayerId)
-{
-    u8 objEventId = GetFirstInactiveObjectEventId();
-    struct LinkPlayerObjectEvent *linkPlayerObjEvent = &gLinkPlayerObjectEvents[linkPlayerId];
-    struct ObjectEvent *objEvent = &gObjectEvents[objEventId];
+// static void SpawnLinkPlayerObjectEvent(u8 linkPlayerId)
+// {
+//     u8 objEventId = GetFirstInactiveObjectEventId();
+//     struct LinkPlayerObjectEvent *linkPlayerObjEvent = &gLinkPlayerObjectEvents[linkPlayerId];
+//     struct ObjectEvent *objEvent = &gObjectEvents[objEventId];
 
-    ZeroLinkPlayerObjectEvent(linkPlayerObjEvent);
-    ZeroObjectEvent(objEvent);
+//     ZeroLinkPlayerObjectEvent(linkPlayerObjEvent);
+//     ZeroObjectEvent(objEvent);
 
-    linkPlayerObjEvent->active = TRUE;
-    linkPlayerObjEvent->linkPlayerId = linkPlayerId;
-    linkPlayerObjEvent->objEventId = objEventId;
-    linkPlayerObjEvent->movementMode = MOVEMENT_MODE_FREE;
+//     linkPlayerObjEvent->active = TRUE;
+//     linkPlayerObjEvent->linkPlayerId = linkPlayerId;
+//     linkPlayerObjEvent->objEventId = objEventId;
+//     linkPlayerObjEvent->movementMode = MOVEMENT_MODE_FREE;
 
-    objEvent->active = TRUE;
-    linkGender(objEvent) = gLinkPlayers[linkPlayerId].gender;
-    linkDirection(objEvent) = gLinkPlayers[linkPlayerId].facingDirection;
-    objEvent->spriteId = MAX_SPRITES;
+//     objEvent->active = TRUE;
+//     linkGender(objEvent) = gLinkPlayers[linkPlayerId].gender;
+//     linkDirection(objEvent) = gLinkPlayers[linkPlayerId].facingDirection;
+//     objEvent->spriteId = MAX_SPRITES;
 
-    InitLinkPlayerObjectEventPos(objEvent, gLinkPlayers[linkPlayerId].x + MAP_OFFSET, gLinkPlayers[linkPlayerId].y + MAP_OFFSET);
-}
+//     InitLinkPlayerObjectEventPos(objEvent, gLinkPlayers[linkPlayerId].x + MAP_OFFSET, gLinkPlayers[linkPlayerId].y + MAP_OFFSET);
+// }
 
-static void InitLinkPlayerObjectEventPos(struct ObjectEvent *objEvent, s16 x, s16 y)
-{
-    objEvent->currentCoords.x = x;
-    objEvent->currentCoords.y = y;
-    objEvent->previousCoords.x = x;
-    objEvent->previousCoords.y = y;
-    SetSpritePosToMapCoords(x, y, &objEvent->initialCoords.x, &objEvent->initialCoords.y);
-    objEvent->initialCoords.x += 8;
-    ObjectEventUpdateElevation(objEvent, NULL);
-}
+// static void InitLinkPlayerObjectEventPos(struct ObjectEvent *objEvent, s16 x, s16 y)
+// {
+//     objEvent->currentCoords.x = x;
+//     objEvent->currentCoords.y = y;
+//     objEvent->previousCoords.x = x;
+//     objEvent->previousCoords.y = y;
+//     SetSpritePosToMapCoords(x, y, &objEvent->initialCoords.x, &objEvent->initialCoords.y);
+//     objEvent->initialCoords.x += 8;
+//     ObjectEventUpdateElevation(objEvent, NULL);
+// }
 
 static void UNUSED SetLinkPlayerObjectRange(u8 linkPlayerId, enum Direction dir)
 {
@@ -3490,27 +3856,27 @@ static u8 GetSpriteForLinkedPlayer(u8 linkPlayerId)
     return objEvent->spriteId;
 }
 
-static void GetLinkPlayerCoords(u8 linkPlayerId, s16 *x, s16 *y)
-{
-    u8 objEventId = gLinkPlayerObjectEvents[linkPlayerId].objEventId;
-    struct ObjectEvent *objEvent = &gObjectEvents[objEventId];
-    *x = objEvent->currentCoords.x;
-    *y = objEvent->currentCoords.y;
-}
+// static void GetLinkPlayerCoords(u8 linkPlayerId, s16 *x, s16 *y)
+// {
+//     u8 objEventId = gLinkPlayerObjectEvents[linkPlayerId].objEventId;
+//     struct ObjectEvent *objEvent = &gObjectEvents[objEventId];
+//     *x = objEvent->currentCoords.x;
+//     *y = objEvent->currentCoords.y;
+// }
 
-static u8 GetLinkPlayerFacingDirection(u8 linkPlayerId)
-{
-    u8 objEventId = gLinkPlayerObjectEvents[linkPlayerId].objEventId;
-    struct ObjectEvent *objEvent = &gObjectEvents[objEventId];
-    return linkDirection(objEvent);
-}
+// static u8 GetLinkPlayerFacingDirection(u8 linkPlayerId)
+// {
+//     u8 objEventId = gLinkPlayerObjectEvents[linkPlayerId].objEventId;
+//     struct ObjectEvent *objEvent = &gObjectEvents[objEventId];
+//     return linkDirection(objEvent);
+// }
 
-static u8 GetLinkPlayerElevation(u8 linkPlayerId)
-{
-    u8 objEventId = gLinkPlayerObjectEvents[linkPlayerId].objEventId;
-    struct ObjectEvent *objEvent = &gObjectEvents[objEventId];
-    return objEvent->currentElevation;
-}
+// static u8 GetLinkPlayerElevation(u8 linkPlayerId)
+// {
+//     u8 objEventId = gLinkPlayerObjectEvents[linkPlayerId].objEventId;
+//     struct ObjectEvent *objEvent = &gObjectEvents[objEventId];
+//     return objEvent->currentElevation;
+// }
 
 static s32 UNUSED GetLinkPlayerObjectStepTimer(u8 linkPlayerId)
 {
@@ -3519,47 +3885,47 @@ static s32 UNUSED GetLinkPlayerObjectStepTimer(u8 linkPlayerId)
     return 16 - (s8)objEvent->directionSequenceIndex;
 }
 
-static u8 GetLinkPlayerIdAt(s16 x, s16 y)
-{
-    u8 i;
-    for (i = 0; i < MAX_LINK_PLAYERS; i++)
-    {
-        if (gLinkPlayerObjectEvents[i].active
-         && (gLinkPlayerObjectEvents[i].movementMode == 0 || gLinkPlayerObjectEvents[i].movementMode == 2))
-        {
-            struct ObjectEvent *objEvent = &gObjectEvents[gLinkPlayerObjectEvents[i].objEventId];
-            if (objEvent->currentCoords.x == x && objEvent->currentCoords.y == y)
-                return i;
-        }
-    }
-    return 4;
-}
+// static u8 GetLinkPlayerIdAt(s16 x, s16 y)
+// {
+//     u8 i;
+//     for (i = 0; i < MAX_LINK_PLAYERS; i++)
+//     {
+//         if (gLinkPlayerObjectEvents[i].active
+//          && (gLinkPlayerObjectEvents[i].movementMode == 0 || gLinkPlayerObjectEvents[i].movementMode == 2))
+//         {
+//             struct ObjectEvent *objEvent = &gObjectEvents[gLinkPlayerObjectEvents[i].objEventId];
+//             if (objEvent->currentCoords.x == x && objEvent->currentCoords.y == y)
+//                 return i;
+//         }
+//     }
+//     return 4;
+// }
 
-static void SetPlayerFacingDirection(u8 linkPlayerId, u8 facing)
-{
-    struct LinkPlayerObjectEvent *linkPlayerObjEvent = &gLinkPlayerObjectEvents[linkPlayerId];
-    u8 objEventId = linkPlayerObjEvent->objEventId;
-    struct ObjectEvent *objEvent = &gObjectEvents[objEventId];
+// static void SetPlayerFacingDirection(u8 linkPlayerId, u8 facing)
+// {
+//     struct LinkPlayerObjectEvent *linkPlayerObjEvent = &gLinkPlayerObjectEvents[linkPlayerId];
+//     u8 objEventId = linkPlayerObjEvent->objEventId;
+//     struct ObjectEvent *objEvent = &gObjectEvents[objEventId];
 
-    if (linkPlayerObjEvent->active)
-    {
-        if (facing > FACING_FORCED_RIGHT)
-        {
-            objEvent->triggerGroundEffectsOnMove = TRUE;
-        }
-        else
-        {
-            // This is a hack to split this code onto two separate lines, without declaring a local variable.
-            // C++ style inline variables would be nice here.
-            #define TEMP sLinkPlayerMovementModes[linkPlayerObjEvent->movementMode](linkPlayerObjEvent, objEvent, facing)
+//     if (linkPlayerObjEvent->active)
+//     {
+//         if (facing > FACING_FORCED_RIGHT)
+//         {
+//             objEvent->triggerGroundEffectsOnMove = TRUE;
+//         }
+//         else
+//         {
+//             // This is a hack to split this code onto two separate lines, without declaring a local variable.
+//             // C++ style inline variables would be nice here.
+//             #define TEMP sLinkPlayerMovementModes[linkPlayerObjEvent->movementMode](linkPlayerObjEvent, objEvent, facing)
 
-            sMovementStatusHandler[TEMP](linkPlayerObjEvent, objEvent);
+//             sMovementStatusHandler[TEMP](linkPlayerObjEvent, objEvent);
 
-            // Clean up the hack.
-            #undef TEMP
-        }
-    }
-}
+//             // Clean up the hack.
+//             #undef TEMP
+//         }
+//     }
+// }
 
 
 static u8 MovementEventModeCB_Normal(struct LinkPlayerObjectEvent *linkPlayerObjEvent, struct ObjectEvent *objEvent, enum Direction dir)

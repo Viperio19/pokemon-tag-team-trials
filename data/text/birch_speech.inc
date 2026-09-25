@@ -105,6 +105,21 @@ gText_Intro_SwitchingFailure::
 	.string "switch protagonists."
 	.string "$"
 
+gText_Intro_CourtneyPlayer2_Welcome::
+	.string "{SPEAKER NAME_COURTNEY COLOR_MAGMA}{FONT_NORMAL}Next GRUNT in line, please.\p"
+	.string "I presume you were briefed on\n"
+	.string "this mission at MAGMA HIDEOUT?\p"
+	.string "No?\p"
+	.string "…Of course.{PAUSE 40} TABITHA will do whatever\n"
+	.string "he can to make me do his job for him.\p"
+	.string "To give you a quick summary, we are\n"
+	.string "at VOLCANO CANYON following reports\l"
+	.string "of a LEGENDARY FIRE-TYPE POKéMON.\p"
+	.string "Speaking of FIRE-TYPES, I have some\n"
+	.string "wonderful news for you.\p"
+	.string "No, you have not been FIRED.\p"
+	.string "$"	
+
 gText_Intro_Courtney_Welcome::
 	@ fade out, fade courtney in
 	.string "{SPEAKER NAME_COURTNEY COLOR_MAGMA}{FONT_NORMAL}Next GRUNT please.\p"
@@ -120,7 +135,7 @@ gText_Intro_Courtney_Welcome::
 	.string "reports of the LEGENDARY POKéMON in\l"
 	.string "the depths of VOLCANO CAVERN prove\l"
 	.string "without a doubt that it is a FIRE-type.\p"
-	.string "Speaking of FIRE-types, I have some\n"
+	.string "Speaking of FIRE-TYPES, I have some\n"
 	.string "wonderful news for you.\p"
 	.string "No, you have not been FIRED.\p"
 	.string "$"	

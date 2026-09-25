@@ -1,6 +1,7 @@
 #ifndef GUARD_BATTLE_SPECIAL_H
 #define GUARD_BATTLE_SPECIAL_H
 
+void DoLinkMultiBattle(void);
 void DoSpecialTrainerBattle(void); 
 void SetEReaderTrainerGfxId(void);
 u8 GetEreaderTrainerFrontSpriteId(void);

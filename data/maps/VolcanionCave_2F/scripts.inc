@@ -70,6 +70,8 @@ VolcanionCave_2F_EventScript_SetOldRodPosition::
 	return
 
 VolcanionCave_2F_OnFrame:
+	map_script_2 VAR_ACTION_ON_FRAME, 1, Player2_EventScript_Save
+	map_script_2 VAR_ACTION_ON_FRAME, 2, Player2_EventScript_FastConnectForMultiplayerBattle
 	map_script_2 VAR_VOLCANION_CAVE_2F_STATE, 0, VolcanionCave_2F_EventScript_EnterCave
 	map_script_2 VAR_OLD_ROD_STATE, 10, VolcanionCave_2F_EventScript_DropOldRod
 	.2byte 0
@@ -1130,9 +1132,12 @@ VolcanionCave_2F_EventScript_Corsola::
 	msgbox VolcanionCave_2F_Text_Corsola, MSGBOX_DEFAULT
 	waitmoncry
 	closemessage
+	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
+	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_2F_EventScript_BattleCorsola
 	delay 10
 	forcesave
 	closemessage
+VolcanionCave_2F_EventScript_BattleCorsola::
 	setwildbattle SPECIES_CORSOLA, 20
 	dowildbattle
 	specialvar VAR_RESULT, GetBattleOutcome

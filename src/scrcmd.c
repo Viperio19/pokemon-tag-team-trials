@@ -85,6 +85,7 @@ static EWRAM_DATA u16 sCreditsBlendLevel = 0;
 static u8 sBrailleWindowId;
 static bool8 sIsScriptedWildDouble;
 static bool8 sIsScriptedWildBoss;
+static u32 sFlagIdToWait;
 
 extern const SpecialFunc gSpecials[];
 extern const u8 *gStdScripts[];
@@ -1104,6 +1105,11 @@ bool8 ScrCmd_setwarp(struct ScriptContext *ctx)
     return FALSE;
 }
 
+void SetWarpCurrentPosition(void)
+{
+    SetWarpDestination(gSaveBlock1Ptr->location.mapGroup, gSaveBlock1Ptr->location.mapNum, WARP_ID_NONE, gSaveBlock1Ptr->pos.x, gSaveBlock1Ptr->pos.y);
+}
+
 bool8 ScrCmd_setdynamicwarp(struct ScriptContext *ctx)
 {
     u8 mapGroup = ScriptReadByte(ctx);
@@ -1316,6 +1322,8 @@ bool8 ScrCmd_applymovement(struct ScriptContext *ctx)
 {
     u16 localId = VarGet(ScriptReadHalfword(ctx));
     const u8 *movementScript = (const u8 *)ScriptReadWord(ctx);
+    u16 p2Movement = ScriptReadHalfword(ctx);
+    enum Direction direction = ScriptReadHalfword(ctx);
     struct ObjectEvent *objEvent;
 
     Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
@@ -1336,6 +1344,13 @@ bool8 ScrCmd_applymovement(struct ScriptContext *ctx)
      && (movementScript < Common_Movement_FollowerSafeStart || movementScript > Common_Movement_FollowerSafeEnd))
     {
         ScriptHideFollower();
+    }
+    if (p2Movement != 0)
+    {
+        if (direction == 0)
+            EnqueuePlayer2CommandToSend(P2_CMD_APPLY_MOVEMENT, localId, p2Movement, 0);
+        else
+            EnqueuePlayer2CommandToSend(p2Movement, direction, localId, 0);
     }
     return FALSE;
 }
@@ -1546,6 +1561,7 @@ bool8 ScrCmd_resetobjectsubpriority(struct ScriptContext *ctx)
 
 bool8 ScrCmd_faceplayer(struct ScriptContext *ctx)
 {
+    u16 localId = VarGet(ScriptReadHalfword(ctx));
     Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
     if (PlayerHasFollowerNPC()
      && gObjectEvents[GetFollowerNPCObjectId()].invisible == FALSE
@@ -1574,6 +1590,8 @@ bool8 ScrCmd_faceplayer(struct ScriptContext *ctx)
     }
     if (gObjectEvents[gSelectedObjectEvent].active)
         ObjectEventFaceOppositeDirection(&gObjectEvents[gSelectedObjectEvent], GetPlayerFacingDirection());
+    if (localId != LOCALID_NONE)
+        EnqueuePlayer2CommandToSend(P2_CMD_FACE_DIRECTION, GetOppositeDirection(GetPlayerFacingDirection()), localId, 0);
     return FALSE;
 }
 
@@ -3554,5 +3572,36 @@ bool8 ScrCmd_setfonttype(struct ScriptContext * ctx)
     gSpecialVar_FontType = ScriptReadByte(ctx);
 
     Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
+    return FALSE;
+}
+
+static bool8 WaitForFlagOrBPress(void)
+{
+    if (FlagGet(sFlagIdToWait))
+        return TRUE;
+    if (JOY_NEW(B_BUTTON))
+        return TRUE;
+    return FALSE;
+}
+
+bool8 ScrCmd_waitflagorbbutton(struct ScriptContext *ctx)
+{
+    sFlagIdToWait = ScriptReadHalfword(ctx);
+
+    Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
+
+    SetupNativeScript(ctx, WaitForFlagOrBPress);
+    return TRUE;
+}
+
+bool8 ScrCmd_enqueueplayer2command(struct ScriptContext * ctx)
+{
+    EnqueuePlayer2CommandToSend(ScriptReadHalfword(ctx),
+                                VarGet(ScriptReadHalfword(ctx)),
+                                VarGet(ScriptReadHalfword(ctx)),
+                                VarGet(ScriptReadHalfword(ctx)));
+
+    Script_RequestEffects(SCREFF_V1 | SCREFF_SAVE);
+
     return FALSE;
 }

@@ -136,7 +136,6 @@ static void PlayerApplyTileForcedMovement(u8 metatileBehavior);
 
 static void HideShowWarpArrow(struct ObjectEvent *);
 
-static void StartStrengthAnim(u8, enum Direction);
 static void Task_PushBoulder(u8);
 static bool8 PushBoulder_Start(struct Task *, struct ObjectEvent *, struct ObjectEvent *);
 static bool8 PushBoulder_Move(struct Task *, struct ObjectEvent *, struct ObjectEvent *);
@@ -1100,6 +1099,7 @@ static bool8 TryPushBoulder(s16 x, s16 y, enum Direction direction)
              && MetatileBehavior_IsNonAnimDoor(MapGridGetMetatileBehaviorAt(x, y)) == FALSE
              && MapGridGetMetatileBehaviorAt(x, y) != MB_GEM)
             {
+                EnqueuePlayer2CommandToSend(P2_CMD_PUSH_BOULDER, gObjectEvents[objectEventId].localId, direction, 0);
                 StartStrengthAnim(objectEventId, direction);
                 return TRUE;
             }
@@ -1335,16 +1335,19 @@ static void PlayerRunSlow(enum Direction direction)
 // normal speed (1 speed)
 void PlayerWalkNormal(enum Direction direction)
 {
+    TrySetPlayer2DirectionCommand(P2_CMD_WALK_NORMAL, direction);
     PlayerSetAnimId(GetWalkNormalMovementAction(direction), COPY_MOVE_WALK);
 }
 
 void PlayerWalkFast(enum Direction direction)
 {
+    TrySetPlayer2DirectionCommand(P2_CMD_WALK_FAST, direction);
     PlayerSetAnimId(GetWalkFastMovementAction(direction), COPY_MOVE_WALK);
 }
 
 void PlayerRideWaterCurrent(enum Direction direction)
 {
+    TrySetPlayer2DirectionCommand(P2_CMD_RIDE_WATER_CURRENT, direction);
     PlayerSetAnimId(GetRideWaterCurrentMovementAction(direction), COPY_MOVE_WALK);
 }
 
@@ -1355,6 +1358,7 @@ void PlayerWalkFaster(enum Direction direction)
 
 static void PlayerRun(enum Direction direction)
 {
+    TrySetPlayer2DirectionCommand(P2_CMD_RUN, direction);
     PlayerSetAnimId(GetPlayerRunMovementAction(direction), COPY_MOVE_WALK);
 }
 
@@ -1387,6 +1391,7 @@ void PlayerOnBikeCollideWithFarawayIslandMew(enum Direction direction)
 
 static void PlayerNotOnBikeCollide(enum Direction direction)
 {
+    TrySetPlayer2DirectionCommand(P2_CMD_FACE_DIRECTION, direction);
     PlayCollisionSoundIfNotFacingWarp(direction);
     PlayerSetAnimId(GetWalkInPlaceSlowMovementAction(direction), COPY_MOVE_WALK_COLLIDE_SLOW);
 }
@@ -1403,17 +1408,20 @@ void PlayerFaceDirection(enum Direction direction)
 
 void PlayerTurnInPlace(enum Direction direction)
 {
+    TrySetPlayer2DirectionCommand(P2_CMD_FACE_DIRECTION, direction);
     PlayerSetAnimId(GetWalkInPlaceFastMovementAction(direction), COPY_MOVE_FACE);
 }
 
 void PlayerJumpLedge(enum Direction direction)
 {
+    TrySetPlayer2DirectionCommand(P2_CMD_JUMP_2, direction);
     PlaySE(SE_LEDGE);
     PlayerSetAnimId(GetJump2MovementAction(direction), COPY_MOVE_JUMP2);
 }
 
 void PlayerJumpInHole(enum Direction direction)
 {
+    TrySetPlayer2DirectionCommand(P2_CMD_JUMP, direction);
     PlaySE(SE_LEDGE);
     PlayerSetAnimId(GetJumpMovementAction(direction), COPY_MOVE_JUMP2);
 }
@@ -1875,6 +1883,7 @@ void SetPlayerInvisibility(bool8 invisible)
 
 void SetPlayerAvatarFieldMove(void)
 {
+    EnqueuePlayer2CommandToSend(P2_CMD_USE_FIELD_MOVE, 0, 0, 0);
     EndORASDowsing();
     ObjectEventSetGraphicsId(&gObjectEvents[gPlayerAvatar.objectEventId], GetPlayerAvatarGraphicsIdByStateId(PLAYER_AVATAR_STATE_FIELD_MOVE));
     StartSpriteAnim(&gSprites[gPlayerAvatar.spriteId], ANIM_FIELD_MOVE);
@@ -1936,7 +1945,7 @@ static void HideShowWarpArrow(struct ObjectEvent *objectEvent)
 #define tBoulderObjId data[1]
 #define tDirection    data[2]
 
-static void StartStrengthAnim(u8 objectEventId, enum Direction direction)
+void StartStrengthAnim(u8 objectEventId, enum Direction direction)
 {
     u8 taskId = CreateTask(Task_PushBoulder, 0xFF);
 
@@ -1948,7 +1957,7 @@ static void StartStrengthAnim(u8 objectEventId, enum Direction direction)
 static void Task_PushBoulder(u8 taskId)
 {
     while (sPushBoulderFuncs[gTasks[taskId].tState](&gTasks[taskId],
-                                                     &gObjectEvents[gPlayerAvatar.objectEventId],
+                                                     &gObjectEvents[IS_PLAYER_ONE ? gPlayerAvatar.objectEventId : GetObjectEventIdByLocalId(OBJ_EVENT_ID_PLAYER_2)],
                                                      &gObjectEvents[gTasks[taskId].tBoulderObjId]))
         ;
 }
@@ -2010,6 +2019,9 @@ static bool8 PushBoulder_End(struct Task *task, struct ObjectEvent *player, stru
 
 void UpdateStrengthBoulderPositions(void)
 {
+    if (IS_MULTIPLAYER)
+        return;
+
     struct BoulderPos *pos;
     if (FlagGet(FLAG_DOING_PLAYER_SWITCH))
     {
@@ -2205,6 +2217,7 @@ static void Task_StopSurfingInit(u8 taskId)
         if (!ObjectEventClearHeldMovementIfFinished(playerObjEvent))
             return;
     }
+    TrySetPlayer2DirectionCommand(P2_CMD_STOP_SURFING, gTasks[taskId].data[0]);
     SetSurfBlob_BobState(playerObjEvent->fieldEffectSpriteId, BOB_JUST_MON);
     ObjectEventSetHeldMovement(playerObjEvent, GetJumpSpecialMovementAction((u8)gTasks[taskId].data[0]));
     gTasks[taskId].func = Task_WaitStopSurfing;
@@ -2216,6 +2229,7 @@ static void Task_WaitStopSurfing(u8 taskId)
 
     if (ObjectEventClearHeldMovementIfFinished(playerObjEvent))
     {
+        TrySetPlayer2DirectionCommand(P2_CMD_END_STOP_SURFING, playerObjEvent->facingDirection);
         ObjectEventSetGraphicsId(playerObjEvent, GetPlayerAvatarGraphicsIdByStateId(PLAYER_AVATAR_STATE_NORMAL));
         ObjectEventSetHeldMovement(playerObjEvent, GetFaceDirectionMovementAction(playerObjEvent->facingDirection));
         gPlayerAvatar.preventStep = FALSE;

@@ -97,7 +97,7 @@ void HandleIntroSlide(u8 environment)
     {
         taskId = CreateTask(BattleIntroSlidePartner, 0);
     }
-    else if (gBattleTypeFlags & BATTLE_TYPE_LINK)
+    else if (gBattleTypeFlags & BATTLE_TYPE_LINK && !(gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER))
     {
         taskId = CreateTask(BattleIntroSlideLink, 0);
     }

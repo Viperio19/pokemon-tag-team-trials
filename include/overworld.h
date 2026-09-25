@@ -2,6 +2,7 @@
 #define GUARD_OVERWORLD_H
 
 #include "constants/map_types.h"
+#include "constants/p2_commands.h"
 
 #define LINK_KEY_CODE_NULL 0x00
 #define LINK_KEY_CODE_EMPTY 0x11
@@ -68,6 +69,7 @@ extern u16 *gOverworldTilemapBuffer_Bg2;
 extern u16 *gOverworldTilemapBuffer_Bg1;
 extern u16 *gOverworldTilemapBuffer_Bg3;
 extern u16 gHeldKeyCodeToSend;
+extern u16 gP2CommandsToSendQueue[4][P2_CMD_QUEUE_SIZE];
 extern void (*gFieldCallback)(void);
 extern bool8 (*gFieldCallback2)(void);
 extern u8 gLocalLinkPlayerId;
@@ -157,7 +159,9 @@ mapsec_u8_t GetCurrentRegionMapSectionId(void);
 enum MapBattleScene GetCurrentMapBattleScene(void);
 void CleanupOverworldWindowsAndTilemaps(void);
 bool32 IsOverworldLinkActive(void);
+bool32 IsTagTeamTrialsLinkActive(void);
 void CB1_Overworld(void);
+void CB1_OverworldLink(void);
 void CB2_OverworldBasic(void);
 void UpdateTimeOfDay(void);
 bool32 MapHasNaturalLight(enum MapType mapType);
@@ -166,6 +170,7 @@ void UpdateAltBgPalettes(u16 palettes);
 void UpdatePalettesWithTime(u32);
 void CB2_Overworld(void);
 void SetMainCallback1(void (*cb)(void));
+void SetMainCallback3(void (*cb)(void));
 void CB2_NewGame(void);
 void CB2_WhiteOut(void);
 void CB2_LoadMap(void);
@@ -179,6 +184,8 @@ void CB2_ReturnToFieldContinueScriptPlayMapMusic(void);
 void CB2_ReturnToFieldFadeFromBlack(void);
 void CB2_ContinueSavedGame(void);
 void ResetAllMultiplayerState(void);
+void EnqueuePlayer2CommandToSend(enum Player2Command command, u16 arg1, u16 arg2, u16 arg3);
+void TrySetPlayer2DirectionCommand(enum Player2Command command, enum Direction direction);
 u32 GetCableClubPartnersReady(void);
 u16 SetInCableClubSeat(void);
 u16 SetLinkWaitingForScript(void);

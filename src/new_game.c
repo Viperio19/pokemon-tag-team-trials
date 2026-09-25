@@ -65,6 +65,7 @@ static void ResetMiniGamesRecords(void);
 static void ResetItemFlags(void);
 static void ResetDexNav(void);
 static void InitTARCData(void);
+static void InitTagTeamTrailsMultiplayerData(void);
 
 EWRAM_DATA bool8 gDifferentSaveFile = FALSE;
 EWRAM_DATA bool8 gEnableContestDebugging = FALSE;
@@ -218,7 +219,10 @@ void NewGameInitData(void)
     ResetFanClub();
     ResetLotteryCorner();
     UpdateDailySeed();
-    InitTARCData();
+    if (IS_MULTIPLAYER)
+        InitTagTeamTrailsMultiplayerData(); 
+    else
+        InitTARCData();
     WarpToFirstMap();
     RunScriptImmediately(EventScript_ResetAllMapFlagsTARC);
 #if IS_FRLG
@@ -262,6 +266,32 @@ static void ResetDexNav(void)
     memset(gSaveBlock3Ptr->dexNavSearchLevels, 0, sizeof(gSaveBlock3Ptr->dexNavSearchLevels));
 #endif
     gSaveBlock3Ptr->dexNavChain = 0;
+}
+
+static void InitTagTeamTrailsMultiplayerData()
+{
+    FlagSet(FLAG_SYS_POKEDEX_GET);
+    FlagSet(FLAG_SYS_POKEMON_GET);
+    FlagSet(FLAG_SYS_B_DASH);
+    FlagSet(FLAG_OVERWRITE_MET_LOCATION_NEW_GAME);
+    HandleSetPokedexFlag(SpeciesToNationalPokedexNum(SPECIES_POOCHYENA), FLAG_SET_CAUGHT_BOTH, 0);
+
+    if (IS_PLAYER_ONE)
+    {
+        FlagSet(FLAG_BADGE05_GET);
+        FlagSet(FLAG_BADGE08_GET);
+        AddBagItem(ITEM_GREAT_BALL, 10);
+        ScriptGiveMon(SPECIES_CARVANHA, 20, ITEM_NONE);
+    }
+    else
+    {
+        FlagSet(FLAG_BADGE02_GET);
+        FlagSet(FLAG_BADGE03_GET);
+        AddBagItem(ITEM_POKE_BALL, 10);
+        ScriptGiveMon(SPECIES_NUMEL, 20, ITEM_NONE);
+    }
+
+    FlagClear(FLAG_OVERWRITE_MET_LOCATION_NEW_GAME);
 }
 
 static void InitTARCData(void)

@@ -667,6 +667,11 @@ static void Task_DoCableClubWarp(u8 taskId)
 
 void DoCableClubWarp(void)
 {
+    memset(&gP2CommandsToSendQueue, 0, sizeof(gP2CommandsToSendQueue));
+    memset(&gReceivedP2CommandsQueue, 0, sizeof(gReceivedP2CommandsQueue));
+    memset(&gReceivedP2CommandIds, 0, sizeof(gReceivedP2CommandIds));
+    gHasReceivedPlayer2Input = 0;
+    gPlayerFacingDirection = gObjectEvents[gPlayerAvatar.objectEventId].facingDirection;
     LockPlayerFieldControls();
     TryFadeOutOldMapMusic();
     WarpFadeOutScreen();
@@ -697,6 +702,7 @@ static void Task_ReturnToWorldFromLinkRoom(u8 taskId)
     case 2:
         if (!gReceivedRemoteLinkPlayers)
         {
+            gMain.callback3 = NULL;
             WarpIntoMap();
             SetMainCallback2(CB2_LoadMap);
             DestroyTask(taskId);
@@ -707,6 +713,7 @@ static void Task_ReturnToWorldFromLinkRoom(u8 taskId)
 
 void ReturnFromLinkRoom(void)
 {
+    gPlayerFacingDirection = gObjectEvents[gPlayerAvatar.objectEventId].facingDirection;
     CreateTask(Task_ReturnToWorldFromLinkRoom, 10);
 }
 

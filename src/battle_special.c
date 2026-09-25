@@ -64,9 +64,23 @@ static void Task_StartBattleAfterTransition(u8 taskId)
     if (IsBattleTransitionDone() == TRUE)
     {
         gMain.savedCallback = HandleSpecialTrainerBattleEnd;
+        if (gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER)
+            BattleSetup_SetCBEndScriptedWildBattle();
         SetMainCallback2(CB2_InitBattle);
         DestroyTask(taskId);
     }
+}
+
+void DoLinkMultiBattle(void)
+{
+    gBattleTypeFlags = BATTLE_TYPE_WILD_BOSS | BATTLE_TYPE_DOUBLE | BATTLE_TYPE_LINK | BATTLE_TYPE_MULTI | BATTLE_TYPE_TOWER_LINK_MULTI | BATTLE_TYPE_MULTIPLAYER;
+
+    TRAINER_BATTLE_PARAM.opponentA = TRAINER_MAY_LILYCOVE_TORCHIC;
+    TRAINER_BATTLE_PARAM.opponentB = 0xFFFF;
+
+    CreateTask(Task_StartBattleAfterTransition, 1);
+    PlayMapChosenOrBattleBGM(0);
+    BattleTransition_StartOnField(GetWildBattleTransition());
 }
 
 void DoSpecialTrainerBattle(void)

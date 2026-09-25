@@ -93,7 +93,14 @@ COMMON_DATA u8 gLastSendQueueCount = 0;
 COMMON_DATA struct Link gLink = {0};
 COMMON_DATA u8 gLastRecvQueueCount = 0;
 COMMON_DATA u16 gLinkSavedIme = 0;
-
+COMMON_DATA u16 gReceivedP2CommandIds[6] = {0};
+COMMON_DATA u16 gReceivedP2CommandArg1s[6] = {0};
+COMMON_DATA u16 gReceivedP2CommandArg2s[6] = {0};
+COMMON_DATA u16 gReceivedP2CommandArg3s[6] = {0};
+COMMON_DATA u16 gReceivedP2CommandsQueue[4][P2_CMD_QUEUE_SIZE] = {0};
+COMMON_DATA u16 gPreviousP2Command = 0;
+COMMON_DATA bool8 gHasReceivedPlayer2Input = FALSE;
+COMMON_DATA u16 gPlayerFacingDirection = 0;
 static EWRAM_DATA u8 sLinkTestDebugValuesEnabled = 0;
 EWRAM_DATA u32 gBerryBlenderKeySendAttempts = 0;
 EWRAM_DATA u16 gBlockRecvBuffer[MAX_RFU_PLAYERS][BLOCK_BUFFER_SIZE / 2] = {};
@@ -514,6 +521,7 @@ static void ProcessRecvCmds(u8 unused)
     for (i = 0; i < MAX_LINK_PLAYERS; i++)
     {
         gLinkPartnersHeldKeys[i] = 0;
+        gReceivedP2CommandIds[i] = 0;
         if (gRecvCmds[i][0] == 0)
         {
             continue;
@@ -615,9 +623,37 @@ static void ProcessRecvCmds(u8 unused)
             break;
         case LINKCMD_SEND_HELD_KEYS:
             gLinkPartnersHeldKeys[i] = gRecvCmds[i][1];
+            gReceivedP2CommandIds[i] = gRecvCmds[i][2];
+            gReceivedP2CommandArg1s[i] = gRecvCmds[i][3];
+            gReceivedP2CommandArg2s[i] = gRecvCmds[i][4];
+            gReceivedP2CommandArg3s[i] = gRecvCmds[i][5];
             break;
         }
     }
+}
+
+static void PopPlayer2CommandToSend(u16 *command, u16 *arg1, u16 *arg2, u16 *arg3)
+{
+    *command = gP2CommandsToSendQueue[0][0];
+    *arg1 = gP2CommandsToSendQueue[1][0];
+    *arg2 = gP2CommandsToSendQueue[2][0];
+    *arg3 = gP2CommandsToSendQueue[3][0];
+
+    if (*command != 0)
+        DebugPrintf("pop to send %d", *command);
+
+    for (u8 i = 0; i < P2_CMD_QUEUE_SIZE - 1; i++)
+    {
+        gP2CommandsToSendQueue[0][i] = gP2CommandsToSendQueue[0][i + 1];
+        gP2CommandsToSendQueue[1][i] = gP2CommandsToSendQueue[1][i + 1];
+        gP2CommandsToSendQueue[2][i] = gP2CommandsToSendQueue[2][i + 1];
+        gP2CommandsToSendQueue[3][i] = gP2CommandsToSendQueue[3][i + 1];
+    }
+
+    gP2CommandsToSendQueue[0][P2_CMD_QUEUE_SIZE - 1] = P2_CMD_NONE;
+    gP2CommandsToSendQueue[1][P2_CMD_QUEUE_SIZE - 1] = 0;
+    gP2CommandsToSendQueue[2][P2_CMD_QUEUE_SIZE - 1] = 0;;
+    gP2CommandsToSendQueue[3][P2_CMD_QUEUE_SIZE - 1] = 0;
 }
 
 static void BuildSendCmd(u16 command)
@@ -674,11 +710,12 @@ static void BuildSendCmd(u16 command)
         gSendCmd[0] = LINKCMD_DUMMY_2;
         break;
     case LINKCMD_SEND_HELD_KEYS:
-        if (gHeldKeyCodeToSend == 0 || gLinkTransferringData)
+        if ((gHeldKeyCodeToSend == 0 && gP2CommandsToSendQueue[0][0] == 0) || gLinkTransferringData)
             break;
 
         gSendCmd[0] = LINKCMD_SEND_HELD_KEYS;
         gSendCmd[1] = gHeldKeyCodeToSend;
+        PopPlayer2CommandToSend(&gSendCmd[2], &gSendCmd[3], &gSendCmd[4], &gSendCmd[5]);
         break;
     }
 }

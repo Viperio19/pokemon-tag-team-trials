@@ -115,13 +115,13 @@
 #define FLAG_DO_CREDITS_TITLE                      0x282
 #define FLAG_AGENT_DIGGS_DIED                      0x283
 #define FLAG_DOING_CREDITS                         0x284
+#define FlAG_SHOW_PLAYER_2                         0x285
+#define FLAG_PLAYER_2_IS_SAVING                    0x286
+#define FLAG_RETURNING_TO_FIELD_LINK               0x287
+#define FLAG_PLAYER_2_FINISHED_SCRIPT              0x288
+#define FLAG_PLAYER_2_READY_FOR_LINK_BATTLE        0x289
+#define FLAG_DO_QUICK_CONNECTION                   0x28A
 
-#define FLAG_UNUSED_0x285  0x285 // Unused Flag
-#define FLAG_UNUSED_0x286  0x286 // Unused Flag
-#define FLAG_UNUSED_0x287  0x287 // Unused Flag
-#define FLAG_UNUSED_0x288  0x288 // Unused Flag
-#define FLAG_UNUSED_0x289  0x289 // Unused Flag
-#define FLAG_UNUSED_0x28A  0x28A // Unused Flag
 #define FLAG_UNUSED_0x28B  0x28B // Unused Flag
 #define FLAG_UNUSED_0x28C  0x28C // Unused Flag
 #define FLAG_UNUSED_0x28D  0x28D // Unused Flag

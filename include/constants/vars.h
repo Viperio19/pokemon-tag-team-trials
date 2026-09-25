@@ -207,10 +207,10 @@
 #define VAR_TRICK_HOUSE_ENTER_FROM_CORRIDOR              0x40B5
 #define VAR_TRICK_HOUSE_PUZZLE_7_STATE_2                 0x40B6 // Leftover from RS, never set
 #define VAR_SLATEPORT_FAN_CLUB_STATE                     0x40B7
-#define VAR_UNUSED_0x40B8                                0x40B8 // Unused Var
+#define VAR_P2_INTERACTION_COUNTDOWN                     0x40B8
 #define VAR_MT_PYRE_STATE                                0x40B9
 #define VAR_NEW_MAUVILLE_STATE                           0x40BA
-#define VAR_UNUSED_0x40BB                                0x40BB // Unused Var
+#define VAR_P2_INTERACTION_STATE                         0x40BB
 #define VAR_BRAVO_TRAINER_BATTLE_TOWER_ON                0x40BC
 #define VAR_JAGGED_PASS_ASH_WEATHER                      0x40BD
 #define VAR_GLASS_WORKSHOP_STATE                         0x40BE
@@ -251,7 +251,7 @@
 #define VAR_GOLEM_ROCK_SLIDE_STATE                       0x40E1
 #define VAR_GOLEM_ROCK_SLIDE_TIMER                       0x40E2
 #define VAR_VOLCANION_CAVE_3F_PIKACHU_STATE              0x40E3
-#define VAR_GIFT_UNUSED_7                                0x40E4 // Unused Var
+#define VAR_ACTION_ON_FRAME                                0x40E4
 #define VAR_VOLCANION_CAVE_2F_STRENGTH_BUTTON_3          0x40E5
 #define VAR_DAILY_SLOTS                                  0x40E6
 #define VAR_DAILY_WILDS                                  0x40E7

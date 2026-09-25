@@ -175,6 +175,7 @@
 
 static EWRAM_DATA bool8 sStartedPokeBallTask = 0;
 static EWRAM_DATA u16 sCurrItemAndOptionMenuCheck = 0;
+static EWRAM_DATA u16 sLoadMultiplayerMainMenu = 0;
 
 static u8 sBirchSpeechMainTaskId;
 
@@ -307,8 +308,10 @@ static const u8 gJPText_No1MSubCircuit[] = _("1Mサブきばんが ささって�
 static const u8 gText_BatteryRunDry[] = _("The internal battery has run dry.\nThe game can be played.\pHowever, clock-based events will\nno longer occur.");
 
 static const u8 gText_MainMenuNewGame[] = _("NEW GAME");
-static const u8 gText_MainMenuNewSingleplayerGame[] = _("NEW SINGLEPLAYER GAME (v1.2.0)");
-static const u8 gText_MainMenuNewMultiplayerGame[] = _("NEW MULTIPLAYER GAME (COMING SOON)");
+static const u8 gText_MainMenuNewSingleplayerGame[] = _("NEW SINGLEPLAYER GAME (v2.0.0)");
+static const u8 gText_MainMenuNewMultiplayerGame[] = _("NEW MULTIPLAYER GAME (DEMO)");
+static const u8 gText_MainMenuPlayer1[] = _("PLAYER 1 ({COLOR BLUE}TEAM AQUA{COLOR DARK_GRAY})");
+static const u8 gText_MainMenuPlayer2[] = _("PLAYER 2 ({COLOR RED}TEAM MAGMA{COLOR DARK_GRAY})");
 static const u8 gText_MainMenuContinue[] = _("CONTINUE");
 static const u8 gText_MainMenuOption[] = _("OPTION");
 static const u8 gText_MainMenuMysteryGift[] = _("MYSTERY GIFT");
@@ -524,6 +527,11 @@ static const struct MenuAction sMenuActions_Gender[] = {
     {gText_Girl, {NULL}}
 };
 
+static const struct MenuAction sMenuActions_Player[] = {
+    {gText_Aqua, {NULL}},
+    {gText_Magma, {NULL}}
+};
+
 static const u8 *const sMalePresetNames[] = {
     COMPOUND_STRING("STU"),
     COMPOUND_STRING("MILTON"),
@@ -580,6 +588,7 @@ enum
     HAS_SAVED_GAME,     //CONTINUE, NEW GAME, OPTION
     HAS_MYSTERY_GIFT,   //CONTINUE, NEW GAME, MYSTERY GIFT, OPTION
     HAS_MYSTERY_EVENTS, //CONTINUE, NEW GAME, MYSTERY GIFT, MYSTERY EVENTS, OPTION
+    MULTIPLAYER_MENU,
 };
 
 enum
@@ -591,7 +600,9 @@ enum
     ACTION_MYSTERY_GIFT,
     ACTION_MYSTERY_EVENTS,
     ACTION_EREADER,
-    ACTION_INVALID
+    ACTION_INVALID,
+    ACTION_PLAYER_1,
+    ACTION_PLAYER_2
 };
 
 #define MAIN_MENU_BORDER_TILE   0x1D5
@@ -706,37 +717,48 @@ static void Task_MainMenuCheckSaveFile(u8 taskId)
 
         if (IsWirelessAdapterConnected())
             tWirelessAdapterConnected = TRUE;
-        switch (gSaveFileStatus)
+        if (sLoadMultiplayerMainMenu)
         {
-        case SAVE_STATUS_OK:
-            tMenuType = HAS_SAVED_GAME;
-            if (IsMysteryGiftEnabled())
-                tMenuType++;
+            tMenuType = MULTIPLAYER_MENU;
+            sLoadMultiplayerMainMenu = 0;
+            sCurrItemAndOptionMenuCheck = 0;
             gTasks[taskId].func = Task_MainMenuCheckBattery;
-            break;
-        case SAVE_STATUS_CORRUPT:
-            CreateMainMenuErrorWindow(gText_SaveFileErased);
-            tMenuType = HAS_NO_SAVED_GAME;
-            gTasks[taskId].func = Task_WaitForSaveFileErrorWindow;
-            break;
-        case SAVE_STATUS_ERROR:
-            CreateMainMenuErrorWindow(gText_SaveFileCorrupted);
-            gTasks[taskId].func = Task_WaitForSaveFileErrorWindow;
-            tMenuType = HAS_SAVED_GAME;
-            if (IsMysteryGiftEnabled() == TRUE)
-                tMenuType++;
-            break;
-        case SAVE_STATUS_EMPTY:
-        default:
-            tMenuType = HAS_NO_SAVED_GAME;
-            gTasks[taskId].func = Task_MainMenuCheckBattery;
-            break;
-        case SAVE_STATUS_NO_FLASH:
-            CreateMainMenuErrorWindow(gJPText_No1MSubCircuit);
-            gTasks[taskId].tMenuType = HAS_NO_SAVED_GAME;
-            gTasks[taskId].func = Task_WaitForSaveFileErrorWindow;
-            break;
         }
+        else
+        {
+            switch (gSaveFileStatus)
+            {
+            case SAVE_STATUS_OK:
+                tMenuType = HAS_SAVED_GAME;
+                if (IsMysteryGiftEnabled())
+                    tMenuType++;
+                gTasks[taskId].func = Task_MainMenuCheckBattery;
+                break;
+            case SAVE_STATUS_CORRUPT:
+                CreateMainMenuErrorWindow(gText_SaveFileErased);
+                tMenuType = HAS_NO_SAVED_GAME;
+                gTasks[taskId].func = Task_WaitForSaveFileErrorWindow;
+                break;
+            case SAVE_STATUS_ERROR:
+                CreateMainMenuErrorWindow(gText_SaveFileCorrupted);
+                gTasks[taskId].func = Task_WaitForSaveFileErrorWindow;
+                tMenuType = HAS_SAVED_GAME;
+                if (IsMysteryGiftEnabled() == TRUE)
+                    tMenuType++;
+                break;
+            case SAVE_STATUS_EMPTY:
+            default:
+                tMenuType = HAS_NO_SAVED_GAME;
+                gTasks[taskId].func = Task_MainMenuCheckBattery;
+                break;
+            case SAVE_STATUS_NO_FLASH:
+                CreateMainMenuErrorWindow(gJPText_No1MSubCircuit);
+                gTasks[taskId].tMenuType = HAS_NO_SAVED_GAME;
+                gTasks[taskId].func = Task_WaitForSaveFileErrorWindow;
+                break;
+            }
+        }
+
         if (sCurrItemAndOptionMenuCheck & OPTION_MENU_FLAG)   // are we returning from the options menu?
         {
             switch (tMenuType)  // if so, highlight the OPTIONS item
@@ -755,7 +777,7 @@ static void Task_MainMenuCheckSaveFile(u8 taskId)
         }
         sCurrItemAndOptionMenuCheck &= ~OPTION_MENU_FLAG;  // turn off the "returning from options menu" flag
         tCurrItem = sCurrItemAndOptionMenuCheck;
-        tItemCount = tMenuType + 3;
+        tItemCount = tMenuType == MULTIPLAYER_MENU ? 2 : tMenuType + 3;
     }
 }
 
@@ -847,6 +869,18 @@ static void Task_DisplayMainMenu(u8 taskId)
 
         switch (gTasks[taskId].tMenuType)
         {
+        case MULTIPLAYER_MENU:
+            FillWindowPixelBuffer(0, PIXEL_FILL(0xA));
+            FillWindowPixelBuffer(1, PIXEL_FILL(0xA));
+            AddTextPrinterParameterized3(0, FONT_NORMAL, 0, 1, sTextColor_Headers, TEXT_SKIP_DRAW, gText_MainMenuPlayer1);
+            AddTextPrinterParameterized3(1, FONT_NORMAL, 0, 1, sTextColor_Headers, TEXT_SKIP_DRAW, gText_MainMenuPlayer2);
+            PutWindowTilemap(0);
+            PutWindowTilemap(1);
+            CopyWindowToVram(0, COPYWIN_GFX);
+            CopyWindowToVram(1, COPYWIN_GFX);
+            DrawMainMenuWindowBorder(&sWindowTemplates_MainMenu[0], MAIN_MENU_BORDER_TILE);
+            DrawMainMenuWindowBorder(&sWindowTemplates_MainMenu[1], MAIN_MENU_BORDER_TILE);
+            break;
         case HAS_NO_SAVED_GAME:
         default:
             FillWindowPixelBuffer(0, PIXEL_FILL(0xA));
@@ -959,51 +993,6 @@ static void Task_HighlightSelectedMainMenuItem(u8 taskId)
     gTasks[taskId].func = Task_HandleMainMenuInput;
 }
 
-static bool8 IsCurrentItemMultiplayer(u8 taskId)
-{
-    u8 action;
-
-    switch (gTasks[taskId].tMenuType)
-    {
-    case HAS_NO_SAVED_GAME:
-    default:
-        switch (gTasks[taskId].tCurrItem)
-        {
-        case 0:
-        default:
-            action = ACTION_NEW_SINGLEPLAYER_GAME;
-            break;
-        case 1:
-            action = ACTION_NEW_MULTIPLAYER_GAME;
-            break;
-        case 2:
-            action = ACTION_OPTION;
-            break;
-        }
-        break;
-    case HAS_SAVED_GAME:
-        switch (gTasks[taskId].tCurrItem)
-        {
-        case 0:
-        default:
-            action = ACTION_CONTINUE;
-            break;
-        case 1:
-            action = ACTION_NEW_SINGLEPLAYER_GAME;
-            break;
-        case 2:
-            action = ACTION_NEW_MULTIPLAYER_GAME;
-            break;
-        case 3:
-            action = ACTION_OPTION;
-            break;
-        }
-        break;
-    }
-
-    return action == ACTION_NEW_MULTIPLAYER_GAME;
-} 
-
 static bool8 HandleMainMenuInput(u8 taskId)
 {
     s16 *data = gTasks[taskId].data;
@@ -1032,8 +1021,6 @@ static bool8 HandleMainMenuInput(u8 taskId)
             gTasks[tScrollArrowTaskId].tArrowTaskIsScrolled = tIsScrolled = FALSE;
         }
         tCurrItem--;
-        if (IsCurrentItemMultiplayer(taskId))
-            tCurrItem--;
         sCurrItemAndOptionMenuCheck = tCurrItem;
         return TRUE;
     }
@@ -1046,8 +1033,6 @@ static bool8 HandleMainMenuInput(u8 taskId)
             gTasks[tScrollArrowTaskId].tArrowTaskIsScrolled = tIsScrolled = TRUE;
         }
         tCurrItem++;
-        if (IsCurrentItemMultiplayer(taskId))
-            tCurrItem++;
         sCurrItemAndOptionMenuCheck = tCurrItem;
         return TRUE;
     }
@@ -1080,6 +1065,18 @@ static void Task_HandleMainMenuAPressed(u8 taskId)
         wirelessAdapterConnected = IsWirelessAdapterConnected();
         switch (gTasks[taskId].tMenuType)
         {
+        case MULTIPLAYER_MENU:
+            switch (gTasks[taskId].tCurrItem)
+            {
+            case 0:
+            default:
+                action = ACTION_PLAYER_1;
+                break;
+            case 1:
+                action = ACTION_PLAYER_2;
+                break;
+            }
+            break;
         case HAS_NO_SAVED_GAME:
         default:
             switch (gTasks[taskId].tCurrItem)
@@ -1202,11 +1199,31 @@ static void Task_HandleMainMenuAPressed(u8 taskId)
                 return;
             }
 
+            gSaveBlock2Ptr->isMultiplayer = FALSE;
+            gSaveBlock2Ptr->player = 0;
             gPlttBufferUnfaded[0] = RGB_BLACK;
             gPlttBufferFaded[0] = RGB_BLACK;
             gTasks[taskId].func = Task_NewGameSpeech_Init;
             break;
         case ACTION_NEW_MULTIPLAYER_GAME:
+            gSaveBlock2Ptr->isMultiplayer = TRUE;
+            sLoadMultiplayerMainMenu = TRUE;
+            gPlttBufferUnfaded[0] = RGB_BLACK;
+            gPlttBufferFaded[0] = RGB_BLACK;
+            SetMainCallback2(CB2_ReinitMainMenu);
+            DestroyTask(taskId);
+            break;
+        case ACTION_PLAYER_1:
+            gSaveBlock2Ptr->player = 0;
+            gPlttBufferUnfaded[0] = RGB_BLACK;
+            gPlttBufferFaded[0] = RGB_BLACK;
+            gTasks[taskId].func = Task_NewGameSpeech_Init;
+            break;
+        case ACTION_PLAYER_2:
+            gSaveBlock2Ptr->player = 1;
+            gPlttBufferUnfaded[0] = RGB_BLACK;
+            gPlttBufferFaded[0] = RGB_BLACK;
+            gTasks[taskId].func = Task_NewGameSpeech_Init;
             break;
         case ACTION_CONTINUE:
             gPlttBufferUnfaded[0] = RGB_BLACK;
@@ -1320,6 +1337,18 @@ static void HighlightSelectedMainMenuItem(enum PartyMenuType menuType, u8 select
 
     switch (menuType)
     {
+    case MULTIPLAYER_MENU:
+        switch (selectedMenuItem)
+        {
+        case 0:
+        default:
+            SetGpuReg(REG_OFFSET_WIN0V, MENU_WIN_VCOORDS(0));
+            break;
+        case 1:
+            SetGpuReg(REG_OFFSET_WIN0V, MENU_WIN_VCOORDS(1));
+            break;
+        }
+        break;
     case HAS_NO_SAVED_GAME:
     default:
         switch (selectedMenuItem)
@@ -1438,10 +1467,14 @@ static void Task_NewGameSpeech_Init(u8 taskId)
     ResetSpriteData();
     FreeAllSpritePalettes();
     ResetAllPicSprites();
-    AddShellySpeechObjects(taskId);
+    if (IS_MULTIPLAYER && !IS_PLAYER_ONE)
+        AddCourtneySpeechObjects(taskId);
+    else
+        AddShellySpeechObjects(taskId);
+
     BeginNormalPaletteFade(PALETTES_ALL, 0, 16, 0, RGB_BLACK);
     gTasks[taskId].tBG1HOFS = 0;
-    gTasks[taskId].func = Task_NewGameShellySpeech_WaitToShowShelly;
+    gTasks[taskId].func = (IS_MULTIPLAYER && !IS_PLAYER_ONE) ? Task_NewGameCourtneySpeech_WaitToShowCourtney : Task_NewGameShellySpeech_WaitToShowShelly;
     gTasks[taskId].tPlayerSpriteId = SPRITE_NONE;
     gTasks[taskId].data[3] = 0xFF;
     gTasks[taskId].tTimer = 100;
@@ -1450,7 +1483,6 @@ static void Task_NewGameSpeech_Init(u8 taskId)
     ShowBg(1);
 
     gNameboxTileNum = 0x110;
-    gSaveBlock2Ptr->player = 0;
 }
 
 static void Task_NewGameShellySpeech_WaitToShowShelly(u8 taskId)
@@ -1817,6 +1849,8 @@ static void Task_NewGameShellySpeech_StartNamingScreen(u8 taskId)
         FreeAllWindowBuffers();
         FreeAndDestroyMonPicSprite(gTasks[taskId].tPokemonSpriteId);
         NewGameBirchSpeech_SetDefaultPlayerName(Random() % NUM_PRESET_NAMES, gSaveBlock2Ptr->playerName);
+        if (IS_MULTIPLAYER)
+            NewGameBirchSpeech_SetDefaultPlayerName(Random() % NUM_PRESET_NAMES, gSaveBlock2Ptr->player2Name);
         DestroyTask(taskId);
         DoNamingScreen(NAMING_SCREEN_PLAYER, gSaveBlock2Ptr->playerName, gSaveBlock2Ptr->playerGender, 0, 0, CB2_NewGameShellySpeech_ReturnFromNamingScreen);
     }
@@ -1945,7 +1979,7 @@ static void Task_NewGameShellySpeech_AreYouReady(u8 taskId)
         NewGameBirchSpeech_StartFadePlatformOut(taskId, 1);
         StringExpandPlaceholders(gStringVar4, gText_Intro_Shelly_AreYouReady);
         AddTextPrinterForMessage(TRUE);
-        gTasks[taskId].func = Task_NewGameShellySpeech_ShrinkPlayer;
+        gTasks[taskId].func = IS_MULTIPLAYER ? Task_NewGameCourtneySpeech_ShrinkPlayer : Task_NewGameShellySpeech_ShrinkPlayer;
     }
 }
 
@@ -2068,7 +2102,7 @@ static void Task_NewGameCourtneySpeech_WaitForSpriteFadeInWelcome(u8 taskId)
             PutWindowTilemap(0);
             CopyWindowToVram(0, COPYWIN_GFX);
             NewGameBirchSpeech_ClearWindow(0);
-            StringExpandPlaceholders(gStringVar4, gText_Intro_Courtney_Welcome);
+            StringExpandPlaceholders(gStringVar4, IS_MULTIPLAYER ? gText_Intro_CourtneyPlayer2_Welcome: gText_Intro_Courtney_Welcome);
             AddTextPrinterForMessage(TRUE);
             gTasks[taskId].func = Task_NewGameCourtneySpeech_ThisIsAPokemon;
         }
@@ -2393,6 +2427,8 @@ static void Task_NewGameCourtneySpeech_StartNamingScreen(u8 taskId)
         FreeAllWindowBuffers();
         FreeAndDestroyMonPicSprite(gTasks[taskId].tPokemonSpriteId);
         NewGameBirchSpeech_SetDefaultPlayerName(Random() % NUM_PRESET_NAMES, gSaveBlock2Ptr->playerName);
+        if (IS_MULTIPLAYER)
+            NewGameBirchSpeech_SetDefaultPlayerName(Random() % NUM_PRESET_NAMES, gSaveBlock2Ptr->player2Name);
         DestroyTask(taskId);
         DoNamingScreen(NAMING_SCREEN_PLAYER, gSaveBlock2Ptr->playerName, gSaveBlock2Ptr->playerGender, 0, 0, CB2_NewGameCourtneySpeech_ReturnFromNamingScreen);
     }

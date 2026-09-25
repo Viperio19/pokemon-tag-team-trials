@@ -2923,17 +2923,25 @@ BattleScript_LocalBattleLostPrintWhiteOut::
 	waitmessage B_WAIT_TIME_LONG
 	printstring STRINGID_PLAYERWHITEOUT3
 	waitmessage B_WAIT_TIME_LONG
+	jumpifnotbattletype BATTLE_TYPE_MULTIPLAYER, BattleScript_LocalBattleLostEnd2
+	endlinkbattle
 	end2
 BattleScript_LocalBattleLostEnd::
 	printstring STRINGID_PLAYERWHITEOUT2_TRAINER
 	waitmessage B_WAIT_TIME_LONG
 	printstring STRINGID_PLAYERWHITEOUT3
 	waitmessage B_WAIT_TIME_LONG
+	jumpifnotbattletype BATTLE_TYPE_MULTIPLAYER, BattleScript_LocalBattleLostEnd2
+	endlinkbattle
+BattleScript_LocalBattleLostEnd2::
 	end2
 .else
 	printstring STRINGID_PLAYERWHITEOUT3
 	waitmessage B_WAIT_TIME_LONG
 BattleScript_LocalBattleLostEnd::
+	jumpifnotbattletype BATTLE_TYPE_MULTIPLAYER, BattleScript_LocalBattleLostEnd2
+	endlinkbattle
+BattleScript_LocalBattleLostEnd2::
 	end2
 .endif
 
@@ -2957,6 +2965,9 @@ BattleScript_LocalBattleLostDoTrainer2WinText::
 	waitstate
 	printstring STRINGID_TRAINER2WINTEXT
 BattleScript_LocalBattleLostEnd_::
+	jumpifnotbattletype BATTLE_TYPE_MULTIPLAYER, BattleScript_LocalBattleLostEnd2_
+	endlinkbattle
+BattleScript_LocalBattleLostEnd2_::
 	end2
 
 BattleScript_FrontierLinkBattleLost::
@@ -2976,6 +2987,10 @@ BattleScript_FrontierLinkBattleLost::
 	endlinkbattle
 BattleScript_FrontierLinkBattleLostEnd::
 	waitmessage B_WAIT_TIME_LONG
+	end2
+
+BattleScript_LinkMultiBattleWonOrLost::
+	endlinkbattle
 	end2
 
 BattleScript_LinkBattleWonOrLost::
@@ -5491,6 +5506,10 @@ BattleScript_BerryFocusEnergy::
 
 BattleScript_ActionSelectionItemsCantBeUsed::
 	printselectionstring STRINGID_ITEMSCANTBEUSEDNOW
+	endselectionscript
+
+BattleScript_ActionSelectionCantRunFromTrainer::
+	printselectionstring STRINGID_NORUNNINGFROMTRAINERS
 	endselectionscript
 
 BattleScript_FlushMessageBox::

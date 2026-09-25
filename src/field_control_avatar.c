@@ -258,6 +258,9 @@ void UpdatePlayer2Pos(void)
 
 void TrySpawnPlayer2(void)
 {
+    if (IS_MULTIPLAYER && !FlagGet(FlAG_SHOW_PLAYER_2))
+        return;
+
     if (gSaveBlock1Ptr->location.mapNum != gSaveBlock2Ptr->player2Pos.mapNum || gSaveBlock1Ptr->location.mapGroup != gSaveBlock2Ptr->player2Pos.mapGroup)
         return;
 
@@ -369,6 +372,11 @@ void SwitchCharacters(void)
 void IsPlayerOne(void)
 {
     gSpecialVar_Result = IS_PLAYER_ONE;
+}
+
+void IsMultiplayer(void)
+{
+    gSpecialVar_Result = IS_MULTIPLAYER;
 }
 
 int ProcessPlayerFieldInput(struct FieldInput *input)
@@ -634,7 +642,13 @@ static const u8 *GetInteractedObjectEventScript(struct MapPosition *position, u8
         script = GetOverworlWildEncounterScript(objectEventId);
     else if (gObjectEvents[objectEventId].localId == OBJ_EVENT_ID_FOLLOWER)
         script = EventScript_Follower;
-    else if (gObjectEvents[objectEventId].localId == OBJ_EVENT_ID_PLAYER_2)
+    else if (gObjectEvents[objectEventId].localId == OBJ_EVENT_ID_PLAYER_2 && IS_MULTIPLAYER)
+    {
+        if (ObjectEventIsHeldMovementActive(&gObjectEvents[objectEventId]))
+            return NULL;
+        script = EventScript_Player2_Multiplayer;
+    }
+    else if (gObjectEvents[objectEventId].localId == OBJ_EVENT_ID_PLAYER_2 && !IS_MULTIPLAYER)
         script = EventScript_Player2_Singleplayer;
     else if (InTrainerHill() == TRUE)
         script = GetTrainerHillTrainerScript();
@@ -1176,6 +1190,11 @@ static bool8 TryArrowWarp(struct MapPosition *position, u16 metatileBehavior, en
 
     if (IsArrowWarpMetatileBehavior(metatileBehavior, direction) == TRUE)
     {
+        if (IsTagTeamTrialsLinkActive())
+        {
+            ScriptContext_SetupScript(EventScript_Player2_PleaseDontLeave);
+            return TRUE;
+        }
         StorePlayerStateAndSetupWarp(position, warpEventId);
         DoWarp();
         return TRUE;
