@@ -631,13 +631,17 @@ VolcanionCave_1F_EventScript_RockSmash::
 	msgbox Text_MonUsedFieldMove, MSGBOX_DEFAULT
 	closemessage
 VolcanionCave_1F_EventScript_RockSmashCommon:
+	@ check if follower should use the field move
+	isfollowerfieldmoveuser VAR_0x8004
+	setfieldeffectargument 3, VAR_0x8004 @ skip pose if so
 	dofieldeffect FLDEFF_USE_ROCK_SMASH
 	waitstate
 VolcanionCave_1F_EventScript_SmashRock:: @ fallthrough
+	callnative EnqueuePlayer2CommandUseRockSmash
 	applymovement VAR_LAST_TALKED, Movement_SmashRock
 	waitmovement 0
 	removeobject VAR_LAST_TALKED
-	callnative Enqueueplayer2commandEndRockSmash
+	callnative EnqueuePlayer2CommandEndRockSmash
 	delay 10
 	call_if_eq VAR_FACING, DIR_NORTH, VolcanionCave_1F_EventScript_PlayerWalkInPlaceNorth
 	call_if_eq VAR_FACING, DIR_SOUTH, VolcanionCave_1F_EventScript_PlayerWalkInPlaceSouth

@@ -81,10 +81,11 @@ EventScript_RockSmashCommon:
 EventScript_SmashRock:: @ fallthrough
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	call_if_eq VAR_0x8004, TRUE, EventScript_FollowerFieldMove
+	callnative EnqueuePlayer2CommandUseRockSmash
 	applymovement VAR_LAST_TALKED, Movement_SmashRock
 	waitmovement 0
 	removeobject VAR_LAST_TALKED
-	callnative Enqueueplayer2commandEndRockSmash
+	callnative EnqueuePlayer2CommandEndRockSmash
 	specialvar VAR_RESULT, TryUpdateRusturfTunnelState
 	goto_if_eq VAR_RESULT, TRUE, EventScript_EndSmash
 	special RockSmashWildEncounter

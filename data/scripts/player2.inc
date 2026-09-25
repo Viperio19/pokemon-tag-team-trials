@@ -639,7 +639,6 @@ Player2_Text_PleaseDontLeave::
 
 
 Player2_EventScript_DoLinkBossBattle::
-	special SavePlayerParty
 	closemessage
 	delay 10
 	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
@@ -738,7 +737,6 @@ Player2_EventScript_DoLinkMultiBattle::
 	clearflag FLAG_DO_QUICK_CONNECTION
 	special DoLinkMultiBattle
 	waitstate
-	special SavePlayerParty
 	tower_closelink
 	specialvar VAR_RESULT, GetBattleOutcome
 	goto_if_ne VAR_RESULT, B_OUTCOME_WON, Player2_EventScript_Lost
