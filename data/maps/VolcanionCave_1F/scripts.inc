@@ -43,7 +43,7 @@ VolcanionCave_1F_EventScript_HidePlayers::
 
 VolcanionCave_1F_OnFrame:
 	map_script_2 VAR_ACTION_ON_FRAME, 1, Player2_EventScript_Save
-	map_script_2 VAR_ACTION_ON_FRAME, 2, Player2_EventScript_ConnectForMultiplayerBattle
+	map_script_2 VAR_ACTION_ON_FRAME, 2, Player2_EventScript_FastConnectForMultiplayerBattle
 	map_script_2 VAR_VOLCANION_CAVE_1F_STATE, 0, VolcanionCave_1F_EventScript_EnterCave
 	map_script_2 VAR_VOLCANION_CAVE_1F_STATE, 2, VolcanionCave_1F_EventScript_IntroStartMultiplayer
 	map_script_2 VAR_OLD_ROD_STATE, 10, VolcanionCave_1F_EventScript_DropOldRod
@@ -128,6 +128,7 @@ VolcanionCave_1F_EventScript_SetLocalIdsPlayer2::
 	return
 
 VolcanionCave_1F_EventScript_StartWaitingForPlayer2::
+	closemessage
 	delay 10
 	message VolcanionCave_1F_Text_WaitingForOtherPlayer
 	waitmessage
@@ -696,6 +697,7 @@ VolcanionCave_1F_EventScript_Golem::
 	goto_if_set FLAG_PLAYER_2_READY_TO_BATTLE_TOGETHER, VolcanionCave_1F_EventScript_DoGolemMultiBattle
 	goto_if_unset FLAG_HIDE_VOLCANION_CAVE_1F_BREAKABLE_ROCK, VolcanionCave_1F_EventScript_DoGolemSingleBattle
 VolcanionCave_1F_EventScript_AskGolemMultiBattle::
+	goto VolcanionCave_1F_EventScript_TryStartGolemMultiplayerBattle
 	callnative IsPlayerOne
 	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_1F_EventScript_BattleTogetherMagma
 	goto VolcanionCave_1F_EventScript_BattleTogetherAqua
@@ -712,10 +714,10 @@ VolcanionCave_1F_EventScript_DoGolemSingleBattle::
 
 VolcanionCave_1F_EventScript_DoGolemMultiBattle::
 	closemessage
+	clearflag FLAG_PLAYER_2_FINISHED_SCRIPT
 	clearflag FLAG_PLAYER_2_READY_TO_BATTLE_TOGETHER
 	setwildbattle SPECIES_GOLEM_ALOLA, 35, TRUE
 	multi_fixed_players_vs_wild PARTNER_PLAYER_2
-VolcanionCave_1F_EventScript_GolemMultiBattleEnd::
 	specialvar VAR_RESULT, GetBattleOutcome
 	goto_if_eq VAR_RESULT, B_OUTCOME_WON, VolcanionCave_1F_EventScript_DefeatedGolem
 	release
@@ -756,7 +758,7 @@ VolcanionCave_1F_EventScript_DefeatedGolem::
 	msgbox VolcanionCave_1F_Text_DidWeKillIt, MSGBOX_DEFAULT
 	setflag FLAG_DEFEATED_VOLCANION_CAVE_1F_GOLEM
 	callnative IsMultiplayer
-	goto_if_eq VAR_RESULT, TRUE, EventScript_Player2_Connect
+	goto_if_eq VAR_RESULT, TRUE, Player2_EventScript_Reconnect
 	release
 	end
 
@@ -802,28 +804,5 @@ VolcanionCave_1F_Text_BattleTogetherAquaFine::
 	
 VolcanionCave_1F_Text_DidWeKillIt::
 	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}Is that it??{PAUSE 20} DID WE DO IT???\p"
-	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}Indoor voice please.\p"
-	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}Ugh, you're no fun.\p"
-	.string "We just beat the strongest\n"
-	.string "POKéMON we've ever battled\l"
-	.string "and THAT'S your reaction??\p"
-	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}If THAT'S the strongest POKéMON\n"
-	.string "you've ever battled, you should\l"
-	.string "seriously reconsider being here.\p"
-	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}Are all TEAM MAGMA GRUNTS as\n"
-	.string "annoying as you????\p"
-	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}Yeah.\p"
-	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}Look, as much as I really really REALLY\n"
-	.string "don't want to say it, we needed to work\l"
-	.string "together to take out that GOLEM.\p"
-	.string "There's probably more POKéMON in here\n"
-	.string "that are too strong for just one of us.\p"
-	.string "What do you say to a truce for now?\p"
-	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}As long as it's ONLY temporary.\p"
-	.string "Any more than that, and the shame\n"
-	.string "of working with you will kill me.\p"
-	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}{FONT 5}{AUTO_SCROLL 1}not if i kill you first{PAUSE 10}\p"
-	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}{FONT_NORMAL}{AUTO_SCROLL 0}What???\p"
-	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}What?\p"
 	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}{FONT 5}Sigh… {FONT_NORMAL}We're getting nowhere with this.\n"
 	.string "Let's go.$"

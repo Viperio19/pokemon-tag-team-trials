@@ -486,6 +486,7 @@ void CB2_InitBattle(void)
     DebugPrintf("CB2_InitBattle");
     if (gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER)
     {
+        gBattleCommunication[MULTIUSE_STATE] = 0;
         HandleLinkBattleSetup();
         SetMainCallback2(CB2_PreInitMultiBattle);
     }

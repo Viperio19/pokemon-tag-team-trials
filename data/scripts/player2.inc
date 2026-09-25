@@ -393,11 +393,18 @@ Player2Aqua_Text_Cancel::
 Player2Magma_Text_Cancel::
 	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}Alright, let's go.$"
 
-EventScript_Player2_Connect::
+Player2_EventScript_Reconnect::
 	closemessage
 	delay 10
+	setflag FLAG_DO_QUICK_CONNECTION
+	message Player2_Text_ReconnectingForOverworld
+	waitmessage
+	goto EventScript_Player2_TryTradeLinkup
+
+EventScript_Player2_Connect::
 	message gText_PleaseWaitForLink
 	waitmessage
+EventScript_Player2_TryTradeLinkup::
 	special TryTradeLinkup
 	goto_if_eq VAR_RESULT, LINKUP_SUCCESS, Player2_LinkSuccess
 	goto_if_eq VAR_RESULT, LINKUP_SOMEONE_NOT_READY, Player2_AbortLinkTryAgain
@@ -410,6 +417,7 @@ EventScript_Player2_Connect::
 	end
 
 Player2_AbortLinkTryAgain::
+	clearflag FLAG_DO_QUICK_CONNECTION
 	call_if_eq VAR_VOLCANION_CAVE_1F_STATE, 0, Player2_Set1FStateNoIntro
 	special CloseLink
 	msgbox CableClub_Text_PleaseVisitAgain, MSGBOX_DEFAULT
@@ -417,6 +425,7 @@ Player2_AbortLinkTryAgain::
 	end
 
 Player2_LinkSuccess::
+	clearflag FLAG_DO_QUICK_CONNECTION
 	call_if_eq VAR_VOLCANION_CAVE_1F_STATE, 0, Player2_Set1FStateMultiplayerIntro
 	callnative StoreLinkPlayerName
 	setvar VAR_0x8004, USING_TRADE_CENTER
@@ -633,7 +642,7 @@ Player2_EventScript_DoLinkBossBattle::
 	special SavePlayerParty
 	closemessage
 	delay 10
-	callnative IsTagTeamTrialsLinkActive
+	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
 	goto_if_eq VAR_RESULT, FALSE, Player2_EventScript_ConnectForMultiplayerBattle
 	message gText_PleaseWaitForLink
 	waitmessage
@@ -643,9 +652,8 @@ Player2_Multiplayer_WaitOtherPlayerBattle::
 	goto_if_unset FLAG_PLAYER_2_READY_FOR_LINK_BATTLE, Player2_Multiplayer_WaitOtherPlayerBattle
 	clearflag FLAG_PLAYER_2_READY_FOR_LINK_BATTLE
 	setvar VAR_ACTION_ON_FRAME, 2
-	message Player2_Text_ClosingConnection
+	message Player2_Text_ClosingOverworldLink
 	waitmessage
-	closemessage
 	callnative UpdatePlayer2Pos
 	callnative SetWarpCurrentPosition
 	special ReturnFromLinkRoom
@@ -657,9 +665,19 @@ Player2_EventScript_ConnectForMultiplayerBattle::
 	goto_if_eq VAR_RESULT, TRUE, LinkMultiBattle_EventScript_TryWirelessLink
 	goto LinkMultiBattle_EventScript_TryCableLink
 
+Player2_EventScript_FastConnectForMultiplayerBattle::
+	message Player2_Text_ReconnectingForBattle
+	waitmessage
+	setflag FLAG_DO_QUICK_CONNECTION
+	setvar VAR_ACTION_ON_FRAME, 0
+	specialvar VAR_RESULT, IsWirelessAdapterConnected
+	goto_if_eq VAR_RESULT, TRUE, LinkMultiBattle_EventScript_TryWirelessLink
+	goto LinkMultiBattle_EventScript_TryBattleLinkup
+
 LinkMultiBattle_EventScript_TryCableLink::
 	message gText_PleaseWaitForLink
 	waitmessage
+LinkMultiBattle_EventScript_TryBattleLinkup::
 	setvar VAR_0x8004, USING_LINK_MULTI
 	setvar VAR_0x8005, 0
 	special TryBattleLinkup
@@ -673,6 +691,7 @@ LinkMultiBattle_EventScript_TryCableLink::
 	end
 
 LinkMultiBattle_EventScript_CableLinkFailed::
+	clearflag FLAG_DO_QUICK_CONNECTION
 	special CloseLink
 	message LinkMultiBattle_Text_LinkConnectionFailed
 	waitmessage
@@ -716,18 +735,30 @@ LinkMultiBattle_EventScript_TryJoinGroup::
 	return
 
 LinkMultiBattle_EventScript_DoLinkMultiBattle::
-	message LinkMultiBattle_Text_InitiatingLinkBattle
-	waitmessage
+	clearflag FLAG_DO_QUICK_CONNECTION
 	special DoLinkMultiBattle
 	waitstate
 	special SavePlayerParty
 	tower_closelink
 	specialvar VAR_RESULT, GetBattleOutcome
-	goto_if_ne VAR_RESULT, B_OUTCOME_WON, LinkMultiBattle_EventScript_Lost
+	goto_if_eq VAR_RESULT, B_OUTCOME_WON, LinkMultiBattle_EventScript_Lost
 	goto_if_unset FLAG_DEFEATED_VOLCANION_CAVE_1F_GOLEM, VolcanionCave_1F_EventScript_DefeatedGolem
 LinkMultiBattle_EventScript_Lost::
-	releaseall
+	playmoncry SPECIES_GOLEM_ALOLA, CRY_MODE_ENCOUNTER
+	message VolcanionCave_1F_Text_GolemCry
+	waitmoncry
+	waitmessage
+	goto Player2_EventScript_Reconnect
 	end
+
+Player2_Text_ClosingOverworldLink::
+	.string "Closing overworld link…{PAUSE 20}$"
+
+Player2_Text_ReconnectingForBattle::
+	.string "Reconnecting for battle…$"
+
+Player2_Text_ReconnectingForOverworld::
+	.string "Reconnecting for overworld…$"
 
 LinkMultiBattle_Text_InitiatingLinkBattle:
 	.string "Initiating link battle.$"

@@ -161,7 +161,8 @@ static bool32 CheckLinkErrored(u8 taskId)
 
 static bool32 CheckLinkCanceledBeforeConnection(u8 taskId)
 {
-    if ((JOY_NEW(B_BUTTON))
+    if (!FlagGet(FLAG_DO_QUICK_CONNECTION)
+     && (JOY_NEW(B_BUTTON))
      && IsLinkConnectionEstablished() == FALSE)
     {
         gLinkType = 0;
@@ -237,13 +238,15 @@ static void Task_LinkupAwaitConnection(u8 taskId)
     if (IsLinkMaster() == TRUE)
     {
         PlaySE(SE_PIN);
-        ShowFieldAutoScrollMessage(gText_ConfirmLinkWhenPlayersReady);
+        if (!FlagGet(FLAG_DO_QUICK_CONNECTION))
+            ShowFieldAutoScrollMessage(gText_ConfirmLinkWhenPlayersReady);
         gTasks[taskId].func = Task_LinkupConfirmWhenReady;
     }
     else
     {
         PlaySE(SE_BOO);
-        ShowFieldAutoScrollMessage(gText_AwaitingLinkup);
+        if (!FlagGet(FLAG_DO_QUICK_CONNECTION))
+            ShowFieldAutoScrollMessage(gText_AwaitingLinkup);
         gTasks[taskId].func = Task_LinkupExchangeDataWithLeader;
     }
 }
@@ -255,7 +258,7 @@ static void Task_LinkupConfirmWhenReady(u8 taskId)
      || CheckLinkErrored(taskId) == TRUE)
         return;
 
-    if (GetFieldMessageBoxMode() == FIELD_MESSAGE_BOX_HIDDEN)
+    if (GetFieldMessageBoxMode() == FIELD_MESSAGE_BOX_HIDDEN || FlagGet(FLAG_DO_QUICK_CONNECTION))
     {
         gTasks[taskId].tNumPlayers = 0;
         gTasks[taskId].func = Task_LinkupAwaitConfirmation;
@@ -272,18 +275,22 @@ static void Task_LinkupAwaitConfirmation(u8 taskId)
      || CheckLinkErrored(taskId) == TRUE)
         return;
 
-    UpdateLinkPlayerCountDisplay(taskId, linkPlayerCount);
+    if (!FlagGet(FLAG_DO_QUICK_CONNECTION))
+        UpdateLinkPlayerCountDisplay(taskId, linkPlayerCount);
 
-    if (!(JOY_NEW(A_BUTTON)))
+    if (!FlagGet(FLAG_DO_QUICK_CONNECTION) && !(JOY_NEW(A_BUTTON)))
         return;
 
     if (linkPlayerCount < tMinPlayers)
         return;
 
     SaveLinkPlayers(linkPlayerCount);
-    ClearLinkPlayerCountWindow(tWindowId);
-    ConvertIntToDecimalStringN(gStringVar1, linkPlayerCount, STR_CONV_MODE_LEFT_ALIGN, 1);
-    ShowFieldAutoScrollMessage(gText_ConfirmStartLinkWithXPlayers);
+    if (!FlagGet(FLAG_DO_QUICK_CONNECTION))
+    {
+        ClearLinkPlayerCountWindow(tWindowId);
+        ConvertIntToDecimalStringN(gStringVar1, linkPlayerCount, STR_CONV_MODE_LEFT_ALIGN, 1);
+        ShowFieldAutoScrollMessage(gText_ConfirmStartLinkWithXPlayers);
+    }
     gTasks[taskId].func = Task_LinkupTryConfirmation;
 }
 
@@ -294,8 +301,13 @@ static void Task_LinkupTryConfirmation(u8 taskId)
      || CheckLinkErrored(taskId) == TRUE)
         return;
 
-    if (GetFieldMessageBoxMode() == FIELD_MESSAGE_BOX_HIDDEN)
+    if (GetFieldMessageBoxMode() == FIELD_MESSAGE_BOX_HIDDEN || FlagGet(FLAG_DO_QUICK_CONNECTION))
     {
+        if (FlagGet(FLAG_DO_QUICK_CONNECTION))
+        {
+            CheckShouldAdvanceLinkState();
+            gTasks[taskId].func = Task_LinkupConfirm;
+        }
         if (GetSavedPlayerCount() != GetLinkPlayerCount_2())
         {
             ShowFieldAutoScrollMessage(gText_ConfirmLinkWhenPlayersReady);
