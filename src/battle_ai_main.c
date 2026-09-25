@@ -261,14 +261,14 @@ static u64 GetAiFlags(u16 trainerId, enum BattlerId battler)
     if (trainerId == 0xFFFF)
     {
         if (gBattleTypeFlags & BATTLE_TYPE_WILD_BOSS)
-            flags = AI_FLAG_BASIC_TRAINER;
+            flags = AI_FLAG_CHECK_BAD_MOVE;
         else
             flags = GetWildAiFlags();
     }
     else
     {
         if (gBattleTypeFlags & BATTLE_TYPE_WILD_BOSS)
-            flags = AI_FLAG_BASIC_TRAINER;
+            flags = AI_FLAG_CHECK_BAD_MOVE;
         else if (gBattleTypeFlags & BATTLE_TYPE_RECORDED)
             flags = GetAiScriptsInRecordedBattle(battler);
         else if (gBattleTypeFlags & BATTLE_TYPE_SAFARI)
@@ -1951,6 +1951,8 @@ static s32 AI_CheckBadMove(enum BattlerId battlerAtk, enum BattlerId battlerDef,
         }
         // fallthrough
     case EFFECT_WEATHER:
+        if (IsBattlersFirstTurn(battlerAtk))
+            ADJUST_SCORE(20);
         switch (GetMoveWeatherType(move))
         {
         case BATTLE_WEATHER_RAIN:
@@ -2958,6 +2960,11 @@ static s32 AI_CheckBadMove(enum BattlerId battlerAtk, enum BattlerId battlerDef,
             ADJUST_SCORE(-20);
         if (gBattleMons[battlerDef].species == SPECIES_CORSOLA)
             ADJUST_SCORE(40);
+        break;
+    case EFFECT_EARTHQUAKE:
+        if (IsBattlersFirstTurn(battlerAtk))
+            ADJUST_SCORE(-20);
+        ADJUST_SCORE(-10);
         break;
     case EFFECT_PLACEHOLDER:
         return 0;   // cannot even select

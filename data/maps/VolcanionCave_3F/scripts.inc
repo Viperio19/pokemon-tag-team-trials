@@ -3802,7 +3802,7 @@ Credits_TheCompetition::
 	.string "The Competition$"
 
 Credits_TARC::
-	.string "Team Aqua Romhacking Competition 3$"
+	.string "Team Aqua's Romhacking Competition 3$"
 
 Credits_TheTeam::
 	.string "The Team$"
@@ -3868,7 +3868,7 @@ Credits_Jicem::
 	.string "Jicem (Pokémon Mu Magma)$"
 
 Credits_TeamRocketOverworldSprites::
-	.string "Magma Grunts Overworld Sprites$"
+	.string "Team Rocket Overworld Sprites$"
 
 Credits_Kalari::
 	.string "Kalari (Pokecommunity)$"
