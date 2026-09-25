@@ -177,7 +177,8 @@ static bool32 CheckLinkCanceled(u8 taskId)
     if (IsLinkConnectionEstablished())
         SetSuppressLinkErrorMessage(TRUE);
 
-    if (JOY_NEW(B_BUTTON))
+    if (!FlagGet(FLAG_DO_QUICK_CONNECTION)
+     && JOY_NEW(B_BUTTON))
     {
         gLinkType = 0;
         gTasks[taskId].func = Task_LinkupFailed;

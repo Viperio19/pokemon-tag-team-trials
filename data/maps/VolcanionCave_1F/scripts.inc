@@ -696,8 +696,11 @@ VolcanionCave_1F_EventScript_Golem::
 	waitmessage
 	goto_if_set FLAG_PLAYER_2_READY_TO_BATTLE_TOGETHER, VolcanionCave_1F_EventScript_DoGolemMultiBattle
 	goto_if_unset FLAG_HIDE_VOLCANION_CAVE_1F_BREAKABLE_ROCK, VolcanionCave_1F_EventScript_DoGolemSingleBattle
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_1F_EventScript_AskGolemMultiBattle
+	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
+	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_1F_EventScript_DoGolemSingleBattle
 VolcanionCave_1F_EventScript_AskGolemMultiBattle::
-	goto VolcanionCave_1F_EventScript_TryStartGolemMultiplayerBattle
 	callnative IsPlayerOne
 	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_1F_EventScript_BattleTogetherMagma
 	goto VolcanionCave_1F_EventScript_BattleTogetherAqua
@@ -734,7 +737,7 @@ VolcanionCave_1F_EventScript_GetReadyForGolemMultiBattleAqua::
 VolcanionCave_1F_EventScript_TryStartGolemMultiplayerBattle::
 	callnative IsMultiplayer
 	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_1F_EventScript_GetReadyForGolemMultiBattle
-	setwildbattle SPECIES_GOLEM_ALOLA, 5, TRUE
+	setwildbattle SPECIES_GOLEM_ALOLA, 35, TRUE
 	goto Player2_EventScript_DoLinkBossBattle
 	end
 
@@ -804,5 +807,28 @@ VolcanionCave_1F_Text_BattleTogetherAquaFine::
 	
 VolcanionCave_1F_Text_DidWeKillIt::
 	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}Is that it??{PAUSE 20} DID WE DO IT???\p"
+	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}Indoor voice please.\p"
+	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}Ugh, you're no fun.\p"
+	.string "We just beat the strongest\n"
+	.string "POKéMON we've ever battled\l"
+	.string "and THAT'S your reaction??\p"
+	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}If THAT'S the strongest POKéMON\n"
+	.string "you've ever battled, you should\l"
+	.string "seriously reconsider being here.\p"
+	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}Are all TEAM MAGMA GRUNTS as\n"
+	.string "annoying as you????\p"
+	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}Yeah.\p"
+	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}Look, as much as I really really REALLY\n"
+	.string "don't want to say it, we needed to work\l"
+	.string "together to take out that GOLEM.\p"
+	.string "There's probably more POKéMON in here\n"
+	.string "that are too strong for just one of us.\p"
+	.string "What do you say to a truce for now?\p"
+	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}As long as it's ONLY temporary.\p"
+	.string "Any more than that, and the shame\n"
+	.string "of working with you will kill me.\p"
+	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}{FONT 5}{AUTO_SCROLL 1}not if i kill you first{PAUSE 10}\p"
+	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}{FONT_NORMAL}{AUTO_SCROLL 0}What???\p"
+	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}What?\p"
 	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}{FONT 5}Sigh… {FONT_NORMAL}We're getting nowhere with this.\n"
 	.string "Let's go.$"

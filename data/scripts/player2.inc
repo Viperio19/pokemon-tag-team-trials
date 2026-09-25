@@ -662,8 +662,8 @@ Player2_Multiplayer_WaitOtherPlayerBattle::
 Player2_EventScript_ConnectForMultiplayerBattle::
 	setvar VAR_ACTION_ON_FRAME, 0
 	specialvar VAR_RESULT, IsWirelessAdapterConnected
-	goto_if_eq VAR_RESULT, TRUE, LinkMultiBattle_EventScript_TryWirelessLink
-	goto LinkMultiBattle_EventScript_TryCableLink
+	goto_if_eq VAR_RESULT, TRUE, Player2_EventScript_TryWirelessLink
+	goto Player2_EventScript_TryCableLink
 
 Player2_EventScript_FastConnectForMultiplayerBattle::
 	message Player2_Text_ReconnectingForBattle
@@ -671,79 +671,79 @@ Player2_EventScript_FastConnectForMultiplayerBattle::
 	setflag FLAG_DO_QUICK_CONNECTION
 	setvar VAR_ACTION_ON_FRAME, 0
 	specialvar VAR_RESULT, IsWirelessAdapterConnected
-	goto_if_eq VAR_RESULT, TRUE, LinkMultiBattle_EventScript_TryWirelessLink
-	goto LinkMultiBattle_EventScript_TryBattleLinkup
+	goto_if_eq VAR_RESULT, TRUE, Player2_EventScript_TryWirelessLink
+	goto Player2_EventScript_TryBattleLinkup
 
-LinkMultiBattle_EventScript_TryCableLink::
+Player2_EventScript_TryCableLink::
 	message gText_PleaseWaitForLink
 	waitmessage
-LinkMultiBattle_EventScript_TryBattleLinkup::
+Player2_EventScript_TryBattleLinkup::
 	setvar VAR_0x8004, USING_LINK_MULTI
 	setvar VAR_0x8005, 0
 	special TryBattleLinkup
-	goto_if_eq VAR_RESULT, LINKUP_SUCCESS, LinkMultiBattle_EventScript_DoLinkMultiBattle
-	goto_if_eq VAR_RESULT, LINKUP_SOMEONE_NOT_READY, LinkMultiBattle_EventScript_CableLinkFailed
-	goto_if_eq VAR_RESULT, LINKUP_DIFF_SELECTIONS, LinkMultiBattle_EventScript_CableLinkFailed
-	goto_if_eq VAR_RESULT, LINKUP_WRONG_NUM_PLAYERS, LinkMultiBattle_EventScript_CableLinkFailed
-	goto_if_eq VAR_RESULT, LINKUP_FAILED, LinkMultiBattle_EventScript_CableLinkFailed
-	goto_if_eq VAR_RESULT, LINKUP_CONNECTION_ERROR, LinkMultiBattle_EventScript_CableLinkFailed
-	goto_if_eq VAR_RESULT, LINKUP_FAILED_BATTLE_TOWER, LinkMultiBattle_EventScript_CableLinkFailed
+	goto_if_eq VAR_RESULT, LINKUP_SUCCESS, Player2_EventScript_DoLinkMultiBattle
+	goto_if_eq VAR_RESULT, LINKUP_SOMEONE_NOT_READY, Player2_EventScript_CableLinkFailed
+	goto_if_eq VAR_RESULT, LINKUP_DIFF_SELECTIONS, Player2_EventScript_CableLinkFailed
+	goto_if_eq VAR_RESULT, LINKUP_WRONG_NUM_PLAYERS, Player2_EventScript_CableLinkFailed
+	goto_if_eq VAR_RESULT, LINKUP_FAILED, Player2_EventScript_CableLinkFailed
+	goto_if_eq VAR_RESULT, LINKUP_CONNECTION_ERROR, Player2_EventScript_CableLinkFailed
+	goto_if_eq VAR_RESULT, LINKUP_FAILED_BATTLE_TOWER, Player2_EventScript_CableLinkFailed
 	end
 
-LinkMultiBattle_EventScript_CableLinkFailed::
+Player2_EventScript_CableLinkFailed::
 	clearflag FLAG_DO_QUICK_CONNECTION
 	special CloseLink
-	message LinkMultiBattle_Text_LinkConnectionFailed
+	message Player2_Text_LinkConnectionFailed
 	waitmessage
 	delay 60
 	special LoadPlayerParty
 	releaseall
 	end
 
-LinkMultiBattle_EventScript_TryWirelessLink::
+Player2_EventScript_TryWirelessLink::
 	setvar VAR_0x8004, LINK_GROUP_BATTLE_TOWER
-	goto LinkMultiBattle_EventScript_ChooseLeader
+	goto Player2_EventScript_ChooseLeader
 	end
 
-LinkMultiBattle_EventScript_ChooseLeader::
+Player2_EventScript_ChooseLeader::
 	message CableClub_Text_ChooseGroupLeaderOfTwo
 	waitmessage
 	multichoice 16, 6, MULTI_LINK_LEADER, FALSE
 	switch VAR_RESULT
-	case 0, LinkMultiBattle_EventScript_TryJoinGroup
-	case 1, LinkMultiBattle_EventScript_TryBecomeLeader
-	case 2, LinkMultiBattle_EventScript_CableLinkFailed
-	case MULTI_B_PRESSED, LinkMultiBattle_EventScript_CableLinkFailed
+	case 0, Player2_EventScript_TryJoinGroup
+	case 1, Player2_EventScript_TryBecomeLeader
+	case 2, Player2_EventScript_CableLinkFailed
+	case MULTI_B_PRESSED, Player2_EventScript_CableLinkFailed
 	end
 
-LinkMultiBattle_EventScript_TryBecomeLeader::
+Player2_EventScript_TryBecomeLeader::
 	call CableClub_EventScript_TryBecomeLinkLeader
-	goto_if_eq VAR_RESULT, LINKUP_SUCCESS, LinkMultiBattle_EventScript_DoLinkMultiBattle
-	goto_if_eq VAR_RESULT, LINKUP_FAILED, LinkMultiBattle_EventScript_ChooseLeader
-	goto_if_eq VAR_RESULT, LINKUP_RETRY_ROLE_ASSIGN, LinkMultiBattle_EventScript_TryBecomeLeader
-	goto_if_eq VAR_RESULT, LINKUP_FAILED_BATTLE_TOWER, LinkMultiBattle_EventScript_CableLinkFailed
+	goto_if_eq VAR_RESULT, LINKUP_SUCCESS, Player2_EventScript_DoLinkMultiBattle
+	goto_if_eq VAR_RESULT, LINKUP_FAILED, Player2_EventScript_ChooseLeader
+	goto_if_eq VAR_RESULT, LINKUP_RETRY_ROLE_ASSIGN, Player2_EventScript_TryBecomeLeader
+	goto_if_eq VAR_RESULT, LINKUP_FAILED_BATTLE_TOWER, Player2_EventScript_CableLinkFailed
 	release
 	return
 
-LinkMultiBattle_EventScript_TryJoinGroup::
+Player2_EventScript_TryJoinGroup::
 	call CableClub_EventScript_TryJoinLinkGroup
-	goto_if_eq VAR_RESULT, LINKUP_SUCCESS, LinkMultiBattle_EventScript_DoLinkMultiBattle
-	goto_if_eq VAR_RESULT, LINKUP_FAILED, LinkMultiBattle_EventScript_ChooseLeader
-	goto_if_eq VAR_RESULT, LINKUP_RETRY_ROLE_ASSIGN, LinkMultiBattle_EventScript_TryJoinGroup
-	goto_if_eq VAR_RESULT, LINKUP_FAILED_BATTLE_TOWER, LinkMultiBattle_EventScript_CableLinkFailed
+	goto_if_eq VAR_RESULT, LINKUP_SUCCESS, Player2_EventScript_DoLinkMultiBattle
+	goto_if_eq VAR_RESULT, LINKUP_FAILED, Player2_EventScript_ChooseLeader
+	goto_if_eq VAR_RESULT, LINKUP_RETRY_ROLE_ASSIGN, Player2_EventScript_TryJoinGroup
+	goto_if_eq VAR_RESULT, LINKUP_FAILED_BATTLE_TOWER, Player2_EventScript_CableLinkFailed
 	release
 	return
 
-LinkMultiBattle_EventScript_DoLinkMultiBattle::
+Player2_EventScript_DoLinkMultiBattle::
 	clearflag FLAG_DO_QUICK_CONNECTION
 	special DoLinkMultiBattle
 	waitstate
 	special SavePlayerParty
 	tower_closelink
 	specialvar VAR_RESULT, GetBattleOutcome
-	goto_if_eq VAR_RESULT, B_OUTCOME_WON, LinkMultiBattle_EventScript_Lost
+	goto_if_ne VAR_RESULT, B_OUTCOME_WON, Player2_EventScript_Lost
 	goto_if_unset FLAG_DEFEATED_VOLCANION_CAVE_1F_GOLEM, VolcanionCave_1F_EventScript_DefeatedGolem
-LinkMultiBattle_EventScript_Lost::
+Player2_EventScript_Lost::
 	playmoncry SPECIES_GOLEM_ALOLA, CRY_MODE_ENCOUNTER
 	message VolcanionCave_1F_Text_GolemCry
 	waitmoncry
@@ -758,10 +758,10 @@ Player2_Text_ReconnectingForBattle::
 	.string "Reconnecting for battle…$"
 
 Player2_Text_ReconnectingForOverworld::
-	.string "Reconnecting for overworld…$"
+	.string "Waiting for the other player…$"
 
-LinkMultiBattle_Text_InitiatingLinkBattle:
+Player2_Text_InitiatingLinkBattle:
 	.string "Initiating link battle.$"
 
-LinkMultiBattle_Text_LinkConnectionFailed:
+Player2_Text_LinkConnectionFailed:
 	.string "Link failed.$"

@@ -2923,6 +2923,8 @@ BattleScript_LocalBattleLostPrintWhiteOut::
 	waitmessage B_WAIT_TIME_LONG
 	printstring STRINGID_PLAYERWHITEOUT3
 	waitmessage B_WAIT_TIME_LONG
+	jumpifnotbattletype BATTLE_TYPE_MULTIPLAYER, BattleScript_LocalBattleLostEnd2
+	endlinkbattle
 	end2
 BattleScript_LocalBattleLostEnd::
 	printstring STRINGID_PLAYERWHITEOUT2_TRAINER
