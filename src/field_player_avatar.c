@@ -2009,6 +2009,7 @@ static bool8 PushBoulder_End(struct Task *task, struct ObjectEvent *player, stru
         UnlockPlayerFieldControls();
         DestroyTask(FindTaskIdByFunc(Task_PushBoulder));
 
+        EnqueuePlayer2CommandToSend(P2_CMD_MOVE_OBJECT, boulder->localId, boulder->currentCoords.x - MAP_OFFSET, boulder->currentCoords.y - MAP_OFFSET);
         struct BoulderPos *pos = &gSaveBlock1Ptr->boulderPos[gSaveBlock1Ptr->location.mapNum][boulder->localId];
         pos->x = boulder->currentCoords.x - MAP_OFFSET;
         pos->y = boulder->currentCoords.y - MAP_OFFSET;

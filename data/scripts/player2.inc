@@ -637,6 +637,23 @@ EventScript_Player2_PleaseDontLeave::
 Player2_Text_PleaseDontLeave::
 	.string "You can't leave while connected.{PAUSE 40}$"
 
+EventScript_Player2_EndOfDemo::
+	message Player2_Text_EndOfDemo
+	waitmessage
+	goto EventScript_Player2_EndOfDemo
+	end
+
+Player2_Text_EndOfDemo::
+	.string "You have made it to the end of the\n"
+	.string "multiplayer demo!\p"
+	.string "You are now stuck in an infinite loop.\p"
+	.string "The full game will be playable in\n"
+	.string "multiplayer mode…{PAUSE 20} someday.\p"
+	.string "Probably in a couple weeks to a month.\p"
+	.string "Until then, feel free to tell me about\n"
+	.string "everything that broke in this demo\l"
+	.string "so I can fix it!\p"
+	.string "Thanks for playing!\p$"
 
 Player2_EventScript_DoLinkBossBattle::
 	closemessage

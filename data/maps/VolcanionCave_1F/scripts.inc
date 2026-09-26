@@ -637,11 +637,11 @@ VolcanionCave_1F_EventScript_RockSmashCommon:
 	dofieldeffect FLDEFF_USE_ROCK_SMASH
 	waitstate
 VolcanionCave_1F_EventScript_SmashRock:: @ fallthrough
-	callnative EnqueuePlayer2CommandUseRockSmash
+	enqueueplayer2command P2_CMD_USE_ROCK_SMASH, VAR_LAST_TALKED
 	applymovement VAR_LAST_TALKED, Movement_SmashRock
 	waitmovement 0
+	enqueueplayer2command P2_CMD_REMOVE_OBJECT, VAR_LAST_TALKED
 	removeobject VAR_LAST_TALKED
-	callnative EnqueuePlayer2CommandEndRockSmash
 	delay 10
 	call_if_eq VAR_FACING, DIR_NORTH, VolcanionCave_1F_EventScript_PlayerWalkInPlaceNorth
 	call_if_eq VAR_FACING, DIR_SOUTH, VolcanionCave_1F_EventScript_PlayerWalkInPlaceSouth
