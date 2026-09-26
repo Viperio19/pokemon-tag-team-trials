@@ -1221,6 +1221,11 @@ static bool8 TryStartWarpEventScript(struct MapPosition *position, u16 metatileB
 
     if (warpEventId != WARP_ID_NONE && IsWarpMetatileBehavior(metatileBehavior) == TRUE)
     {
+        if (IS_MULTIPLAYER)
+        {
+            ScriptContext_SetupScript(EventScript_Player2_EndOfDemo);
+            return TRUE;
+        }
         StoreInitialPlayerAvatarState();
         SetupWarp(&gMapHeader, warpEventId, position);
         if (MetatileBehavior_IsEscalator(metatileBehavior) == TRUE)

@@ -2989,11 +2989,6 @@ void TrySetPlayer2DirectionCommand(enum Player2Command command, enum Direction d
     EnqueuePlayer2CommandToSend(command, direction, LOCALID_PLAYER_2, 0);
 }
 
-void Enqueueplayer2commandEndRockSmash(void)
-{
-    EnqueuePlayer2CommandToSend(P2_CMD_END_ROCK_SMASH, gFieldEffectArguments[2], VarGet(VAR_LAST_TALKED), 0);
-}
-
 struct RockClimbRide
 {
     u8 action;
@@ -3161,6 +3156,10 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
         case P2_CMD_REMOVE_OBJECT:
             RemoveAnyObjectEventByLocalIdAndMap(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
             break;
+        case P2_CMD_MOVE_OBJECT:
+            SetObjEventTemplateCoords(arg1, arg2, arg3);
+            TryMoveObjectEventToMapCoords(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, arg2, arg3);
+            break;
         case P2_CMD_END_DROP_HEAT_BADGE:
             FlagSet(FLAG_VOLCANION_CAVE_1F_GRUNT_DROPPED_BADGE);
             FlagSet(FLAG_VOLCANION_CAVE_1F_DIGLETT_LEFT_SPOT);
@@ -3229,14 +3228,7 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
         StartStrengthAnim(GetObjectEventIdByLocalId(arg1), arg2);
         break;
     case P2_CMD_USE_ROCK_SMASH:
-        ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_SURFING, gSaveBlock2Ptr->player2Gender));
-        ObjectEventClearHeldMovementIfFinished(objEvent);
-        ScriptMovement_StartObjectMovementScript(arg2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, Common_Movement_RockSmashBreak);
-        break;
-    case P2_CMD_END_ROCK_SMASH:
-        ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
-        StartSpriteAnim(&gSprites[objEvent->spriteId], arg1);
-        RemoveAnyObjectEventByLocalIdAndMap(arg2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
+        ScriptMovement_StartObjectMovementScript(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, Common_Movement_RockSmashBreak);
         break;
     case P2_CMD_USE_SURF:
         ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_SURFING, gSaveBlock2Ptr->player2Gender));
