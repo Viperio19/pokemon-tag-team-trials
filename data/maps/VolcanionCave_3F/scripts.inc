@@ -50,6 +50,8 @@ VolcanionCave_3F_EventScript_SpawnHiddenPlayer2::
 	end
 
 VolcanionCave_3F_OnFrame:
+	map_script_2 VAR_ACTION_ON_FRAME, 1, Player2_EventScript_Save
+	map_script_2 VAR_ACTION_ON_FRAME, 2, Player2_EventScript_FastConnectForMultiplayerBattle
 	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 0, VolcanionCave_3F_EventScript_EnterCave
 	.2byte 0
 
@@ -175,6 +177,7 @@ VolcanionCave_3F_EventScript_Intro::
 	call_if_eq VAR_RESULT, FALSE, VolcanionCave_3F_EventScript_CameraResetToMagma
 	waitmovement 0
 	special RemoveCameraObject
+	forcesave
 	release
 	end
 
@@ -618,6 +621,7 @@ VolcanionCave_3F_EventScript_SetMetatilesBlueButtonPressed::
 	setmetatile 24, 30, METATILE_Cave_CoolGem_Blue_WaterEdge_Empty, FALSE
 	setmetatile 23, 33, METATILE_Cave_CoolGem_Blue_Mud_Empty, FALSE
 	setmetatile 25, 33, METATILE_Cave_CoolGem_Blue_Floor_Empty, FALSE
+	setmetatile 28, 33, METATILE_Cave_CoolGem_Blue_Floor_Empty, FALSE
 	setmetatile 29, 34, METATILE_Cave_CoolGem_Blue_Floor_Empty, FALSE
 	setmetatile 26, 36, METATILE_Cave_CoolGem_Blue_Floor_Empty, FALSE
 	setmetatile 25, 28, METATILE_Cave_CoolGem_Red_Floor_Full, TRUE
@@ -650,6 +654,7 @@ VolcanionCave_3F_EventScript_SetMetatilesRedButtonPressed::
 	setmetatile 24, 30, METATILE_Cave_CoolGem_Blue_WaterEdge_Full, TRUE
 	setmetatile 23, 33, METATILE_Cave_CoolGem_Blue_Mud_Full, TRUE
 	setmetatile 25, 33, METATILE_Cave_CoolGem_Blue_Floor_Full, TRUE
+	setmetatile 28, 33, METATILE_Cave_CoolGem_Blue_Floor_Full, TRUE
 	setmetatile 29, 34, METATILE_Cave_CoolGem_Blue_Floor_Full, TRUE
 	setmetatile 26, 36, METATILE_Cave_CoolGem_Blue_Floor_Full, TRUE
 	setmetatile 25, 28, METATILE_Cave_CoolGem_Red_Floor_Empty, FALSE
@@ -3797,7 +3802,7 @@ Credits_TheCompetition::
 	.string "The Competition$"
 
 Credits_TARC::
-	.string "Team Aqua Romhacking Competition 3$"
+	.string "Team Aqua's Romhacking Competition 3$"
 
 Credits_TheTeam::
 	.string "The Team$"
@@ -3863,7 +3868,7 @@ Credits_Jicem::
 	.string "Jicem (Pokémon Mu Magma)$"
 
 Credits_TeamRocketOverworldSprites::
-	.string "Magma Grunts Overworld Sprites$"
+	.string "Team Rocket Overworld Sprites$"
 
 Credits_Kalari::
 	.string "Kalari (Pokecommunity)$"
@@ -4001,3 +4006,26 @@ Credits_ThanksForPlayingStardust50::
 	.string "Enjoy the VOLCANION room!\p"
 	.string "And of course, stay alive.\n"
 	.string "{PAUSE 80} - Viperio (2004-2027)$"
+
+EventScript_VolcanionCave_3F_Dig::
+	message VolcanionCave_3F_Text_AskDig
+	waitmessage
+	yesnobox 20, 8, 1
+	goto_if_eq VAR_RESULT, YES, VolcanionCave_3F_EventScript_UseDig
+	release
+	end
+
+VolcanionCave_3F_EventScript_UseDig::
+	playmoncry SPECIES_DIGLETT, CRY_MODE_NORMAL
+	message VolcanionCave_3F_Text_AgentDiggsUsedDig
+	waitmoncry
+	waitmessage
+	playse SE_M_DIG
+	warp MAP_VOLCANION_CAVE_3F, 16, 35
+	waitstate
+	end
+
+VolcanionCave_3F_Text_AskDig::
+	.string "AGENT DIGGS can use DIG to reset\n"
+	.string "the players and STRENGTH boulders.\p"
+	.string "Do you want AGENT DIGGS to use DIG?$"

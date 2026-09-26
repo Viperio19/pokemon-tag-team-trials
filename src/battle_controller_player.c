@@ -1208,6 +1208,40 @@ void HandleMoveSwitching(enum BattlerId battler)
     }
 }
 
+static void SetMultiLinkBattleEndCallbacks(enum BattlerId battler)
+{
+    if (gWirelessCommType == 0)
+    {
+        if (gReceivedRemoteLinkPlayers == 0)
+        {
+            m4aSongNumStop(SE_LOW_HEALTH);
+            gMain.inBattle = FALSE;
+            gMain.callback1 = gPreBattleCallback1;
+            SetMainCallback2(gMain.savedCallback);
+            ResetSpriteData();
+            FreeAllWindowBuffers();
+            FreeMonSpritesGfx();
+            FreeBattleResources();
+            FreeBattleSpritesData();
+        }
+    }
+    else
+    {
+        if (IsLinkTaskFinished())
+        {
+            m4aSongNumStop(SE_LOW_HEALTH);
+            gMain.inBattle = FALSE;
+            gMain.callback1 = gPreBattleCallback1;
+            SetMainCallback2(gMain.savedCallback);
+            ResetSpriteData();
+            FreeAllWindowBuffers();
+            FreeMonSpritesGfx();
+            FreeBattleResources();
+            FreeBattleSpritesData();
+        }
+    }
+}
+
 static void SetLinkBattleEndCallbacks(enum BattlerId battler)
 {
     if (gWirelessCommType == 0)
@@ -1252,7 +1286,10 @@ void SetBattleEndCallbacks(enum BattlerId battler)
                 else
                     SetLinkStandbyCallback();
 
-                gBattlerControllerFuncs[battler] = SetLinkBattleEndCallbacks;
+                if (gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER)
+                    gBattlerControllerFuncs[battler] = SetMultiLinkBattleEndCallbacks;
+                else
+                    gBattlerControllerFuncs[battler] = SetLinkBattleEndCallbacks;
             }
         }
         else
@@ -1885,12 +1922,15 @@ static void PlayerHandleLoadMonSprite(enum BattlerId battler)
     gBattlerControllerFuncs[battler] = CompleteOnBattlerSpritePosX_0;
 }
 
-enum TrainerPicID LinkPlayerGetTrainerPicId(u32 multiplayerId)
+enum TrainerPicID LinkPlayerGetTrainerPicId(u32 multiplayerId, bool8 isPlayer)
 {
     u8 gender = gLinkPlayers[multiplayerId].gender;
     enum GameVersion version = gLinkPlayers[multiplayerId].version & 0xFF;
 
-    return GetPlayerTrainerPic(gender, version);
+    if (isPlayer == TRUE)
+        return GetPlayerTrainerPic(gender, version);
+
+    return GetPlayer2TrainerPic(gender, version);
 }
 
 static enum TrainerPicID PlayerGetTrainerBackPicId(enum BattlerId battler)
@@ -1900,7 +1940,7 @@ static enum TrainerPicID PlayerGetTrainerBackPicId(enum BattlerId battler)
     if (gBattleTypeFlags & BATTLE_TYPE_PLAYER_2_PARTNER && battler == GetBattlerAtPosition(B_POSITION_PLAYER_RIGHT))
         trainerPicId = GetPlayer2TrainerPic(gSaveBlock2Ptr->player2Gender, GAME_VERSION);
     else if (gBattleTypeFlags & BATTLE_TYPE_LINK)
-        trainerPicId = LinkPlayerGetTrainerPicId(GetMultiplayerId());
+        trainerPicId = LinkPlayerGetTrainerPicId(GetMultiplayerId(), TRUE);
     else
         trainerPicId = GetPlayerTrainerPic(gSaveBlock2Ptr->playerGender, GAME_VERSION);
 

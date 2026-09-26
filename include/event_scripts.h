@@ -3,8 +3,14 @@
 
 extern const u8 EventScript_Player2_Singleplayer[];
 extern const u8 EventScript_Player2_Multiplayer[];
-
+extern const u8 EventScript_Player2_GotInteractedWith[];
 extern const u8 EventScript_Player2_ReadyToBattle[];
+extern const u8 EventScript_Player2_Connect[];
+extern const u8 EventScript_Player2_TrySaveAndDisconnect[];
+extern const u8 EventScript_Player2_PleaseDontLeave[];
+extern const u8 EventScript_Player2_EndOfDemo[];
+
+extern const u8 EventScript_VolcanionCave_3F_Dig[];
 
 extern const u8 EventScript_Follower[];
 extern const u8 EventScript_FollowerEnd[];
@@ -703,6 +709,48 @@ extern const u8 Common_Movement_FaceUp[];
 extern const u8 Common_Movement_FaceDown[];
 extern const u8 Common_Movement_FaceRight[];
 extern const u8 Common_Movement_FaceLeft[];
+extern const u8 Common_Movement_WalkInPlaceUp[];
+extern const u8 Common_Movement_WalkInPlaceDown[];
+extern const u8 Common_Movement_WalkInPlaceRight[];
+extern const u8 Common_Movement_WalkInPlaceLeft[];
+extern const u8 Common_Movement_WalkInPlaceFastUp[];
+extern const u8 Common_Movement_WalkInPlaceFastDown[];
+extern const u8 Common_Movement_WalkInPlaceFastRight[];
+extern const u8 Common_Movement_WalkInPlaceFastLeft[];
+extern const u8 Common_Movement_WalkInPlaceFasterUp[];
+extern const u8 Common_Movement_WalkInPlaceFasterDown[];
+extern const u8 Common_Movement_WalkInPlaceFasterRight[];
+extern const u8 Common_Movement_WalkInPlaceFasterLeft[];
+extern const u8 Common_Movement_RunUp[];
+extern const u8 Common_Movement_RunDown[];
+extern const u8 Common_Movement_RunRight[];
+extern const u8 Common_Movement_RunLeft[];
+extern const u8 Common_Movement_RideWaterCurrentUp[];
+extern const u8 Common_Movement_RideWaterCurrentDown[];
+extern const u8 Common_Movement_RideWaterCurrentRight[];
+extern const u8 Common_Movement_RideWaterCurrentLeft[];
+extern const u8 Common_Movement_JumpSpecialUp[];
+extern const u8 Common_Movement_JumpSpecialDown[];
+extern const u8 Common_Movement_JumpSpecialRight[];
+extern const u8 Common_Movement_JumpSpecialLeft[];
+extern const u8 Common_Movement_Jump2Up[];
+extern const u8 Common_Movement_Jump2Down[];
+extern const u8 Common_Movement_Jump2Right[];
+extern const u8 Common_Movement_Jump2Left[];
+extern const u8 Common_Movement_JumpUp[];
+extern const u8 Common_Movement_JumpDown[];
+extern const u8 Common_Movement_JumpRight[];
+extern const u8 Common_Movement_JumpLeft[];
+extern const u8 Common_Movement_ExclamationMark[];
+extern const u8 Common_Movement_RockSmashBreak[];
+
+extern const u8 VolcanionCave_1F_Movement_DiglettDigDown[];
+extern const u8 VolcanionCave_1F_Movement_MagmaGruntMConfused[];
+extern const u8 VolcanionCave_1F_Movement_DiglettDigUp[];
+extern const u8 VolcanionCave_1F_Movement_MagmaGruntMSurprised[];
+extern const u8 VolcanionCave_1F_Movement_MagmaGruntMWatchBadgeFallDown[];
+extern const u8 VolcanionCave_1F_Movement_BadgeFallDown[];
+extern const u8 VolcanionCave_1F_Movement_DiglettAskNumber[];
 
 extern const u8 EventScript_CancelMessageBox[];
 extern const u8 Common_EventScript_ShowPokemonCenterSign[];

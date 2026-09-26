@@ -1,6 +1,8 @@
 #ifndef GUARD_LINK_H
 #define GUARD_LINK_H
 
+#include "constants/p2_commands.h"
+
 #define MAX_LINK_PLAYERS 4
 #define MAX_RFU_PLAYERS 5
 #define CMD_LENGTH 8
@@ -88,7 +90,7 @@
 #define LINKTYPE_TRADE_SETUP           0x1133
 #define LINKTYPE_TRADE_DISCONNECTED    0x1144
 #define LINKTYPE_BATTLE                0x2211
-#define LINKTYPE_UNUSED_BATTLE         0x2222 // Unused, inferred from gap
+#define LINKTYPE_LINK_MULTI            0x2222
 #define LINKTYPE_SINGLE_BATTLE         0x2233
 #define LINKTYPE_DOUBLE_BATTLE         0x2244
 #define LINKTYPE_MULTI_BATTLE          0x2255
@@ -307,6 +309,14 @@ void SetWirelessCommType0(void);
 bool32 IsLinkRecvQueueAtOverworldMax(void);
 
 extern u16 gLinkPartnersHeldKeys[6];
+extern u16 gReceivedP2CommandIds[6];
+extern u16 gReceivedP2CommandArg1s[6];
+extern u16 gReceivedP2CommandArg2s[6];
+extern u16 gReceivedP2CommandArg3s[6];
+extern u16 gReceivedP2CommandsQueue[4][P2_CMD_QUEUE_SIZE];
+extern u16 gPreviousP2Command;
+extern bool8 gHasReceivedPlayer2Input;
+extern u16 gPlayerFacingDirection;
 extern u32 gLinkDebugSeed;
 extern struct LinkPlayerBlock gLocalLinkPlayerBlock;
 extern bool8 gLinkErrorOccurred;

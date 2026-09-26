@@ -161,6 +161,7 @@ bool8 FldEff_UseRockSmash(void)
 // The actual rock smashing is handled by EventScript_SmashRock, so this function does very little
 static void FieldMove_RockSmash(void)
 {
+    EnqueuePlayer2CommandToSend(P2_CMD_END_FIELD_MOVE, gFieldEffectArguments[2], 0, 0);
     PlaySE(SE_M_ROCK_THROW);
     FieldEffectActiveListRemove(FLDEFF_USE_ROCK_SMASH);
     ScriptContext_Enable();

@@ -36,6 +36,8 @@ Player2_Singleplayer_Trade::
 	copyvar VAR_0x800A, VAR_0x8004
 	goto_if_ge VAR_0x800A, PARTY_SIZE, Player2_Singleplayer_Cancel
 	specialvar VAR_0x8008, GetTradeSpecies
+	goto_if_eq VAR_0x8008, SPECIES_NUMEL, Player2_Singleplayer_CantTradePokemon
+	goto_if_eq VAR_0x8008, SPECIES_CARVANHA, Player2_Singleplayer_CantTradePokemon
 
 	@ choose partner mon
 	callnative SwitchParties
@@ -45,6 +47,8 @@ Player2_Singleplayer_Trade::
 	copyvar VAR_0x800B, VAR_0x8004
 	specialvar VAR_0x8009, GetTradeSpecies
 	callnative SwitchParties
+	goto_if_eq VAR_0x8009, SPECIES_NUMEL, Player2_Singleplayer_CantTradePokemon
+	goto_if_eq VAR_0x8009, SPECIES_CARVANHA, Player2_Singleplayer_CantTradePokemon
 	goto_if_ge VAR_0x800B, PARTY_SIZE, Player2_Singleplayer_Cancel
 
 	@ confirm trade
@@ -82,6 +86,11 @@ Player2Aqua_Singleplayer_GivePokemonForPokemon::
 	msgbox Player2Aqua_Text_GivePokemonForPokemon, MSGBOX_YESNO
 	return
 
+Player2_Singleplayer_CantTradePokemon::
+	msgbox Player2_Text_CantTradeStarterPokemon, MSGBOX_DEFAULT
+	release
+	end
+
 Player2_Singleplayer_DoTrade::
 	special DoSinglePlayerTradeScene
 	callnative BufferSinglePlayerTradeNicknames
@@ -110,12 +119,16 @@ Player2_Singleplayer_Talk::
 	goto_if_ne VAR_CURRENT_HP_BAR_COLOR, 3, Player2_Message_Room3Main
 	goto_if_ne VAR_VOLCANION_CAVE_3F_PIKACHU_STATE, 100, Player2_Message_Room3Main
 	goto_if_ne VAR_ZINNIA_STATE, 1, Player2_Message_Room3Main
-	msgbox Player2_Text_PreVolcanion, MSGBOX_NPC
+	msgbox Player2_Text_PreVolcanion, MSGBOX_DEFAULT
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_TalkFinish
 	release
 	end
 	
 Player2_Message_Talk::
-	msgbox Player2_Text_Talk, MSGBOX_NPC
+	msgbox Player2_Text_Talk, MSGBOX_DEFAULT
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_TalkFinish
 	release
 	end
 
@@ -135,7 +148,9 @@ Player2_Text_Talk::
 	.string "Good luck, sucker!!$"
 
 Player2_Message_PreGolem::
-	msgbox Player2_Text_PreGolem, MSGBOX_NPC
+	msgbox Player2_Text_PreGolem, MSGBOX_DEFAULT
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_TalkFinish
 	release
 	end
 
@@ -157,7 +172,9 @@ Player2_Text_PreGolem::
 	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}Wait… I said that all out LOUD???$"
 
 Player2_Message_PreRoom2::
-	msgbox Player2_Text_PreRoom2, MSGBOX_NPC
+	msgbox Player2_Text_PreRoom2, MSGBOX_DEFAULT
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_TalkFinish
 	release
 	end
 
@@ -170,7 +187,9 @@ Player2_Text_PreRoom2::
 	.string "leave me alone, then.$"
 
 Player2_Message_MudSliding::
-	msgbox Player2_Text_MudSliding, MSGBOX_NPC
+	msgbox Player2_Text_MudSliding, MSGBOX_DEFAULT
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_TalkFinish
 	release
 	end
 
@@ -185,7 +204,9 @@ Player2_Text_MudSliding::
 	.string "{PLAYER_AQUA}. Do something about this.$"
 
 Player2_Message_Exeggutor::
-	msgbox Player2_Text_Exeggutor, MSGBOX_NPC
+	msgbox Player2_Text_Exeggutor, MSGBOX_DEFAULT
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_TalkFinish
 	release
 	end
 
@@ -202,7 +223,9 @@ Player2_Text_Exeggutor::
 	.string "{FONT 5}(Wasn't there a switch…?){FONT_NORMAL}$"
 
 Player2_Message_MagmaWall::
-	msgbox Player2_Text_MagmaWall, MSGBOX_NPC
+	msgbox Player2_Text_MagmaWall, MSGBOX_DEFAULT
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_TalkFinish
 	release
 	end
 
@@ -219,7 +242,9 @@ Player2_Text_MagmaWall::
 	.string "your way into clearing a path for me.$"
 
 Player2_Message_Holes::
-	msgbox Player2_Text_Holes, MSGBOX_NPC
+	msgbox Player2_Text_Holes, MSGBOX_DEFAULT
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_TalkFinish
 	release
 	end
 
@@ -243,7 +268,9 @@ Player2_Text_Holes::
 	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}He's the pride and joy of TEAM AQUA!!$"
 
 Player2_Message_PreRoom3::
-	msgbox Player2_Text_PreRoom3, MSGBOX_NPC
+	msgbox Player2_Text_PreRoom3, MSGBOX_DEFAULT
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_TalkFinish
 	release
 	end
 
@@ -276,7 +303,9 @@ Player2_Text_PreRoom3::
 	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}Yep. {PAUSE 40}Figured.$"
 
 Player2_Message_Room3Main::
-	msgbox Player2_Text_Room3Main, MSGBOX_NPC
+	msgbox Player2_Text_Room3Main, MSGBOX_DEFAULT
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_TalkFinish
 	release
 	end
 
@@ -302,15 +331,18 @@ Player2_Singleplayer_Cancel::
 	callnative IsPlayerOne
 	call_if_eq VAR_RESULT, TRUE, Player2Magma_Singleplayer_Cancel
 	call_if_eq VAR_RESULT, FALSE, Player2Aqua_Singleplayer_Cancel
+	waitmessage
+	delay 40
+	closemessage
 	release
 	end
 
 Player2Aqua_Singleplayer_Cancel::
-	msgbox Player2Aqua_Text_Cancel, MSGBOX_DEFAULT
+	message Player2Aqua_Text_Cancel
 	return
 
 Player2Magma_Singleplayer_Cancel::
-	msgbox Player2Magma_Text_Cancel, MSGBOX_DEFAULT
+	message Player2Magma_Text_Cancel
 	return
 
 Player2Magma_Message_HiPlayer::
@@ -346,6 +378,9 @@ Player2Aqua_Text_GivePokemonForPokemon::
 Player2Magma_Text_GivePokemonForPokemon::
 	.string "Trade {STR_VAR_1}\nfor {STR_VAR_2}?$"
 
+Player2_Text_CantTradeStarterPokemon::
+	.string "You can't trade a starter POKéMON.$"
+
 Player2Aqua_Text_TakeGoodCareOfPokemon::
 	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}Thanks! I'll take care of {STR_VAR_2}!$"
 
@@ -358,9 +393,18 @@ Player2Aqua_Text_Cancel::
 Player2Magma_Text_Cancel::
 	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}Alright, let's go.$"
 
-Player2_Connect::
+Player2_EventScript_Reconnect::
+	closemessage
+	delay 10
+	setflag FLAG_DO_QUICK_CONNECTION
+	message Player2_Text_ReconnectingForOverworld
+	waitmessage
+	goto EventScript_Player2_TryTradeLinkup
+
+EventScript_Player2_Connect::
 	message gText_PleaseWaitForLink
 	waitmessage
+EventScript_Player2_TryTradeLinkup::
 	special TryTradeLinkup
 	goto_if_eq VAR_RESULT, LINKUP_SUCCESS, Player2_LinkSuccess
 	goto_if_eq VAR_RESULT, LINKUP_SOMEONE_NOT_READY, Player2_AbortLinkTryAgain
@@ -373,28 +417,50 @@ Player2_Connect::
 	end
 
 Player2_AbortLinkTryAgain::
+	clearflag FLAG_DO_QUICK_CONNECTION
+	call_if_eq VAR_VOLCANION_CAVE_1F_STATE, 0, Player2_Set1FStateNoIntro
 	special CloseLink
 	msgbox CableClub_Text_PleaseVisitAgain, MSGBOX_DEFAULT
 	release
 	end
 
 Player2_LinkSuccess::
+	clearflag FLAG_DO_QUICK_CONNECTION
+	call_if_eq VAR_VOLCANION_CAVE_1F_STATE, 0, Player2_Set1FStateMultiplayerIntro
 	callnative StoreLinkPlayerName
 	setvar VAR_0x8004, USING_TRADE_CENTER
 	copyvar VAR_CABLE_CLUB_STATE, VAR_0x8004
-	getplayerxy VAR_TEMP_0, VAR_TEMP_1
-	setwarp MAP_OLDALE_TOWN, VAR_TEMP_0, VAR_TEMP_1
+	callnative SetWarpCurrentPosition
+	setflag FlAG_SHOW_PLAYER_2
 	special DoCableClubWarp
 	end
 
+Player2_Set1FStateNoIntro::
+	setvar VAR_VOLCANION_CAVE_1F_STATE, 1
+	return
+
+Player2_Set1FStateMultiplayerIntro::
+	setvar VAR_VOLCANION_CAVE_1F_STATE, 2
+	return
+
 EventScript_Player2_Multiplayer::
 	lock
+	setvar VAR_P2_INTERACTION_STATE, 0
+	setvar VAR_P2_INTERACTION_COUNTDOWN, 0
+	enqueueplayer2command P2_CMD_INTERACT
+Player2_Multiplayer_WaitResponse::
+	delay 1
+	addvar VAR_P2_INTERACTION_COUNTDOWN, 1
+	goto_if_eq VAR_P2_INTERACTION_COUNTDOWN, 50, Player2_Multiplayer_OtherPlayerBusy
+	goto_if_eq VAR_P2_INTERACTION_STATE, 0, Player2_Multiplayer_WaitResponse
+	goto_if_eq VAR_P2_INTERACTION_STATE, 10, Player2_Multiplayer_OtherPlayerBusy
 	faceplayer
 	callnative IsPlayerOne
-	goto_if_eq VAR_RESULT, FALSE, Player2Magma_Text_HiPlayer
-	message Player2Aqua_Text_HiPlayer
+	call_if_eq VAR_RESULT, TRUE, Player2Magma_Message_HiPlayer
+	call_if_eq VAR_RESULT, FALSE, Player2Aqua_Message_HiPlayer
 	waitmessage
-	multichoicedefault 21, 6, MULTI_PLAYER_2, 0, FALSE
+	goto_if_eq VAR_VOLCANION_CAVE_2F_STATE, 0, Player2_Multiplayer_MultiChoiceNoTrade
+	multichoicedefault 21, 6, MULTI_PLAYER_2_TRADE, 0, FALSE
 	switch VAR_RESULT
 	case 0, Player2_Multiplayer_Trade
 	case 1, Player2_Multiplayer_Talk
@@ -403,20 +469,97 @@ EventScript_Player2_Multiplayer::
 	release
 	end
 
+Player2_Multiplayer_OtherPlayerBusy::
+	setvar VAR_P2_INTERACTION_STATE, 0
+	message Player2_Text_OtherPlayerBusy
+	waitmessage
+	delay 20
+	closemessage
+	release
+	end
+
+Player2_Multiplayer_MultiChoiceNoTrade::
+	multichoicedefault 21, 8, MULTI_PLAYER_2, 0, FALSE
+	switch VAR_RESULT
+	case 0, Player2_Multiplayer_Talk
+	case 1, Player2_Multiplayer_Cancel
+	case MULTI_B_PRESSED, Player2_Multiplayer_Cancel
+	release
+	end
+
+Player2_Multiplayer_Talk::
+	enqueueplayer2command P2_CMD_SET_INTERACTION_VAR, 2
+	goto Player2_Singleplayer_Talk
+	end
+
 Player2_Multiplayer_Trade::
+	enqueueplayer2command P2_CMD_SET_INTERACTION_VAR, 3
 	setvar VAR_0x8005, 0
 	special PlayerEnteredTradeSeat
 	end
 
-Player2_Multiplayer_Talk::
-	msgbox Player2_Text_Talk, MSGBOX_NPC
+Player2_Multiplayer_Cancel::
+	enqueueplayer2command P2_CMD_SET_INTERACTION_VAR, 4
+	callnative IsPlayerOne
+	call_if_eq VAR_RESULT, TRUE, Player2Magma_Singleplayer_Cancel
+	call_if_eq VAR_RESULT, FALSE, Player2Aqua_Singleplayer_Cancel
+	waitmessage
+	delay 40
+	closemessage
 	release
 	end
 
-Player2_Multiplayer_Cancel::
-	msgbox Player2Aqua_Text_Cancel, MSGBOX_NPC
+Player2_Text_OtherPlayerBusy::
+	.string "The other player is busy…$"
+
+EventScript_Player2_GotInteractedWith::
+	lock
+	applymovement LOCALID_PLAYER, Common_Movement_FacePlayer2
+	callnative IsPlayerOne
+	call_if_eq VAR_RESULT, TRUE, Player2Aqua_Message_HiPlayer
+	call_if_eq VAR_RESULT, FALSE, Player2Magma_Message_HiPlayer
+	waitmessage
+Player2_Multiplayer_WaitOtherPlayerDecision::
+	delay 1
+	goto_if_eq VAR_P2_INTERACTION_STATE, 2, Player2_Singleplayer_Talk
+	goto_if_eq VAR_P2_INTERACTION_STATE, 3, Player2_Multiplayer_Trade
+	goto_if_eq VAR_P2_INTERACTION_STATE, 4, Player2_Multiplayer_CancelInverted
+	goto Player2_Multiplayer_WaitOtherPlayerDecision
+	end
+
+Player2_Multiplayer_CancelInverted::
+	setvar VAR_P2_INTERACTION_STATE, 0
+	callnative IsPlayerOne
+	call_if_eq VAR_RESULT, TRUE, Player2Aqua_Singleplayer_Cancel
+	call_if_eq VAR_RESULT, FALSE, Player2Magma_Singleplayer_Cancel
+	waitmessage
+	delay 40
+	closemessage
 	release
 	end
+
+Player2_Text_WaitingForOtherPlayerChoice::
+	.string "Waiting for the other player to make\n"
+	.string "a choice…$"
+
+Player2_Multiplayer_TalkFinish::
+	closemessage
+	delay 10
+	message Player2_Text_WaitingForOtherPlayerToFinish
+	waitmessage
+	delay 10
+	enqueueplayer2command P2_CMD_SET_INTERACTION_VAR, 0
+Player2_Multiplayer_WaitOtherPlayerFinish::
+	delay 1
+	goto_if_ne VAR_P2_INTERACTION_STATE, 0, Player2_Multiplayer_WaitOtherPlayerFinish
+	delay 10
+	closemessage
+	release
+	end
+
+Player2_Text_WaitingForOtherPlayerToFinish::
+	.string "Waiting for the other player\n"
+	.string "to finish the cutscene…$"
 
 EventScript_Player2_ReadyToBattle::
 	lock
@@ -438,3 +581,202 @@ Player2_Text_ReadyToBattle::
 	.string "{RIVAL} is ready to battle!\p"
 	.string "Do you want to cancel the battle\n"
 	.string "and switch anyways?$"
+
+EventScript_Player2_TrySaveAndDisconnect::
+	msgbox Player2_Text_AskSave, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, YES, Player2_EventScript_StartSaveAndDisconnect
+	erasebox 0, 0, 29, 19
+	releaseall
+	end
+
+Player2_EventScript_StartSaveAndDisconnect::
+	message Player2_Text_WaitingForOtherPlayerSave
+	waitmessage
+	enqueueplayer2command P2_CMD_CONTROL_FLAG, FLAG_PLAYER_2_IS_SAVING, 1
+	waitflagorbbutton FLAG_PLAYER_2_IS_SAVING
+	goto_if_unset FLAG_PLAYER_2_IS_SAVING, Player2_EventScript_CancelSaveAndDisconnect
+	clearflag FLAG_PLAYER_2_IS_SAVING
+	clearflag FlAG_SHOW_PLAYER_2
+	setvar VAR_ACTION_ON_FRAME, 1
+	message Player2_Text_ClosingConnection
+	waitmessage
+	closemessage
+	callnative SetWarpCurrentPosition
+	special ReturnFromLinkRoom
+	end
+
+Player2_EventScript_CancelSaveAndDisconnect::
+	enqueueplayer2command P2_CMD_CONTROL_FLAG, FLAG_PLAYER_2_IS_SAVING, 0
+	release
+	end
+
+Player2_Text_AskSave::
+	.string "Saving will terminate the connection.\p"
+	.string "Both players need to select SAVE\n"
+	.string "in order to save and disconnect.\p"
+	.string "Would you like to save the game?$"
+
+Player2_Text_WaitingForOtherPlayerSave::
+	.string "Waiting for the other player to save…\n"
+	.string "… … B Button: Cancel.$"
+
+Player2_Text_ClosingConnection::
+	.string "Closing connection…{PAUSE 40}$"
+
+Player2_EventScript_Save::
+	setvar VAR_ACTION_ON_FRAME, 0
+	forcesave
+	end
+
+EventScript_Player2_PleaseDontLeave::
+	message Player2_Text_PleaseDontLeave
+	waitmessage
+	closemessage
+	end
+
+Player2_Text_PleaseDontLeave::
+	.string "You can't leave while connected.{PAUSE 40}$"
+
+EventScript_Player2_EndOfDemo::
+	message Player2_Text_EndOfDemo
+	waitmessage
+	goto EventScript_Player2_EndOfDemo
+	end
+
+Player2_Text_EndOfDemo::
+	.string "You have made it to the end of the\n"
+	.string "multiplayer demo!\p"
+	.string "You are now stuck in an infinite loop.\p"
+	.string "The full game will be playable in\n"
+	.string "multiplayer mode…{PAUSE 20} someday.\p"
+	.string "Probably in a couple weeks to a month.\p"
+	.string "Until then, feel free to tell me about\n"
+	.string "everything that broke in this demo\l"
+	.string "so I can fix it!\p"
+	.string "Thanks for playing!\p$"
+
+Player2_EventScript_DoLinkBossBattle::
+	closemessage
+	delay 10
+	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
+	goto_if_eq VAR_RESULT, FALSE, Player2_EventScript_ConnectForMultiplayerBattle
+	message gText_PleaseWaitForLink
+	waitmessage
+	enqueueplayer2command P2_CMD_CONTROL_FLAG, FLAG_PLAYER_2_READY_FOR_LINK_BATTLE, 1
+Player2_Multiplayer_WaitOtherPlayerBattle::
+	delay 1
+	goto_if_unset FLAG_PLAYER_2_READY_FOR_LINK_BATTLE, Player2_Multiplayer_WaitOtherPlayerBattle
+	clearflag FLAG_PLAYER_2_READY_FOR_LINK_BATTLE
+	setvar VAR_ACTION_ON_FRAME, 2
+	message Player2_Text_ClosingOverworldLink
+	waitmessage
+	callnative UpdatePlayer2Pos
+	callnative SetWarpCurrentPosition
+	special ReturnFromLinkRoom
+	end
+
+Player2_EventScript_ConnectForMultiplayerBattle::
+	setvar VAR_ACTION_ON_FRAME, 0
+	specialvar VAR_RESULT, IsWirelessAdapterConnected
+	goto_if_eq VAR_RESULT, TRUE, Player2_EventScript_TryWirelessLink
+	goto Player2_EventScript_TryCableLink
+
+Player2_EventScript_FastConnectForMultiplayerBattle::
+	message Player2_Text_ReconnectingForBattle
+	waitmessage
+	setflag FLAG_DO_QUICK_CONNECTION
+	setvar VAR_ACTION_ON_FRAME, 0
+	specialvar VAR_RESULT, IsWirelessAdapterConnected
+	goto_if_eq VAR_RESULT, TRUE, Player2_EventScript_TryWirelessLink
+	goto Player2_EventScript_TryBattleLinkup
+
+Player2_EventScript_TryCableLink::
+	message gText_PleaseWaitForLink
+	waitmessage
+Player2_EventScript_TryBattleLinkup::
+	setvar VAR_0x8004, USING_LINK_MULTI
+	setvar VAR_0x8005, 0
+	special TryBattleLinkup
+	goto_if_eq VAR_RESULT, LINKUP_SUCCESS, Player2_EventScript_DoLinkMultiBattle
+	goto_if_eq VAR_RESULT, LINKUP_SOMEONE_NOT_READY, Player2_EventScript_CableLinkFailed
+	goto_if_eq VAR_RESULT, LINKUP_DIFF_SELECTIONS, Player2_EventScript_CableLinkFailed
+	goto_if_eq VAR_RESULT, LINKUP_WRONG_NUM_PLAYERS, Player2_EventScript_CableLinkFailed
+	goto_if_eq VAR_RESULT, LINKUP_FAILED, Player2_EventScript_CableLinkFailed
+	goto_if_eq VAR_RESULT, LINKUP_CONNECTION_ERROR, Player2_EventScript_CableLinkFailed
+	goto_if_eq VAR_RESULT, LINKUP_FAILED_BATTLE_TOWER, Player2_EventScript_CableLinkFailed
+	end
+
+Player2_EventScript_CableLinkFailed::
+	clearflag FLAG_DO_QUICK_CONNECTION
+	special CloseLink
+	message Player2_Text_LinkConnectionFailed
+	waitmessage
+	delay 60
+	special LoadPlayerParty
+	releaseall
+	end
+
+Player2_EventScript_TryWirelessLink::
+	setvar VAR_0x8004, LINK_GROUP_BATTLE_TOWER
+	goto Player2_EventScript_ChooseLeader
+	end
+
+Player2_EventScript_ChooseLeader::
+	message CableClub_Text_ChooseGroupLeaderOfTwo
+	waitmessage
+	multichoice 16, 6, MULTI_LINK_LEADER, FALSE
+	switch VAR_RESULT
+	case 0, Player2_EventScript_TryJoinGroup
+	case 1, Player2_EventScript_TryBecomeLeader
+	case 2, Player2_EventScript_CableLinkFailed
+	case MULTI_B_PRESSED, Player2_EventScript_CableLinkFailed
+	end
+
+Player2_EventScript_TryBecomeLeader::
+	call CableClub_EventScript_TryBecomeLinkLeader
+	goto_if_eq VAR_RESULT, LINKUP_SUCCESS, Player2_EventScript_DoLinkMultiBattle
+	goto_if_eq VAR_RESULT, LINKUP_FAILED, Player2_EventScript_ChooseLeader
+	goto_if_eq VAR_RESULT, LINKUP_RETRY_ROLE_ASSIGN, Player2_EventScript_TryBecomeLeader
+	goto_if_eq VAR_RESULT, LINKUP_FAILED_BATTLE_TOWER, Player2_EventScript_CableLinkFailed
+	release
+	return
+
+Player2_EventScript_TryJoinGroup::
+	call CableClub_EventScript_TryJoinLinkGroup
+	goto_if_eq VAR_RESULT, LINKUP_SUCCESS, Player2_EventScript_DoLinkMultiBattle
+	goto_if_eq VAR_RESULT, LINKUP_FAILED, Player2_EventScript_ChooseLeader
+	goto_if_eq VAR_RESULT, LINKUP_RETRY_ROLE_ASSIGN, Player2_EventScript_TryJoinGroup
+	goto_if_eq VAR_RESULT, LINKUP_FAILED_BATTLE_TOWER, Player2_EventScript_CableLinkFailed
+	release
+	return
+
+Player2_EventScript_DoLinkMultiBattle::
+	clearflag FLAG_DO_QUICK_CONNECTION
+	special DoLinkMultiBattle
+	waitstate
+	tower_closelink
+	specialvar VAR_RESULT, GetBattleOutcome
+	goto_if_ne VAR_RESULT, B_OUTCOME_WON, Player2_EventScript_Lost
+	goto_if_unset FLAG_DEFEATED_VOLCANION_CAVE_1F_GOLEM, VolcanionCave_1F_EventScript_DefeatedGolem
+Player2_EventScript_Lost::
+	playmoncry SPECIES_GOLEM_ALOLA, CRY_MODE_ENCOUNTER
+	message VolcanionCave_1F_Text_GolemCry
+	waitmoncry
+	waitmessage
+	goto Player2_EventScript_Reconnect
+	end
+
+Player2_Text_ClosingOverworldLink::
+	.string "Closing overworld link…{PAUSE 20}$"
+
+Player2_Text_ReconnectingForBattle::
+	.string "Reconnecting for battle…$"
+
+Player2_Text_ReconnectingForOverworld::
+	.string "Waiting for the other player…$"
+
+Player2_Text_InitiatingLinkBattle:
+	.string "Initiating link battle.$"
+
+Player2_Text_LinkConnectionFailed:
+	.string "Link failed.$"

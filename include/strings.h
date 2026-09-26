@@ -156,6 +156,8 @@ extern const u8 gText_MenuPokenav[];
 extern const u8 gText_MenuPlayer[];
 extern const u8 gText_MenuSave[];
 extern const u8 gText_MenuOption[];
+extern const u8 gText_MenuConnect[];
+extern const u8 gText_MenuDig[];
 extern const u8 gText_MenuExit[];
 extern const u8 gText_MenuRetire[];
 extern const u8 gText_MenuRest[];
@@ -218,6 +220,8 @@ extern const u8 gText_Intro_Shelly_AreYouReady[];
 extern const u8 gText_Intro_SwitchingExplanation[];
 extern const u8 gText_Intro_SwitchingConfirmation[];
 extern const u8 gText_Intro_SwitchingFailure[];
+
+extern const u8 gText_Intro_CourtneyPlayer2_Welcome[];
 
 extern const u8 gText_Intro_Courtney_Welcome[];
 extern const u8 gText_Intro_Courtney_ThisIsAPokemon[];
@@ -2174,6 +2178,8 @@ extern const u8 gText_OakThisIsListOfPokemon[];
 
 extern const u8 gText_Boy[];
 extern const u8 gText_Girl[];
+extern const u8 gText_Aqua[];
+extern const u8 gText_Magma[];
 
 
 #endif // GUARD_STRINGS_H

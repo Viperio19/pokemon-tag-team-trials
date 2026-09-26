@@ -199,12 +199,14 @@ static void ScriptMovement_AddNewMovement(u8 taskId, u8 moveScrId, u8 objEventId
 static void ScriptMovement_UnfreezeActiveObjects(u8 taskId)
 {
     u8 *pObjEventId;
+    u8 p2ObjEventId;
     u8 i;
 
     pObjEventId = (u8 *)&gTasks[taskId].data[1];
+    p2ObjEventId = GetObjectEventIdByLocalId(OBJ_EVENT_ID_PLAYER_2);
     for (i = 0; i < OBJECT_EVENTS_COUNT; i++, pObjEventId++)
     {
-        if (*pObjEventId != 0xFF)
+        if (*pObjEventId != 0xFF && *pObjEventId != p2ObjEventId)
             UnfreezeObjectEvent(&gObjectEvents[*pObjEventId]);
     }
 }

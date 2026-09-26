@@ -18,7 +18,7 @@ VolcanionCave_2F_EventScript_RemoveRockBarrier1::
 	setmetatile 26, 64, METATILE_Cave_Floor, FALSE
 	setmetatile 27, 64, METATILE_Cave_Floor, FALSE
 	setmetatile 28, 64, METATILE_Cave_Floor, FALSE
-	setmetatile 8, 52, METATILE_Cave_Floor, FALSE
+	setmetatile 8, 50, METATILE_Cave_Floor, FALSE
 	return
 
 VolcanionCave_2F_EventScript_RemoveRockBarrier2::
@@ -70,6 +70,8 @@ VolcanionCave_2F_EventScript_SetOldRodPosition::
 	return
 
 VolcanionCave_2F_OnFrame:
+	map_script_2 VAR_ACTION_ON_FRAME, 1, Player2_EventScript_Save
+	map_script_2 VAR_ACTION_ON_FRAME, 2, Player2_EventScript_FastConnectForMultiplayerBattle
 	map_script_2 VAR_VOLCANION_CAVE_2F_STATE, 0, VolcanionCave_2F_EventScript_EnterCave
 	map_script_2 VAR_OLD_ROD_STATE, 10, VolcanionCave_2F_EventScript_DropOldRod
 	.2byte 0
@@ -93,6 +95,10 @@ VolcanionCave_2F_EventScript_Intro::
 	message VolcanionCave_2F_Text_IntroName
 	waitmovement 0
 	waitmessage
+	closemessage
+	delay 30
+	forcesave
+	closemessage
 	callnative UpdatePlayer2Pos
 	release
 	end
@@ -576,7 +582,7 @@ VolcanionCave_2F_Text_AquaGruntPostBattle2:
 
 VolcanionCave_2F_Text_AquaGruntPostBattle:
 	.string "{SPEAKER NAME_AQUA COLOR_AQUA}Just throw it in the water,\n"
-	.string "you'll get the hang of it no problem!\p"
+	.string "you'll get the hang of it no problem!$"
 
 VolcanionCave_2F_Text_AquaGruntVictory:
 	.string "{SPEAKER NAME_AQUA COLOR_AQUA}Nice try chum, but you aren't\n"
@@ -588,7 +594,7 @@ VolcanionCave_2F_EventScript_FloorSwitch1::
 	setmetatile 26, 64, METATILE_Cave_Floor, FALSE
 	setmetatile 27, 64, METATILE_Cave_Floor, FALSE
 	setmetatile 28, 64, METATILE_Cave_Floor, FALSE
-	setmetatile 8, 52, METATILE_Cave_Floor, FALSE
+	setmetatile 8, 50, METATILE_Cave_Floor, FALSE
 	playse SE_ICE_BREAK
 	special DrawWholeMapView
 	waitse
@@ -711,7 +717,7 @@ VolcanionCave_2F_EventScript_PleaseShowGoldeen::
 	msgbox VolcanionCave_2F_Text_PleaseShowGoldeen, MSGBOX_DEFAULT
 VolcanionCave_2F_EventScript_ChoosePartyMonGoldeen::
 	setvar VAR_0x8009, SPECIES_CHI_YU
-	special ChoosePartyMon
+	special ChooseGoldeen
 	specialvar VAR_RESULT, GetTradeSpecies
 	goto_if_eq VAR_RESULT, SPECIES_NONE, VolcanionCave_2F_EventScript_PleaseKeepLooking
 	goto_if_ne VAR_RESULT, VAR_0x8009, VolcanionCave_2F_EventScript_ThatsNotGoldeen
@@ -849,27 +855,27 @@ VolcanionCave_2F_EventScript_RedButton::
 	end
 
 VolcanionCave_2F_EventScript_SetMetatilesBlueButtonPressed::
-	setmetatile 7, 48, METATILE_Cave_CoolButton_Pressed, FALSE
+	setmetatile 7, 47, METATILE_Cave_CoolButton_Pressed, FALSE
 	setmetatile 17, 11, METATILE_Cave_CoolButton_Pressed, FALSE
 	setmetatile 11, 46, METATILE_Cave_CoolButton_Red, FALSE
-	setmetatile 10, 46, METATILE_Cave_CoolGem_Blue_FloorSmooth_Empty, FALSE
+	setmetatile 9, 46, METATILE_Cave_CoolGem_Blue_FloorSmooth_Empty, FALSE
 	setmetatile 33, 58, METATILE_Cave_CoolGem_Blue_Mud_Empty, FALSE
 	setmetatile 35, 50, METATILE_Cave_CoolGem_Blue_Mud_Empty, FALSE
 	setmetatile 21, 11, METATILE_Cave_CoolGem_Blue_FloorSmooth_Empty, FALSE
-	setmetatile 8, 50, METATILE_Cave_CoolGem_Red_FloorSmooth_Full, TRUE
+	setmetatile 8, 48, METATILE_Cave_CoolGem_Red_FloorSmooth_Full, TRUE
 	setmetatile 11, 47, METATILE_Cave_CoolGem_Red_FloorSmooth_Full, TRUE
 	setmetatile 17, 9, METATILE_Cave_CoolGem_Red_FloorSmooth_Full, TRUE
 	return
 
 VolcanionCave_2F_EventScript_SetMetatilesRedButtonPressed::
-	setmetatile 7, 48, METATILE_Cave_CoolButton_Blue, FALSE
+	setmetatile 7, 47, METATILE_Cave_CoolButton_Blue, FALSE
 	setmetatile 17, 11, METATILE_Cave_CoolButton_Blue, FALSE
 	setmetatile 11, 46, METATILE_Cave_CoolButton_Pressed, FALSE
-	setmetatile 10, 46, METATILE_Cave_CoolGem_Blue_FloorSmooth_Full, TRUE
+	setmetatile 9, 46, METATILE_Cave_CoolGem_Blue_FloorSmooth_Full, TRUE
 	setmetatile 33, 58, METATILE_Cave_CoolGem_Blue_Mud_Full, TRUE
 	setmetatile 35, 50, METATILE_Cave_CoolGem_Blue_Mud_Full, TRUE
 	setmetatile 21, 11, METATILE_Cave_CoolGem_Blue_FloorSmooth_Full, TRUE
-	setmetatile 8, 50, METATILE_Cave_CoolGem_Red_FloorSmooth_Empty, FALSE
+	setmetatile 8, 48, METATILE_Cave_CoolGem_Red_FloorSmooth_Empty, FALSE
 	setmetatile 11, 47, METATILE_Cave_CoolGem_Red_FloorSmooth_Empty, FALSE
 	setmetatile 17, 9, METATILE_Cave_CoolGem_Red_FloorSmooth_Empty, FALSE
 	return
@@ -1125,6 +1131,13 @@ VolcanionCave_2F_EventScript_Corsola::
 	playmoncry SPECIES_CORSOLA, CRY_MODE_ENCOUNTER
 	msgbox VolcanionCave_2F_Text_Corsola, MSGBOX_DEFAULT
 	waitmoncry
+	closemessage
+	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
+	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_2F_EventScript_BattleCorsola
+	delay 10
+	forcesave
+	closemessage
+VolcanionCave_2F_EventScript_BattleCorsola::
 	setwildbattle SPECIES_CORSOLA, 20
 	dowildbattle
 	specialvar VAR_RESULT, GetBattleOutcome

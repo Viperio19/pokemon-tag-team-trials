@@ -147,7 +147,7 @@ static void LinkPartnerHandleDrawTrainerPic(enum BattlerId battler)
         xPos = 80;
     }
 
-    trainerPicId = LinkPlayerGetTrainerPicId(GetBattlerMultiplayerId(battler));
+    trainerPicId = LinkPlayerGetTrainerPicId(GetBattlerMultiplayerId(battler), FALSE);
     BtlController_HandleDrawTrainerPic(battler, trainerPicId, FALSE,
                                        xPos, 80 + 4 * (8 - GetTrainerBackPicCoords(trainerPicId)->size),
                                        -1);
@@ -160,7 +160,7 @@ static void LinkPartnerHandleTrainerSlideBack(enum BattlerId battler)
 
 static void LinkPartnerHandleIntroTrainerBallThrow(enum BattlerId battler)
 {
-    enum TrainerPicID trainerPicId = LinkPlayerGetTrainerPicId(GetBattlerMultiplayerId(battler));
+    enum TrainerPicID trainerPicId = LinkPlayerGetTrainerPicId(GetBattlerMultiplayerId(battler), FALSE);
     const u16 *trainerPal = GetTrainerBackPicPalette(trainerPicId);
     // Link partner uses the same intro sequence as the player partner.
     BtlController_HandleIntroTrainerBallThrow(battler, 0xD6F9, trainerPal, 24, Controller_PlayerPartnerShowIntroHealthbox);

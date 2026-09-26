@@ -1692,6 +1692,14 @@ void RemoveObjectEvent(struct ObjectEvent *objectEvent)
     objectEvent->graphicsId = objectEvent->shiny = 0;
 }
 
+void RemoveAnyObjectEventByLocalIdAndMap(u8 localId, u8 mapNum, u8 mapGroup)
+{
+    u8 objectEventId;
+    FlagSet(GetObjectEventFlagIdByLocalIdAndMap(localId, mapNum, mapGroup));
+    if (!TryGetObjectEventIdByLocalIdAndMap(localId, mapNum, mapGroup, &objectEventId))
+        RemoveObjectEvent(&gObjectEvents[objectEventId]);
+}
+
 void RemoveObjectEventByLocalIdAndMap(u8 localId, u8 mapNum, u8 mapGroup)
 {
     u8 objectEventId;
@@ -10562,8 +10570,9 @@ void UnfreezeObjectEvent(struct ObjectEvent *objectEvent)
 void UnfreezeObjectEvents(void)
 {
     u8 i;
+    u8 p2ObjEventId = GetObjectEventIdByLocalId(OBJ_EVENT_ID_PLAYER_2);
     for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
-        if (gObjectEvents[i].active)
+        if (gObjectEvents[i].active && i != p2ObjEventId)
             UnfreezeObjectEvent(&gObjectEvents[i]);
 }
 

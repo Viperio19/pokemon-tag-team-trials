@@ -20,6 +20,7 @@
 #include "sound.h"
 #include "event_object_lock.h"
 #include "pokedex.h"
+#include "start_menu.h"
 #include "config/fishing.h"
 #include "constants/songs.h"
 #include "constants/event_objects.h"
@@ -448,7 +449,6 @@ static bool32 Fishing_StartEncounter(struct Task *task)
                 SetSurfBlob_PlayerOffset(gObjectEvents[gPlayerAvatar.objectEventId].fieldEffectSpriteId, FALSE, 0);
             gSprites[gPlayerAvatar.spriteId].x2 = 0;
             gSprites[gPlayerAvatar.spriteId].y2 = 0;
-            ClearDialogWindowAndFrame(0, TRUE);
             task->tFrameCounter++;
             return FALSE;
         }
@@ -456,11 +456,16 @@ static bool32 Fishing_StartEncounter(struct Task *task)
 
     if (task->tFrameCounter != 0)
     {
-        gPlayerAvatar.preventStep = FALSE;
-        UnlockPlayerFieldControls();
-        FishingWildEncounter(task->tFishingRod);
-        RecordFishingAttemptForTV(TRUE);
         DestroyTask(FindTaskIdByFunc(Task_Fishing));
+        if (IsTagTeamTrialsLinkActive())
+        {
+            FishingWildEncounter(0);
+        }
+        else
+        {
+            gFishAfterSave = TRUE;
+            ForceSaveGame();
+        }
     }
     return FALSE;
 }
