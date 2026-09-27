@@ -3039,6 +3039,7 @@ u8 CalculatePartyCountOfSide(enum BattlerId battler)
 
 u8 CalculatePlayerPartyCount(void)
 {
+    CalculatePartnerPartyCount();
     gPartiesCount[B_TRAINER_PLAYER] = CalculatePartyCount(B_TRAINER_PLAYER);
     return gPartiesCount[B_TRAINER_PLAYER];
 }

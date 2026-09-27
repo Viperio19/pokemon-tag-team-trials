@@ -2107,6 +2107,7 @@ void CB2_ReturnToFieldContinueScript(void)
 
 void CB2_ReturnToFieldContinueScriptPlayMapMusic(void)
 {
+    DebugPrintf("CB2_ReturnToFieldContinueScriptPlayMapMusic");
     FieldClearVBlankHBlankCallbacks();
     gFieldCallback = FieldCB_ContinueScriptHandleMusic;
     CB2_ReturnToField();
