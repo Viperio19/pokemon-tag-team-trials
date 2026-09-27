@@ -900,6 +900,8 @@ void HandleAction_ActionFinished(void)
     gCurrentActionFuncId = gActionsByTurnOrder[gCurrentTurnActionNumber];
     memset(&gSpecialStatuses, 0, sizeof(gSpecialStatuses));
 
+    DebugPrintf("HandleAction_ActionFinished");
+
     gCurrentMove = MOVE_NONE;
     ClearDamageCalcResults(); // Relies on gCurrentMove
     gBattleScripting.animTurn = 0;
@@ -911,6 +913,8 @@ void HandleAction_ActionFinished(void)
     gBattleCommunication[3] = 0;
     gBattleCommunication[4] = 0;
     gBattleResources->battleScriptsStack->size = 0;
+    
+    DebugPrintf("HandleAction_ActionFinished end");
 
     if (GetConfig(B_RECALC_TURN_AFTER_ACTIONS) >= GEN_8
      && !afterYouActive

@@ -153,6 +153,7 @@ void FieldCB_ContinueScriptUnionRoom(void)
 
 static void Task_WaitForFadeAndEnableScriptCtx(u8 taskID)
 {
+    DebugPrintf("Task_WaitForFadeAndEnableScriptCtx");
     if (WaitForWeatherFadeIn() == TRUE)
     {
         DestroyTask(taskID);
@@ -162,6 +163,7 @@ static void Task_WaitForFadeAndEnableScriptCtx(u8 taskID)
 
 void FieldCB_ContinueScriptHandleMusic(void)
 {
+    DebugPrintf("FieldCB_ContinueScriptHandleMusic");
     LockPlayerFieldControls();
     Overworld_PlaySpecialMapMusic();
     FadeInFromBlack();
