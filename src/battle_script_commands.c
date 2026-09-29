@@ -5346,7 +5346,7 @@ static void Cmd_switchhandleorder(void)
             *((BATTLE_PARTNER(battler)) * 3 + (u8 *)(gBattleStruct->battlerPartyOrders) + 0) |= (gBattleResources->bufferB[battler][2] & 0xF0) >> 4;
             *((BATTLE_PARTNER(battler)) * 3 + (u8 *)(gBattleStruct->battlerPartyOrders) + 2) = gBattleResources->bufferB[battler][3];
         }
-        else if (gBattleTypeFlags & BATTLE_TYPE_INGAME_OR_PLAYER_2_PARTNER)
+        else if (gBattleTypeFlags & (BATTLE_TYPE_INGAME_OR_PLAYER_2_PARTNER | BATTLE_TYPE_MULTIPLAYER))
         {
             SwitchPartyOrderInGameMulti(battler, gBattleStruct->monToSwitchIntoId[battler]);
         }
@@ -7350,16 +7350,16 @@ static void Cmd_forcerandomswitch(void)
             if (!IsMultiBattle())
                 SwitchPartyOrder(gBattlerTarget);
 
-            if ((gBattleTypeFlags & BATTLE_TYPE_LINK && gBattleTypeFlags & BATTLE_TYPE_BATTLE_TOWER)
+            if (((gBattleTypeFlags & BATTLE_TYPE_LINK && gBattleTypeFlags & BATTLE_TYPE_BATTLE_TOWER)
                 || (gBattleTypeFlags & BATTLE_TYPE_LINK && gBattleTypeFlags & BATTLE_TYPE_MULTI)
                 || (gBattleTypeFlags & BATTLE_TYPE_RECORDED_LINK && gBattleTypeFlags & BATTLE_TYPE_BATTLE_TOWER)
-                || (gBattleTypeFlags & BATTLE_TYPE_RECORDED_LINK && gBattleTypeFlags & BATTLE_TYPE_MULTI))
+                || (gBattleTypeFlags & BATTLE_TYPE_RECORDED_LINK && gBattleTypeFlags & BATTLE_TYPE_MULTI)) && !(gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER))
             {
                 SwitchPartyOrderLinkMulti(gBattlerTarget, gBattleStruct->monToSwitchIntoId[gBattlerTarget], 0);
                 SwitchPartyOrderLinkMulti(BATTLE_PARTNER(gBattlerTarget), gBattleStruct->monToSwitchIntoId[gBattlerTarget], 1);
             }
 
-            if (gBattleTypeFlags & BATTLE_TYPE_INGAME_OR_PLAYER_2_PARTNER)
+            if (gBattleTypeFlags & (BATTLE_TYPE_INGAME_OR_PLAYER_2_PARTNER | BATTLE_TYPE_MULTIPLAYER))
                 SwitchPartyOrderInGameMulti(gBattlerTarget, gBattleStruct->monToSwitchIntoId[gBattlerTarget]);
         }
     }
