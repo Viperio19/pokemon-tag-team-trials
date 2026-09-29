@@ -1575,7 +1575,8 @@ void Script_ForceSaveGame(struct ScriptContext *ctx)
 void ForceSaveGame(void)
 {
     SaveGame();
-    // ShowSaveInfoWindow();
+    if (IS_MULTIPLAYER)
+        ShowSaveInfoWindow();
     gMenuCallback = SaveCallback;
     sSaveDialogCallback = SaveSavingMessageCallback;
 }

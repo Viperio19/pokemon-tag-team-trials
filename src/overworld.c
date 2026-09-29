@@ -3158,8 +3158,18 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
             RemoveAnyObjectEventByLocalIdAndMap(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
             break;
         case P2_CMD_MOVE_OBJECT:
+            struct ObjectEvent *boulder = &gObjectEvents[GetObjectEventIdByLocalId(arg1)];
             SetObjEventTemplateCoords(arg1, arg2, arg3);
             TryMoveObjectEventToMapCoords(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, arg2, arg3);
+            if (boulder->graphicsId == OBJ_EVENT_GFX_PUSHABLE_BOULDER || boulder->graphicsId == OBJ_EVENT_GFX_SPECIES(PIKACHU))
+            {
+                struct BoulderPos *pos = &gSaveBlock1Ptr->boulderPos[gSaveBlock1Ptr->location.mapNum][arg1];
+                pos->x = arg2;
+                pos->y = arg3;
+            }
+            break;
+        case P2_CMD_CONTROL_PLAYER_DIRECTION_LOCKED:
+            objEvent->facingDirectionLocked = arg1;
             break;
         case P2_CMD_END_DROP_HEAT_BADGE:
             FlagSet(FLAG_VOLCANION_CAVE_1F_GRUNT_DROPPED_BADGE);
