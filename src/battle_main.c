@@ -1186,7 +1186,10 @@ static void CB2_HandleStartMultiPartnerBattle(void)
             ResetBlockReceivedFlags();
             memcpy(&gParties[B_TRAINER_PLAYER][2], gBlockRecvBuffer[playerMultiplayerId], sizeof(struct Pokemon));
             memcpy(&gParties[B_TRAINER_PARTNER][2], gBlockRecvBuffer[partnerMultiplayerId], sizeof(struct Pokemon));
-            gBattleCommunication[MULTIUSE_STATE]++;
+            if (gBattleTypeFlags & BATTLE_TYPE_TRAINER)
+                gBattleCommunication[MULTIUSE_STATE]++;
+            else
+                gBattleCommunication[MULTIUSE_STATE] = 19;
         }
         break;
     case 7:
@@ -1310,7 +1313,7 @@ static void CB2_HandleStartMultiPartnerBattle(void)
         RecordedBattle_SetTrainerInfo();
         gBattleCommunication[SPRITES_INIT_STATE1] = 0;
         gBattleCommunication[SPRITES_INIT_STATE2] = 0;
-        if (gBattleTypeFlags & BATTLE_TYPE_LINK)
+        if (gBattleTypeFlags & BATTLE_TYPE_LINK && !(gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER))
             gBattleCommunication[MULTIUSE_STATE] = 20;
         else
             gBattleCommunication[MULTIUSE_STATE] = 22;
