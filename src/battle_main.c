@@ -4413,7 +4413,7 @@ static void HandleTurnActionSelectionState(void)
 
         gBattleMainFunc = SetActionsAndBattlersTurnOrder;
 
-        if (gBattleTypeFlags & BATTLE_TYPE_INGAME_OR_PLAYER_2_PARTNER)
+        if (gBattleTypeFlags & (BATTLE_TYPE_INGAME_OR_PLAYER_2_PARTNER | BATTLE_TYPE_MULTIPLAYER))
         {
             for (enum BattlerId battler = 0; battler < gBattlersCount; battler++)
             {
@@ -4446,7 +4446,7 @@ static void UpdateBattlerPartyOrdersOnSwitch(enum BattlerId battler)
     gBattleStruct->monToSwitchIntoId[battler] = gBattleResources->bufferB[battler][1];
     RecordedBattle_SetBattlerAction(battler, gBattleResources->bufferB[battler][1]);
 
-    if (gBattleTypeFlags & BATTLE_TYPE_LINK && gBattleTypeFlags & BATTLE_TYPE_MULTI)
+    if (gBattleTypeFlags & BATTLE_TYPE_LINK && gBattleTypeFlags & BATTLE_TYPE_MULTI && !(gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER))
     {
         *(battler * 3 + (u8 *)(gBattleStruct->battlerPartyOrders) + 0) &= 0xF;
         *(battler * 3 + (u8 *)(gBattleStruct->battlerPartyOrders) + 0) |= (gBattleResources->bufferB[battler][2] & 0xF0);
