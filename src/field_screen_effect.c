@@ -301,6 +301,7 @@ void FieldCB_DefaultWarpExit(void)
 {
     Overworld_PlaySpecialMapMusic();
     FlagClear(FLAG_DOING_PLAYER_SWITCH);
+    FlagClear(FLAG_RESET_ROOM);
     FlagClear(FLAG_HIDE_SURF_BLOBS);
     WarpFadeInScreen();
     SetUpWarpExitTask();
@@ -719,7 +720,7 @@ void ReturnFromLinkRoom(void)
     CreateTask(Task_ReturnToWorldFromLinkRoom, 10);
 }
 
-void WarpAfterClosingLink(void)
+void CloseLinkAndWarp(void)
 {
     CreateTask(Task_ReturnToWorldFromLinkRoom, 10);
 }

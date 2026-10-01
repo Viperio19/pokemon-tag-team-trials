@@ -21,7 +21,7 @@ gSpecials::
 	def_special SetCableClubWarp
 	def_special DoCableClubWarp, waitstate=1
 	def_special ReturnFromLinkRoom, waitstate=1
-	def_special WarpAfterClosingLink, waitstate=1
+	def_special CloseLinkAndWarp, waitstate=1
 	def_special CleanupLinkRoomState
 	def_special ExitLinkRoom
 	def_special SetPlayerSecretBase

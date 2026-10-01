@@ -79,6 +79,7 @@
 #include "constants/event_objects.h"
 #include "constants/field_effects.h"
 #include "constants/layouts.h"
+#include "constants/metatile_labels.h"
 #include "constants/region_map_sections.h"
 #include "constants/rgb.h"
 #include "constants/songs.h"
@@ -2987,7 +2988,132 @@ void TrySetPlayer2DirectionCommand(enum Player2Command command, enum Direction d
     if (direction < DIR_SOUTH || direction > DIR_EAST)
         return;
 
-    EnqueuePlayer2CommandToSend(command, direction, LOCALID_PLAYER_2, 0);
+    EnqueuePlayer2CommandToSend(command, direction, LOCALID_PLAYER_2, gObjectEvents[gPlayerAvatar.objectEventId].disableAnim);
+}
+
+enum GemMetatile
+{
+    GEM_METATILE_BLUE_BUTTON,
+    GEM_METATILE_BLUE_FLOOR_SMOOTH,
+    GEM_METATILE_BLUE_FLOOR,
+    GEM_METATILE_BLUE_MUD,
+    GEM_METATILE_BLUE_WATER_EDGE,
+    GEM_METATILE_RED_BUTTON,
+    GEM_METATILE_RED_FLOOR_SMOOTH,
+    GEM_METATILE_RED_FLOOR,
+    GEM_METATILE_RED_MUD,
+    GEM_METATILE_RED_WATER_EDGE,
+    GEM_METATILES_COUNT,
+};
+
+struct GemMetatiles
+{
+    u16 metatileId;
+    bool8 impassable;
+};
+
+static const struct GemMetatiles sBluePressedMetatiles[GEM_METATILES_COUNT] =
+{
+    [GEM_METATILE_BLUE_BUTTON] = {METATILE_Cave_CoolButton_Pressed, FALSE},
+    [GEM_METATILE_BLUE_FLOOR_SMOOTH] = {METATILE_Cave_CoolGem_Blue_FloorSmooth_Empty, FALSE},
+    [GEM_METATILE_BLUE_FLOOR] = {METATILE_Cave_CoolGem_Blue_Floor_Empty, FALSE},
+    [GEM_METATILE_BLUE_MUD] = {METATILE_Cave_CoolGem_Blue_Mud_Empty, FALSE},
+    [GEM_METATILE_BLUE_WATER_EDGE] = {METATILE_Cave_CoolGem_Blue_WaterEdge_Empty, FALSE},
+    [GEM_METATILE_RED_BUTTON] = {METATILE_Cave_CoolButton_Red, FALSE},
+    [GEM_METATILE_RED_FLOOR_SMOOTH] = {METATILE_Cave_CoolGem_Red_FloorSmooth_Full, TRUE},
+    [GEM_METATILE_RED_FLOOR] = {METATILE_Cave_CoolGem_Red_Floor_Full, TRUE},
+    [GEM_METATILE_RED_MUD] = {METATILE_Cave_CoolGem_Red_Mud_Full, TRUE},
+    [GEM_METATILE_RED_WATER_EDGE] = {METATILE_Cave_CoolGem_Red_WaterEdge_Full, TRUE},
+};
+
+static const struct GemMetatiles sRedPressedMetatiles[GEM_METATILES_COUNT] =
+{
+    [GEM_METATILE_BLUE_BUTTON] = {METATILE_Cave_CoolButton_Blue, FALSE},
+    [GEM_METATILE_BLUE_FLOOR_SMOOTH] = {METATILE_Cave_CoolGem_Blue_FloorSmooth_Full, TRUE},
+    [GEM_METATILE_BLUE_FLOOR] = {METATILE_Cave_CoolGem_Blue_Floor_Full, TRUE},
+    [GEM_METATILE_BLUE_MUD] = {METATILE_Cave_CoolGem_Blue_Mud_Full, TRUE},
+    [GEM_METATILE_BLUE_WATER_EDGE] = {METATILE_Cave_CoolGem_Blue_WaterEdge_Full, TRUE},
+    [GEM_METATILE_RED_BUTTON] = {METATILE_Cave_CoolButton_Pressed, FALSE},
+    [GEM_METATILE_RED_FLOOR_SMOOTH] = {METATILE_Cave_CoolGem_Red_FloorSmooth_Empty, FALSE},
+    [GEM_METATILE_RED_FLOOR] = {METATILE_Cave_CoolGem_Red_Floor_Empty, FALSE},
+    [GEM_METATILE_RED_MUD] = {METATILE_Cave_CoolGem_Red_Mud_Empty, FALSE},
+    [GEM_METATILE_RED_WATER_EDGE] = {METATILE_Cave_CoolGem_Red_WaterEdge_Empty, FALSE},
+};
+
+void SetMetatile(u16 x, u16 y, enum GemMetatile gemMetatile)
+{
+    bool8 isImpassable;
+    u16 metatileId;
+    x += MAP_OFFSET;
+    y += MAP_OFFSET;
+
+    if (VarGet(VAR_TEMP_F))
+    {
+        isImpassable = sBluePressedMetatiles[gemMetatile].impassable;
+        metatileId = sBluePressedMetatiles[gemMetatile].metatileId;
+    }
+    else
+    {
+        isImpassable = sRedPressedMetatiles[gemMetatile].impassable;
+        metatileId = sRedPressedMetatiles[gemMetatile].metatileId;
+    }
+
+    if (!isImpassable)
+        MapGridSetMetatileIdAt(x, y, metatileId);
+    else
+        MapGridSetMetatileIdAt(x, y, metatileId | MAPGRID_IMPASSABLE);
+}
+
+void UpdateGemMetatiles(void)
+{
+    if (gSaveBlock1Ptr->location.mapNum == MAP_NUM(MAP_VOLCANION_CAVE_2F))
+    {
+        // Room 2
+        SetMetatile(7, 47, GEM_METATILE_BLUE_BUTTON);
+        SetMetatile(17, 11, GEM_METATILE_BLUE_BUTTON);
+        SetMetatile(11, 46, GEM_METATILE_RED_BUTTON);
+        SetMetatile(9, 46, GEM_METATILE_BLUE_FLOOR_SMOOTH);
+        SetMetatile(33, 58, GEM_METATILE_BLUE_MUD);
+        SetMetatile(35, 50, GEM_METATILE_BLUE_MUD);
+        SetMetatile(21, 11, GEM_METATILE_BLUE_FLOOR_SMOOTH);
+        SetMetatile(8, 48, GEM_METATILE_RED_FLOOR_SMOOTH);
+        SetMetatile(11, 47, GEM_METATILE_RED_FLOOR_SMOOTH);
+        SetMetatile(17, 9, GEM_METATILE_RED_FLOOR_SMOOTH);
+    }
+    else
+    {
+        // Golem puzzle
+        SetMetatile(25, 31, GEM_METATILE_BLUE_BUTTON);
+        SetMetatile(30, 31, GEM_METATILE_BLUE_BUTTON);
+        SetMetatile(24, 37, GEM_METATILE_BLUE_BUTTON);
+        SetMetatile(28, 29, GEM_METATILE_RED_BUTTON);
+        SetMetatile(24, 31, GEM_METATILE_RED_BUTTON);
+        SetMetatile(27, 28, GEM_METATILE_BLUE_FLOOR);
+        SetMetatile(24, 30, GEM_METATILE_BLUE_WATER_EDGE);
+        SetMetatile(23, 33, GEM_METATILE_BLUE_MUD);
+        SetMetatile(25, 33, GEM_METATILE_BLUE_FLOOR);
+        SetMetatile(28, 33, GEM_METATILE_BLUE_FLOOR);
+        SetMetatile(29, 34, GEM_METATILE_BLUE_FLOOR);
+        SetMetatile(26, 36, GEM_METATILE_BLUE_FLOOR);
+        SetMetatile(25, 28, GEM_METATILE_RED_FLOOR);
+        SetMetatile(29, 31, GEM_METATILE_RED_FLOOR);
+        SetMetatile(27, 34, GEM_METATILE_RED_WATER_EDGE);
+        SetMetatile(24, 36, GEM_METATILE_RED_FLOOR);
+        SetMetatile(27, 37, GEM_METATILE_RED_FLOOR);
+        // Agent diggs puzzle
+        SetMetatile(1, 10, GEM_METATILE_BLUE_BUTTON);
+        SetMetatile(10, 1, GEM_METATILE_BLUE_BUTTON);
+        SetMetatile(10, 18, GEM_METATILE_BLUE_BUTTON);
+        SetMetatile(1, 9, GEM_METATILE_RED_BUTTON);
+        SetMetatile(4, 18, GEM_METATILE_RED_BUTTON);
+        SetMetatile(6, 19, GEM_METATILE_RED_BUTTON);
+        SetMetatile(7, 1, GEM_METATILE_BLUE_FLOOR_SMOOTH);
+        SetMetatile(1, 8, GEM_METATILE_BLUE_FLOOR_SMOOTH);
+        SetMetatile(5, 8, GEM_METATILE_BLUE_FLOOR_SMOOTH);
+        SetMetatile(9, 1, GEM_METATILE_RED_FLOOR_SMOOTH);
+        SetMetatile(9, 10, GEM_METATILE_RED_FLOOR);
+    }
+    DrawWholeMapView();
 }
 
 struct RockClimbRide
@@ -3179,6 +3305,10 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
             TryMoveObjectEventToMapCoords(LOCALID_1F_DIGLETT, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, 34, 17);
             TrySpawnObjectEvent(LOCALID_1F_HEAT_BADGE, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
             break;
+        case P2_CMD_PRESS_GEMS_BUTTON:
+            VarSet(VAR_TEMP_F, arg1);
+            UpdateGemMetatiles();
+            break;
         default:
             break;
         }
@@ -3204,7 +3334,7 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
     if (command == P2_CMD_NONE)
     {
         // fix player standing still in running or jumping position
-        if (gPreviousP2Command == P2_CMD_RUN || gPreviousP2Command == P2_CMD_END_USE_SURF || gPreviousP2Command == P2_CMD_END_USE_ROCK_CLIMB)
+        if (gPreviousP2Command == P2_CMD_RUN || gPreviousP2Command == P2_CMD_END_USE_SURF || gPreviousP2Command == P2_CMD_END_USE_ROCK_CLIMB || objEvent->disableAnim)
             StartPlayer2Movement(sPlayer2CommandToMovement[P2_CMD_FACE_DIRECTION][objEvent->facingDirection - 1]);
         return;
     }
@@ -3224,6 +3354,7 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
     case P2_CMD_JUMP:
     case P2_CMD_JUMP_2:
     case P2_CMD_RIDE_WATER_CURRENT:
+        objEvent->disableAnim = arg3;
         ScriptMovement_StartObjectMovementScript(arg2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, sPlayer2CommandToMovement[command][arg1 - 1]);
         break;
     case P2_CMD_USE_FIELD_MOVE:

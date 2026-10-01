@@ -1193,7 +1193,10 @@ static bool8 TryArrowWarp(struct MapPosition *position, u16 metatileBehavior, en
     {
         if (IsTagTeamTrialsLinkActive())
         {
-            ScriptContext_SetupScript(EventScript_Player2_PleaseDontLeave);
+            if (gSaveBlock1Ptr->location.mapNum == MAP_NUM(MAP_VOLCANION_CAVE_1F))
+                ScriptContext_SetupScript(EventScript_Player2_PleaseDontLeave);
+            else
+                ScriptContext_SetupScript(EventScript_Player2_TryResetMap);
             return TRUE;
         }
         StorePlayerStateAndSetupWarp(position, warpEventId);

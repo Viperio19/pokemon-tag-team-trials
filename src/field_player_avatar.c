@@ -2024,7 +2024,7 @@ static bool8 PushBoulder_End(struct Task *task, struct ObjectEvent *player, stru
 void UpdateStrengthBoulderPositions(void)
 {
     struct BoulderPos *pos;
-    if (FlagGet(FLAG_DOING_PLAYER_SWITCH))
+    if (FlagGet(FLAG_DOING_PLAYER_SWITCH) || (IS_MULTIPLAYER && !FlagGet(FLAG_RESET_ROOM)))
     {
         for (u32 i = 0; i < 32; i++)
         {

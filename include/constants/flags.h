@@ -123,8 +123,8 @@
 #define FLAG_DO_QUICK_CONNECTION                   0x28A
 #define FLAG_PLAYER_ONE_CONTROLS_TEXT              0x28B
 #define FLAG_PLAYER_ONE_PRESSED_BUTTON             0x28C
+#define FLAG_RESET_ROOM                            0x28D
 
-#define FLAG_UNUSED_0x28D  0x28D // Unused Flag
 #define FLAG_UNUSED_0x28E  0x28E // Unused Flag
 #define FLAG_UNUSED_0x28F  0x28F // Unused Flag
 #define FLAG_UNUSED_0x290  0x290 // Unused Flag

@@ -394,6 +394,7 @@ Player2Magma_Text_Cancel::
 	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}Alright, let's go.$"
 
 Player2_EventScript_Reconnect::
+	setvar VAR_ACTION_ON_FRAME, 0
 	closemessage
 	delay 10
 	setflag FLAG_DO_QUICK_CONNECTION
@@ -639,6 +640,24 @@ EventScript_Player2_PleaseDontLeave::
 Player2_Text_PleaseDontLeave::
 	.string "You can't leave while connected.{PAUSE 40}$"
 
+EventScript_Player2_TryResetMap::
+	message Player2_Text_AskResetMap
+	waitmessage
+	yesnobox 20, 8, 1
+	goto_if_eq VAR_RESULT, YES, Player2_EventScript_ResetMap
+	release
+	end
+
+Player2_EventScript_ResetMap::
+	enqueueplayer2command P2_CMD_CONTROL_FLAG, FLAG_RESET_ROOM, TRUE
+	setflag FLAG_RESET_ROOM
+	goto EventScript_Player2_Warp
+	waitstate
+	end
+
+Player2_Text_AskResetMap::
+	.string "Do you want to reset the room?$"
+
 EventScript_Player2_EndOfDemo::
 	message Player2_Text_EndOfDemo
 	waitmessage
@@ -666,14 +685,22 @@ Player2_EventScript_WaitForWarp::
 	goto_if_ne VAR_P2_INTERACTION_STATE, 20, Player2_EventScript_WaitForWarp
 	setvar VAR_P2_INTERACTION_STATE, 0
 	setflag FlAG_SHOW_PLAYER_2
+	goto_if_set FLAG_RESET_ROOM, Player2_EventScript_WarpCurrentPosition
 	goto_if_eq VAR_VOLCANION_CAVE_2F_STATE, 0, Player2_EventScript_Warp2F
 	setwarp MAP_VOLCANION_CAVE_3F, 16, 35
-	special WarpAfterClosingLink
+	special CloseLinkAndWarp
+	end
+
+Player2_EventScript_WarpCurrentPosition::
+	setvar VAR_ACTION_ON_FRAME, 3
+	callnative UpdatePlayer2Pos
+	callnative SetWarpCurrentPosition
+	special ReturnFromLinkRoom
 	end
 
 Player2_EventScript_Warp2F::
 	setwarp MAP_VOLCANION_CAVE_2F, 22, 76
-	special WarpAfterClosingLink
+	special CloseLinkAndWarp
 	end
 
 Player2_EventScript_DoLinkBossBattle::

@@ -58,7 +58,7 @@ void InitEventData(void)
 
 void ClearTempFieldEventData(void)
 {
-    if (!FlagGet(FLAG_DOING_PLAYER_SWITCH))
+    if (!FlagGet(FLAG_DOING_PLAYER_SWITCH) && !(IS_MULTIPLAYER && !FlagGet(FLAG_RESET_ROOM)))
     {
         memset(&gSaveBlock1Ptr->flags[TEMP_FLAGS_START / 8], 0, TEMP_FLAGS_SIZE);
         memset(&gSaveBlock1Ptr->vars[TEMP_ISH_VARS_START - VARS_START], 0, TEMP_ISH_VARS_SIZE);
