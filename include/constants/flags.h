@@ -121,9 +121,9 @@
 #define FLAG_PLAYER_2_FINISHED_SCRIPT              0x288
 #define FLAG_PLAYER_2_READY_FOR_LINK_BATTLE        0x289
 #define FLAG_DO_QUICK_CONNECTION                   0x28A
+#define FLAG_PLAYER_ONE_CONTROLS_TEXT              0x28B
+#define FLAG_PLAYER_ONE_PRESSED_BUTTON             0x28C
 
-#define FLAG_UNUSED_0x28B  0x28B // Unused Flag
-#define FLAG_UNUSED_0x28C  0x28C // Unused Flag
 #define FLAG_UNUSED_0x28D  0x28D // Unused Flag
 #define FLAG_UNUSED_0x28E  0x28E // Unused Flag
 #define FLAG_UNUSED_0x28F  0x28F // Unused Flag

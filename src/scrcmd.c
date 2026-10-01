@@ -1906,10 +1906,27 @@ bool8 ScrCmd_closemessage(struct ScriptContext *ctx)
 
 static bool8 WaitForAorBPress(void)
 {
-    if (JOY_NEW(A_BUTTON))
+    if (IS_MULTIPLAYER && FlagGet(FLAG_PLAYER_ONE_CONTROLS_TEXT))
+    {
+        if (IS_PLAYER_ONE)
+        {
+            if (JOY_NEW(A_BUTTON | B_BUTTON))
+            {
+                EnqueuePlayer2CommandToSend(P2_CMD_CONTROL_FLAG, FLAG_PLAYER_ONE_PRESSED_BUTTON, TRUE, 0);
+                return TRUE;
+            }
+        }
+        else if (FlagGet(FLAG_PLAYER_ONE_PRESSED_BUTTON))
+        {
+            FlagClear(FLAG_PLAYER_ONE_PRESSED_BUTTON);
+                return TRUE;
+        }
+    }
+    else if (JOY_NEW(A_BUTTON | B_BUTTON))
+    {
         return TRUE;
-    if (JOY_NEW(B_BUTTON))
-        return TRUE;
+    }
+
     return FALSE;
 }
 

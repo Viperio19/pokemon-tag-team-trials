@@ -427,6 +427,7 @@ Player2_AbortLinkTryAgain::
 Player2_LinkSuccess::
 	clearflag FLAG_DO_QUICK_CONNECTION
 	call_if_eq VAR_VOLCANION_CAVE_1F_STATE, 0, Player2_Set1FStateMultiplayerIntro
+	call_if_eq VAR_VOLCANION_CAVE_2F_STATE, 1, Player2_Set2FStateMultiplayerIntro
 	callnative StoreLinkPlayerName
 	setvar VAR_0x8004, USING_TRADE_CENTER
 	copyvar VAR_CABLE_CLUB_STATE, VAR_0x8004
@@ -441,6 +442,10 @@ Player2_Set1FStateNoIntro::
 
 Player2_Set1FStateMultiplayerIntro::
 	setvar VAR_VOLCANION_CAVE_1F_STATE, 2
+	return
+
+Player2_Set2FStateMultiplayerIntro::
+	setvar VAR_VOLCANION_CAVE_2F_STATE, 2
 	return
 
 EventScript_Player2_Multiplayer::
@@ -652,6 +657,25 @@ Player2_Text_EndOfDemo::
 	.string "so I can fix it!\p"
 	.string "Thanks for playing!\p$"
 
+EventScript_Player2_Warp::
+	message gText_PleaseWaitForLink
+	waitmessage
+	enqueueplayer2command P2_CMD_SET_INTERACTION_VAR, 20
+Player2_EventScript_WaitForWarp::
+	delay 1
+	goto_if_ne VAR_P2_INTERACTION_STATE, 20, Player2_EventScript_WaitForWarp
+	setvar VAR_P2_INTERACTION_STATE, 0
+	setflag FlAG_SHOW_PLAYER_2
+	goto_if_eq VAR_VOLCANION_CAVE_2F_STATE, 0, Player2_EventScript_Warp2F
+	setwarp MAP_VOLCANION_CAVE_3F, 16, 35
+	special WarpAfterClosingLink
+	end
+
+Player2_EventScript_Warp2F::
+	setwarp MAP_VOLCANION_CAVE_2F, 22, 76
+	special WarpAfterClosingLink
+	end
+
 Player2_EventScript_DoLinkBossBattle::
 	closemessage
 	delay 10
@@ -753,14 +777,8 @@ Player2_EventScript_DoLinkMultiBattle::
 	waitstate
 	tower_closelink
 	specialvar VAR_RESULT, GetBattleOutcome
-	goto_if_ne VAR_RESULT, B_OUTCOME_WON, Player2_EventScript_Lost
-	goto_if_unset FLAG_DEFEATED_VOLCANION_CAVE_1F_GOLEM, VolcanionCave_1F_EventScript_DefeatedGolem
-Player2_EventScript_Lost::
-	playmoncry SPECIES_GOLEM_ALOLA, CRY_MODE_ENCOUNTER
-	message VolcanionCave_1F_Text_GolemCry
-	waitmoncry
-	waitmessage
-	goto Player2_EventScript_Reconnect
+	goto_if_ne VAR_RESULT, B_OUTCOME_WON, Player2_EventScript_Reconnect
+	goto_if_unset FLAG_DEFEATED_VOLCANION_CAVE_1F_GOLEM, VolcanionCave_1F_EventScript_DefeatedGolemMultiplayer
 	end
 
 Player2_Text_ClosingOverworldLink::

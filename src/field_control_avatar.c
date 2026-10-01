@@ -1224,7 +1224,7 @@ static bool8 TryStartWarpEventScript(struct MapPosition *position, u16 metatileB
     {
         if (IS_MULTIPLAYER)
         {
-            ScriptContext_SetupScript(EventScript_Player2_EndOfDemo);
+            ScriptContext_SetupScript(EventScript_Player2_Warp);
             return TRUE;
         }
         StoreInitialPlayerAvatarState();

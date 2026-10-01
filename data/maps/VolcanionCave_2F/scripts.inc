@@ -73,6 +73,7 @@ VolcanionCave_2F_OnFrame:
 	map_script_2 VAR_ACTION_ON_FRAME, 1, Player2_EventScript_Save
 	map_script_2 VAR_ACTION_ON_FRAME, 2, Player2_EventScript_FastConnectForMultiplayerBattle
 	map_script_2 VAR_VOLCANION_CAVE_2F_STATE, 0, VolcanionCave_2F_EventScript_EnterCave
+	map_script_2 VAR_VOLCANION_CAVE_2F_STATE, 2, VolcanionCave_2F_EventScript_Intro
 	map_script_2 VAR_OLD_ROD_STATE, 10, VolcanionCave_2F_EventScript_DropOldRod
 	.2byte 0
 
@@ -82,10 +83,14 @@ VolcanionCave_2F_OnFrame:
 VolcanionCave_2F_EventScript_EnterCave::
 	lock
 	setvar VAR_VOLCANION_CAVE_2F_STATE, 1
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_2F_EventScript_EnterCaveMultiplayer
 	callnative IsPlayerOne
 	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_2F_EventScript_PlayersEnter
 	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_2F_EventScript_PlayersEnter2
 VolcanionCave_2F_EventScript_Intro::
+	setvar VAR_VOLCANION_CAVE_2F_STATE, 3
+	setflag FLAG_PLAYER_ONE_CONTROLS_TEXT
 	delay 30
 	applymovement LOCALID_PLAYER_MAGMA, Common_Movement_WalkInPlaceFasterLeft
 	applymovement LOCALID_PLAYER_AQUA, Common_Movement_WalkInPlaceFasterRight
@@ -96,11 +101,47 @@ VolcanionCave_2F_EventScript_Intro::
 	waitmovement 0
 	waitmessage
 	closemessage
-	delay 30
+	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
+	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_2F_EventScript_IntroEnd
+	delay 10
 	forcesave
 	closemessage
+VolcanionCave_2F_EventScript_IntroEnd::
+	clearflag FLAG_PLAYER_ONE_CONTROLS_TEXT
 	callnative UpdatePlayer2Pos
 	release
+	end
+
+VolcanionCave_2F_EventScript_EnterCaveMultiplayer::
+	callnative IsPlayerOne
+	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_2F_EventScript_PlayerAquaEnterMultiplayer
+	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_2F_EventScript_PlayerMagmaEnterMultiplayer
+	end
+
+VolcanionCave_2F_EventScript_PlayerAquaEnterMultiplayer::
+	setvar VAR_VOLCANION_CAVE_2F_STATE, 3
+	applymovement LOCALID_PLAYER, VolcanionCave_2F_Movement_PlayerAquaEnterCave
+	waitmovement 0
+	delay 10
+	forcesave
+	closemessage
+	setvar LOCALID_PLAYER_AQUA, LOCALID_PLAYER
+	setvar LOCALID_PLAYER_MAGMA, LOCALID_PLAYER_2
+	setvar VAR_VOLCANION_CAVE_2F_STATE, 1
+	goto Player2_EventScript_Reconnect
+	end
+
+VolcanionCave_2F_EventScript_PlayerMagmaEnterMultiplayer::
+	setvar VAR_VOLCANION_CAVE_2F_STATE, 3
+	applymovement LOCALID_PLAYER, VolcanionCave_2F_Movement_PlayerMagmaEnterCave
+	waitmovement 0
+	delay 10
+	forcesave
+	closemessage
+	setvar LOCALID_PLAYER_AQUA, LOCALID_PLAYER_2
+	setvar LOCALID_PLAYER_MAGMA, LOCALID_PLAYER
+	setvar VAR_VOLCANION_CAVE_2F_STATE, 1
+	goto Player2_EventScript_Reconnect
 	end
 
 VolcanionCave_2F_Text_IntroName::

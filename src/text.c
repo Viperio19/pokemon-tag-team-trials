@@ -15,6 +15,7 @@
 #include "string_util.h"
 #include "text.h"
 #include "window.h"
+#include "overworld.h"
 #include "constants/font_types.h"
 #include "constants/songs.h"
 #include "constants/speaker_names.h"
@@ -1245,7 +1246,25 @@ bool32 TextPrinterWaitAutoMode(struct TextPrinter *textPrinter)
 
 void SetResultWithButtonPress(bool32 *result)
 {
-    if (JOY_NEW(A_BUTTON | B_BUTTON))
+    if (IS_MULTIPLAYER && FlagGet(FLAG_PLAYER_ONE_CONTROLS_TEXT))
+    {
+        if (IS_PLAYER_ONE)
+        {
+            if (JOY_NEW(A_BUTTON | B_BUTTON))
+            {
+                EnqueuePlayer2CommandToSend(P2_CMD_CONTROL_FLAG, FLAG_PLAYER_ONE_PRESSED_BUTTON, TRUE, 0);
+                *result = TRUE;
+                PlaySE(SE_SELECT);
+            }
+        }
+        else if (FlagGet(FLAG_PLAYER_ONE_PRESSED_BUTTON))
+        {
+            FlagClear(FLAG_PLAYER_ONE_PRESSED_BUTTON);
+            *result = TRUE;
+            PlaySE(SE_SELECT);
+        }
+    }
+    else if (JOY_NEW(A_BUTTON | B_BUTTON))
     {
         *result = TRUE;
         PlaySE(SE_SELECT);

@@ -719,6 +719,11 @@ void ReturnFromLinkRoom(void)
     CreateTask(Task_ReturnToWorldFromLinkRoom, 10);
 }
 
+void WarpAfterClosingLink(void)
+{
+    CreateTask(Task_ReturnToWorldFromLinkRoom, 10);
+}
+
 void Task_WarpAndLoadMap(u8 taskId)
 {
     struct Task *task = &gTasks[taskId];

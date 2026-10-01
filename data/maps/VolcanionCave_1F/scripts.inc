@@ -44,8 +44,10 @@ VolcanionCave_1F_EventScript_HidePlayers::
 VolcanionCave_1F_OnFrame:
 	map_script_2 VAR_ACTION_ON_FRAME, 1, Player2_EventScript_Save
 	map_script_2 VAR_ACTION_ON_FRAME, 2, Player2_EventScript_FastConnectForMultiplayerBattle
+	map_script_2 VAR_P2_INTERACTION_STATE, 20, EventScript_Player2_Warp
 	map_script_2 VAR_VOLCANION_CAVE_1F_STATE, 0, VolcanionCave_1F_EventScript_EnterCave
 	map_script_2 VAR_VOLCANION_CAVE_1F_STATE, 2, VolcanionCave_1F_EventScript_IntroStartMultiplayer
+	map_script_2 VAR_VOLCANION_CAVE_1F_STATE, 3, VolcanionCave_1F_EventScript_DefeatedGolem
 	map_script_2 VAR_OLD_ROD_STATE, 10, VolcanionCave_1F_EventScript_DropOldRod
 	.2byte 0
 
@@ -65,6 +67,7 @@ VolcanionCave_1F_EventScript_EnterCave::
 	waitmovement 0
 	delay 30
 VolcanionCave_1F_EventScript_IntroStartMultiplayer::
+	setflag FLAG_PLAYER_ONE_CONTROLS_TEXT
 	applymovement LOCALID_PLAYER_MAGMA, Common_Movement_WalkInPlaceFasterLeft
 	applymovement LOCALID_PLAYER_AQUA, Common_Movement_WalkInPlaceFasterRight
 	waitmovement 0
@@ -110,10 +113,9 @@ VolcanionCave_1F_EventScript_IntroStartMultiplayer::
 	waitmovement 0
 	waitmessage
 	closemessage
+	clearflag FLAG_PLAYER_ONE_CONTROLS_TEXT
 	setvar VAR_VOLCANION_CAVE_1F_STATE, 1
 	callnative UpdatePlayer2Pos
-	callnative IsMultiplayer
-	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_1F_EventScript_StartWaitingForPlayer2
 	release
 	end
 
@@ -126,21 +128,6 @@ VolcanionCave_1F_EventScript_SetLocalIdsPlayer2::
 	setvar LOCALID_PLAYER_AQUA, LOCALID_PLAYER_2
 	setvar LOCALID_PLAYER_MAGMA, LOCALID_PLAYER
 	return
-
-VolcanionCave_1F_EventScript_StartWaitingForPlayer2::
-	closemessage
-	delay 10
-	message VolcanionCave_1F_Text_WaitingForOtherPlayer
-	waitmessage
-	enqueueplayer2command P2_CMD_CONTROL_FLAG, FLAG_PLAYER_2_FINISHED_SCRIPT, 1
-VolcanionCave_1F_EventScript_WaitForPlayer2::
-	delay 1
-	goto_if_unset FLAG_PLAYER_2_FINISHED_SCRIPT, VolcanionCave_1F_EventScript_WaitForPlayer2
-	clearflag FLAG_PLAYER_2_FINISHED_SCRIPT
-	delay 10
-	closemessage
-	release
-	end
 
 VolcanionCave_1F_EventScript_EnterCaveMultiplayer::
 	callnative IsPlayerOne
@@ -753,6 +740,8 @@ VolcanionCave_1F_EventScript_GetReadyForGolemMultiBattle::
 	end
 
 VolcanionCave_1F_EventScript_DefeatedGolem::
+	setflag FLAG_PLAYER_ONE_CONTROLS_TEXT
+	setvar VAR_VOLCANION_CAVE_1F_STATE, 4
 	playmoncry SPECIES_GOLEM_ALOLA, CRY_MODE_NORMAL
 	msgbox VolcanionCave_1F_Text_GolemCryDefeated, MSGBOX_DEFAULT
 	waitmoncry
@@ -764,9 +753,13 @@ VolcanionCave_1F_EventScript_DefeatedGolem::
 	delay 20
 	msgbox VolcanionCave_1F_Text_DidWeKillIt, MSGBOX_DEFAULT
 	setflag FLAG_DEFEATED_VOLCANION_CAVE_1F_GOLEM
-	callnative IsMultiplayer
-	goto_if_eq VAR_RESULT, TRUE, Player2_EventScript_Reconnect
+	clearflag FLAG_PLAYER_ONE_CONTROLS_TEXT
 	release
+	end
+
+VolcanionCave_1F_EventScript_DefeatedGolemMultiplayer::
+	setvar VAR_VOLCANION_CAVE_1F_STATE, 3
+	goto Player2_EventScript_Reconnect
 	end
 
 VolcanionCave_1F_EventScript_BattleTogetherMagma::
