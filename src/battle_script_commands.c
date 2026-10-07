@@ -5336,7 +5336,7 @@ static void Cmd_switchhandleorder(void)
         gBattleCommunication[0] = gBattleResources->bufferB[battler][1];
         gBattleStruct->monToSwitchIntoId[battler] = gBattleResources->bufferB[battler][1];
 
-        if (gBattleTypeFlags & BATTLE_TYPE_LINK && gBattleTypeFlags & BATTLE_TYPE_MULTI)
+        if (gBattleTypeFlags & BATTLE_TYPE_LINK && gBattleTypeFlags & BATTLE_TYPE_MULTI && !(gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER))
         {
             *(battler * 3 + (u8 *)(gBattleStruct->battlerPartyOrders) + 0) &= 0xF;
             *(battler * 3 + (u8 *)(gBattleStruct->battlerPartyOrders) + 0) |= (gBattleResources->bufferB[battler][2] & 0xF0);
@@ -5346,7 +5346,7 @@ static void Cmd_switchhandleorder(void)
             *((BATTLE_PARTNER(battler)) * 3 + (u8 *)(gBattleStruct->battlerPartyOrders) + 0) |= (gBattleResources->bufferB[battler][2] & 0xF0) >> 4;
             *((BATTLE_PARTNER(battler)) * 3 + (u8 *)(gBattleStruct->battlerPartyOrders) + 2) = gBattleResources->bufferB[battler][3];
         }
-        else if (gBattleTypeFlags & BATTLE_TYPE_INGAME_OR_PLAYER_2_PARTNER)
+        else if (gBattleTypeFlags & (BATTLE_TYPE_INGAME_OR_PLAYER_2_PARTNER | BATTLE_TYPE_MULTIPLAYER))
         {
             SwitchPartyOrderInGameMulti(battler, gBattleStruct->monToSwitchIntoId[battler]);
         }
@@ -7350,16 +7350,16 @@ static void Cmd_forcerandomswitch(void)
             if (!IsMultiBattle())
                 SwitchPartyOrder(gBattlerTarget);
 
-            if ((gBattleTypeFlags & BATTLE_TYPE_LINK && gBattleTypeFlags & BATTLE_TYPE_BATTLE_TOWER)
+            if (((gBattleTypeFlags & BATTLE_TYPE_LINK && gBattleTypeFlags & BATTLE_TYPE_BATTLE_TOWER)
                 || (gBattleTypeFlags & BATTLE_TYPE_LINK && gBattleTypeFlags & BATTLE_TYPE_MULTI)
                 || (gBattleTypeFlags & BATTLE_TYPE_RECORDED_LINK && gBattleTypeFlags & BATTLE_TYPE_BATTLE_TOWER)
-                || (gBattleTypeFlags & BATTLE_TYPE_RECORDED_LINK && gBattleTypeFlags & BATTLE_TYPE_MULTI))
+                || (gBattleTypeFlags & BATTLE_TYPE_RECORDED_LINK && gBattleTypeFlags & BATTLE_TYPE_MULTI)) && !(gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER))
             {
                 SwitchPartyOrderLinkMulti(gBattlerTarget, gBattleStruct->monToSwitchIntoId[gBattlerTarget], 0);
                 SwitchPartyOrderLinkMulti(BATTLE_PARTNER(gBattlerTarget), gBattleStruct->monToSwitchIntoId[gBattlerTarget], 1);
             }
 
-            if (gBattleTypeFlags & BATTLE_TYPE_INGAME_OR_PLAYER_2_PARTNER)
+            if (gBattleTypeFlags & (BATTLE_TYPE_INGAME_OR_PLAYER_2_PARTNER | BATTLE_TYPE_MULTIPLAYER))
                 SwitchPartyOrderInGameMulti(gBattlerTarget, gBattleStruct->monToSwitchIntoId[gBattlerTarget]);
         }
     }
@@ -10149,33 +10149,31 @@ static void Cmd_givecaughtmon(void)
                 break;
         }
 
-        GiveCapturedMonToPlayer(caughtMon);
+        if (GiveCapturedMonToPlayer(caughtMon) != MON_GIVEN_TO_PARTY
+         && gBattleCommunication[MULTISTRING_CHOOSER] != B_MSG_SWAPPED_INTO_PARTY)
+        {
+            if (!ShouldShowBoxWasFullMessage())
+            {
+                gBattleCommunication[MULTISTRING_CHOOSER] = B_MSG_SENT_SOMEONES_PC;
+                StringCopy(gStringVar1, GetBoxNamePtr(VarGet(VAR_PC_BOX_TO_SEND_MON)));
+                GetMonData(caughtMon, MON_DATA_NICKNAME, gStringVar2);
+            }
+            else
+            {
+                StringCopy(gStringVar1, GetBoxNamePtr(VarGet(VAR_PC_BOX_TO_SEND_MON))); // box the mon was sent to
+                GetMonData(caughtMon, MON_DATA_NICKNAME, gStringVar2);
+                StringCopy(gStringVar3, GetBoxNamePtr(GetPCBoxToSendMon())); //box the mon was going to be sent to
+                gBattleCommunication[MULTISTRING_CHOOSER] = B_MSG_SOMEONES_BOX_FULL;
+            }
 
-        // if (GiveCapturedMonToPlayer(caughtMon) != MON_GIVEN_TO_PARTY
-        //  && gBattleCommunication[MULTISTRING_CHOOSER] != B_MSG_SWAPPED_INTO_PARTY)
-        // {
-        //     if (!ShouldShowBoxWasFullMessage())
-        //     {
-        //         gBattleCommunication[MULTISTRING_CHOOSER] = B_MSG_SENT_SOMEONES_PC;
-        //         StringCopy(gStringVar1, GetBoxNamePtr(VarGet(VAR_PC_BOX_TO_SEND_MON)));
-        //         GetMonData(caughtMon, MON_DATA_NICKNAME, gStringVar2);
-        //     }
-        //     else
-        //     {
-        //         StringCopy(gStringVar1, GetBoxNamePtr(VarGet(VAR_PC_BOX_TO_SEND_MON))); // box the mon was sent to
-        //         GetMonData(caughtMon, MON_DATA_NICKNAME, gStringVar2);
-        //         StringCopy(gStringVar3, GetBoxNamePtr(GetPCBoxToSendMon())); //box the mon was going to be sent to
-        //         gBattleCommunication[MULTISTRING_CHOOSER] = B_MSG_SOMEONES_BOX_FULL;
-        //     }
-
-        //     // Change to B_MSG_SENT_LANETTES_PC or B_MSG_LANETTES_BOX_FULL
-        //     if (FlagGet(FLAG_SYS_PC_LANETTE))
-        //         gBattleCommunication[MULTISTRING_CHOOSER]++;
-        // }
+            // Change to B_MSG_SENT_LANETTES_PC or B_MSG_LANETTES_BOX_FULL
+            if (FlagGet(FLAG_SYS_PC_LANETTE))
+                gBattleCommunication[MULTISTRING_CHOOSER]++;
+        }
 
         // Copy changedSpecies to allow caught mon to revert to its original species.
-        // if (emptySlot != PARTY_SIZE)
-        //     gBattleStruct->partyState[B_SIDE_PLAYER][emptySlot].changedSpecies = GetBattlerPartyState(GetCatchingBattler())->changedSpecies;
+        if (emptySlot != PARTY_SIZE)
+            gBattleStruct->partyState[B_SIDE_PLAYER][emptySlot].changedSpecies = GetBattlerPartyState(GetCatchingBattler())->changedSpecies;
 
         DebugPrintf("Gave mon");
 
@@ -10452,8 +10450,10 @@ static void Cmd_finishaction(void)
 
 static void Cmd_finishturn(void)
 {
+    DebugPrintf("Cmd_finishturn");
     gCurrentActionFuncId = B_ACTION_FINISHED;
     gCurrentTurnActionNumber = gBattlersCount;
+    DebugPrintf("Cmd_finishturn done");
 }
 
 static void Cmd_trainerslideout(void)

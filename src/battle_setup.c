@@ -737,6 +737,7 @@ static void CB2_EndScriptedWildBattle(void)
     CpuFill16(0, (void *)(BG_PLTT), BG_PLTT_SIZE);
     ResetOamRange(0, 128);
 
+    DebugPrintf("CB2_EndScriptedWildBattle");
     HealPlayerParty();
     DowngradeBadPoison();
     SetMainCallback2(CB2_ReturnToFieldContinueScriptPlayMapMusic);

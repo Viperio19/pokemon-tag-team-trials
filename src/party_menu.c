@@ -7951,7 +7951,7 @@ static void CB2_SetUpExitToBattleScreen(void)
 
 void ShowPartyMenuToShowcaseMultiBattleParty(void)
 {
-    if (AreMultiPartiesFullTeams())
+    if (AreMultiPartiesFullTeams() && !(gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER))
         InitPartyMenu(PARTY_MENU_TYPE_MULTI_FULL_SHOWCASE, PARTY_LAYOUT_MULTI_FULL_SHOWCASE, PARTY_ACTION_CHOOSE_MON, FALSE, PARTY_MSG_NONE, Task_WaitBeforeMultiPartnerFullParty, gMain.savedCallback);
     else
         InitPartyMenu(PARTY_MENU_TYPE_MULTI_SHOWCASE, PARTY_LAYOUT_MULTI_SHOWCASE, PARTY_ACTION_CHOOSE_MON, FALSE, PARTY_MSG_NONE, Task_InitMultiPartnerPartySlideIn, gMain.savedCallback);
@@ -8029,7 +8029,7 @@ static void Task_WaitAfterMultiPartnerPartySlideIn(u8 taskId)
         if (++data[0] == 128)
             Task_ClosePartyMenu(taskId);
     }
-    else if (++data[0] == 256)
+    else if (++data[0] == 128)
         Task_ClosePartyMenu(taskId);
 }
 
@@ -8483,6 +8483,12 @@ static void GetPartyAndSlotFromPartyMenuId(s8 menuId, struct Pokemon **party, s8
             break;
         }
         break;
+    case PARTY_LAYOUT_MULTI_FULL:
+        if ((gBattleTypeFlags & BATTLE_TYPE_LINK) && ((gBattlerInMenuId & BIT_FLANK) != B_FLANK_LEFT))
+            *party = gParties[B_TRAINER_PARTNER];
+        else
+            *party = gParties[B_TRAINER_PLAYER];
+        *partySlot = menuId;
     default:
         *party = gParties[B_TRAINER_PLAYER];
         *partySlot = menuId;

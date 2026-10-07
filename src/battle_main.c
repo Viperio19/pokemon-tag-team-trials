@@ -1186,7 +1186,10 @@ static void CB2_HandleStartMultiPartnerBattle(void)
             ResetBlockReceivedFlags();
             memcpy(&gParties[B_TRAINER_PLAYER][2], gBlockRecvBuffer[playerMultiplayerId], sizeof(struct Pokemon));
             memcpy(&gParties[B_TRAINER_PARTNER][2], gBlockRecvBuffer[partnerMultiplayerId], sizeof(struct Pokemon));
-            gBattleCommunication[MULTIUSE_STATE]++;
+            if (gBattleTypeFlags & BATTLE_TYPE_TRAINER)
+                gBattleCommunication[MULTIUSE_STATE]++;
+            else
+                gBattleCommunication[MULTIUSE_STATE] = 19;
         }
         break;
     case 7:
@@ -1310,7 +1313,7 @@ static void CB2_HandleStartMultiPartnerBattle(void)
         RecordedBattle_SetTrainerInfo();
         gBattleCommunication[SPRITES_INIT_STATE1] = 0;
         gBattleCommunication[SPRITES_INIT_STATE2] = 0;
-        if (gBattleTypeFlags & BATTLE_TYPE_LINK)
+        if (gBattleTypeFlags & BATTLE_TYPE_LINK && !(gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER))
             gBattleCommunication[MULTIUSE_STATE] = 20;
         else
             gBattleCommunication[MULTIUSE_STATE] = 22;
@@ -4410,7 +4413,7 @@ static void HandleTurnActionSelectionState(void)
 
         gBattleMainFunc = SetActionsAndBattlersTurnOrder;
 
-        if (gBattleTypeFlags & BATTLE_TYPE_INGAME_OR_PLAYER_2_PARTNER)
+        if (gBattleTypeFlags & (BATTLE_TYPE_INGAME_OR_PLAYER_2_PARTNER | BATTLE_TYPE_MULTIPLAYER))
         {
             for (enum BattlerId battler = 0; battler < gBattlersCount; battler++)
             {
@@ -4443,7 +4446,7 @@ static void UpdateBattlerPartyOrdersOnSwitch(enum BattlerId battler)
     gBattleStruct->monToSwitchIntoId[battler] = gBattleResources->bufferB[battler][1];
     RecordedBattle_SetBattlerAction(battler, gBattleResources->bufferB[battler][1]);
 
-    if (gBattleTypeFlags & BATTLE_TYPE_LINK && gBattleTypeFlags & BATTLE_TYPE_MULTI)
+    if (gBattleTypeFlags & BATTLE_TYPE_LINK && gBattleTypeFlags & BATTLE_TYPE_MULTI && !(gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER))
     {
         *(battler * 3 + (u8 *)(gBattleStruct->battlerPartyOrders) + 0) &= 0xF;
         *(battler * 3 + (u8 *)(gBattleStruct->battlerPartyOrders) + 0) |= (gBattleResources->bufferB[battler][2] & 0xF0);
@@ -5279,6 +5282,7 @@ static void HandleEndTurn_MonFled(void)
 
 static void HandleEndTurn_FinishBattle(void)
 {
+    DebugPrintf("HandleEndTurn_FinishBattle");
     if (gCurrentActionFuncId == B_ACTION_TRY_FINISH || gCurrentActionFuncId == B_ACTION_FINISHED)
     {
         if ((!(gBattleTypeFlags & (BATTLE_TYPE_LINK
@@ -5313,6 +5317,7 @@ static void HandleEndTurn_FinishBattle(void)
         if (gIsFishingEncounter && IsMonShiny(&gParties[B_TRAINER_OPPONENT_A][0]))
             gChainFishingDexNavStreak = 0;
 
+        DebugPrintf("HandleEndTurn_FinishBattle 2");
         for (enum BattleTrainer trainer = B_TRAINER_PLAYER; trainer < MAX_BATTLE_TRAINERS; trainer++)
         {
             struct Pokemon *party = GetTrainerParty(trainer);
@@ -5342,6 +5347,7 @@ static void HandleEndTurn_FinishBattle(void)
             TryPutBreakingNewsOnAir();
         }
 
+        DebugPrintf("HandleEndTurn_FinishBattle 3");
         BeginFastPaletteFade(3);
         FadeOutMapMusic(5);
         if (B_TRAINERS_KNOCK_OFF_ITEMS == TRUE || B_RESTORE_HELD_BATTLE_ITEMS >= GEN_9)
@@ -5366,6 +5372,7 @@ static void HandleEndTurn_FinishBattle(void)
             gBattleMons[i].species = SPECIES_NONE;
         }
 
+        DebugPrintf("HandleEndTurn_FinishBattle 4");
         // Set Battle Controllers to BATTLE_CONTROLLER_NONE
         for (enum BattlerId i = 0; i < MAX_BATTLERS_COUNT; i++)
         {
@@ -5383,6 +5390,7 @@ static void HandleEndTurn_FinishBattle(void)
 
 static void FreeResetData_ReturnToOvOrDoEvolutions(void)
 {
+    DebugPrintf("FreeResetData_ReturnToOvOrDoEvolutions");
     if (!gPaletteFade.active)
     {
         gIsFishingEncounter = FALSE;
@@ -5395,19 +5403,11 @@ static void FreeResetData_ReturnToOvOrDoEvolutions(void)
         else
             gSaveBlock3Ptr->dexNavChain = 0;
 
+        DebugPrintf("FreeResetData_ReturnToOvOrDoEvolutions 2");
         ClearCurrentTrainerWantRematchVsSeeker();
         gDexNavSpecies = SPECIES_NONE;
         ResetSpriteData();
-        if (!(gBattleTypeFlags & (BATTLE_TYPE_LINK
-                                  | BATTLE_TYPE_RECORDED_LINK
-                                  | BATTLE_TYPE_FIRST_BATTLE
-                                  | BATTLE_TYPE_SAFARI
-                                  | BATTLE_TYPE_FRONTIER
-                                  | BATTLE_TYPE_EREADER_TRAINER
-                                  | BATTLE_TYPE_CATCH_TUTORIAL))
-            && (B_EVOLUTION_AFTER_WHITEOUT >= GEN_6
-                || gBattleOutcome == B_OUTCOME_WON
-                || gBattleOutcome == B_OUTCOME_CAUGHT))
+        if (FALSE)
         {
             gBattleMainFunc = TryEvolvePokemon;
         }
@@ -5480,6 +5480,7 @@ static void WaitForEvoSceneToFinish(void)
 
 static void ReturnFromBattleToOverworld(void)
 {
+    DebugPrintf("ReturnFromBattleToOverworld");
     if (!(gBattleTypeFlags & BATTLE_TYPE_LINK) || gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER)
     {
         CalculatePlayerPartyCount();
@@ -5510,6 +5511,7 @@ static void ReturnFromBattleToOverworld(void)
             SetRoamerInactive(gEncounteredRoamerIndex);
     }
 
+    DebugPrintf("ReturnFromBattleToOverworld SetMainCallback2(gMain.savedCallback)");
     m4aSongNumStop(SE_LOW_HEALTH);
     SetMainCallback2(gMain.savedCallback);
 }

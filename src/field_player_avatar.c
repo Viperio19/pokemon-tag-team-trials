@@ -714,7 +714,10 @@ static bool8 ForcedMovement_MuddySlope(void)
     {
         Bike_UpdateBikeCounterSpeed(0);
         playerObjEvent->facingDirectionLocked = TRUE;
-        return DoForcedMovement(DIR_SOUTH, PlayerWalkFast);
+        EnqueuePlayer2CommandToSend(P2_CMD_CONTROL_PLAYER_DIRECTION_LOCKED, 1, 0, 0);
+        bool8 result = DoForcedMovement(DIR_SOUTH, PlayerWalkFast);
+        EnqueuePlayer2CommandToSend(P2_CMD_CONTROL_PLAYER_DIRECTION_LOCKED, 0, 0, 0);
+        return result;
     }
     else
     {
@@ -2020,9 +2023,6 @@ static bool8 PushBoulder_End(struct Task *task, struct ObjectEvent *player, stru
 
 void UpdateStrengthBoulderPositions(void)
 {
-    if (IS_MULTIPLAYER)
-        return;
-
     struct BoulderPos *pos;
     if (FlagGet(FLAG_DOING_PLAYER_SWITCH))
     {

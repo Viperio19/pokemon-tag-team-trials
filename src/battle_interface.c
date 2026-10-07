@@ -2948,8 +2948,8 @@ void TryAddLastUsedBallItemSprites(void)
             gBallToDisplay = firstBall;
     }
 
-    if (!CanThrowLastUsedBall())
-        return;
+    // if (!CanThrowLastUsedBall())
+    //     return;
 
     // ball
     if (gBattleStruct->ballSpriteIds[0] == MAX_SPRITES)

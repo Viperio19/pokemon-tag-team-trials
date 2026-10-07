@@ -600,7 +600,6 @@ Player2_EventScript_StartSaveAndDisconnect::
 	setvar VAR_ACTION_ON_FRAME, 1
 	message Player2_Text_ClosingConnection
 	waitmessage
-	closemessage
 	callnative SetWarpCurrentPosition
 	special ReturnFromLinkRoom
 	end
@@ -611,9 +610,6 @@ Player2_EventScript_CancelSaveAndDisconnect::
 	end
 
 Player2_Text_AskSave::
-	.string "Saving will terminate the connection.\p"
-	.string "Both players need to select SAVE\n"
-	.string "in order to save and disconnect.\p"
 	.string "Would you like to save the game?$"
 
 Player2_Text_WaitingForOtherPlayerSave::
@@ -621,11 +617,12 @@ Player2_Text_WaitingForOtherPlayerSave::
 	.string "… … B Button: Cancel.$"
 
 Player2_Text_ClosingConnection::
-	.string "Closing connection…{PAUSE 40}$"
+	.string "Closing connection…$"
 
 Player2_EventScript_Save::
 	setvar VAR_ACTION_ON_FRAME, 0
 	forcesave
+	goto Player2_EventScript_Reconnect
 	end
 
 EventScript_Player2_PleaseDontLeave::
@@ -767,13 +764,13 @@ Player2_EventScript_Lost::
 	end
 
 Player2_Text_ClosingOverworldLink::
-	.string "Closing overworld link…{PAUSE 20}$"
+	.string "Closing overworld link…$"
 
 Player2_Text_ReconnectingForBattle::
 	.string "Reconnecting for battle…$"
 
 Player2_Text_ReconnectingForOverworld::
-	.string "Waiting for the other player…$"
+	.string "Reconnecting for overworld…$"
 
 Player2_Text_InitiatingLinkBattle:
 	.string "Initiating link battle.$"
