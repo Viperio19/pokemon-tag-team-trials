@@ -1525,13 +1525,10 @@ static u16 RenderText(struct TextPrinter *textPrinter)
                 textPrinter->japanese = FALSE;
                 return RENDER_REPEAT;
             case EXT_CTRL_CODE_SPEAKER:
-                {
-                    enum SpeakerNames name = *textPrinter->printerTemplate.currentChar++;
-                    u8 colorId = *textPrinter->printerTemplate.currentChar++;
-                    TrySpawnAndShowNamebox(gSpeakerNamesTable[name], colorId, gNameboxTileNum);
-
-                    return RENDER_REPEAT;
-                }
+                enum SpeakerNames name = *textPrinter->printerTemplate.currentChar++;
+                u8 colorId = *textPrinter->printerTemplate.currentChar++;
+                TrySpawnAndShowNamebox(gSpeakerNamesTable[name], colorId, gNameboxTileNum);
+                return RENDER_REPEAT;
             }
             break;
         case CHAR_PROMPT_CLEAR:

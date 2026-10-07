@@ -102,6 +102,7 @@ void PrepareNamebox(u32 tileNum)
     }
 
     union TextColor savedTextColors = SaveTextColors();
+    LoadNameboxPalette();
     AddTextPrinterParameterized3(sNameboxWindowId, fontId, strX, 0, colors, TEXT_SKIP_DRAW, strbuf);
     RestoreTextColors(savedTextColors);
     Free(strbuf);
@@ -141,20 +142,14 @@ u32 GetNameboxWidth(void)
 
 static const u32 *GetNameboxGraphics(void)
 {
-    switch (sNameboxColorId)
-    {
-        case SP_COLOR_MAGMA:
-            return sNameBoxMagmaGfx;
-        case SP_COLOR_AQUA:
-            return sNameBoxAquaGfx;
-        case SP_COLOR_NORMAL:
-        default:
-            u16 color = sNameBoxColors[sNameboxColorId];
-            LoadPalette(&color, BG_PLTT_ID(DLG_WINDOW_PALETTE_NUM) + 10, sizeof(color));
-            return sNameBoxDefaultGfx;
-    }
-
+   LoadNameboxPalette();
     return sNameBoxDefaultGfx;
+}
+
+void LoadNameboxPalette(void)
+{
+    u16 color = sNameBoxColors[sNameboxColorId];
+    LoadPalette(&color, BG_PLTT_ID(DLG_WINDOW_PALETTE_NUM) + 10, sizeof(color));
 }
 
 void FillNamebox(void)
@@ -245,6 +240,7 @@ bool32 IsSpeakerBuffered(const u8 *str)
      && str[2] >= SP_NAME_NONE)
     {
         gSpeakerName = gSpeakerNamesTable[str[2]];
+        sNameboxColorId = str[3];
     }
 
     u32 res = FALSE;
