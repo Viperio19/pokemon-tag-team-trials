@@ -14,6 +14,7 @@ void PrepareNamebox(u32 tileNum);
 u32 GetNameboxWindowId(void);
 void ResetNameboxData(void);
 void DestroyNamebox(void);
+void LoadNameboxPalette(void);
 void FillNamebox(void);
 void DrawNamebox(u32 windowId, u32 tileNum, bool32 copyToVram);
 void ClearNamebox(u32 windowId, bool32 copyToVram);
