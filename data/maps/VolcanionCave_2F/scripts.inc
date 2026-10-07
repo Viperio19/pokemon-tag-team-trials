@@ -1132,6 +1132,12 @@ VolcanionCave_2F_EventScript_Corsola::
 	msgbox VolcanionCave_2F_Text_Corsola, MSGBOX_DEFAULT
 	waitmoncry
 	closemessage
+	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
+	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_2F_EventScript_BattleCorsola
+	delay 10
+	forcesave
+	closemessage
+VolcanionCave_2F_EventScript_BattleCorsola::
 	setwildbattle SPECIES_CORSOLA, 20
 	dowildbattle
 	specialvar VAR_RESULT, GetBattleOutcome

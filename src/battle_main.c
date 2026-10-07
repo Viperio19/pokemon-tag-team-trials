@@ -2808,6 +2808,7 @@ static void BattleStartClearSetData(void)
 
     gHasFetchedBall = FALSE;
     gLastUsedBall = IS_PLAYER_ONE ? ITEM_GREAT_BALL : ITEM_POKE_BALL;
+    gLastThrownBall = IS_PLAYER_ONE ? ITEM_GREAT_BALL : ITEM_POKE_BALL;
 
     gBattlerAttacker = 0;
     gBattlerTarget = 0;
@@ -5418,7 +5419,7 @@ static void FreeResetData_ReturnToOvOrDoEvolutions(void)
         }
     }
 
-    FreeAllWindowBuffers();
+    // FreeAllWindowBuffers();
     if (!(gBattleTypeFlags & BATTLE_TYPE_LINK) || gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER)
     {
         // To account for Battle Factory and Slateport Battle Tent, enemy parties are zeroed out in the facilitites respective src/xxx.c files
@@ -5429,8 +5430,8 @@ static void FreeResetData_ReturnToOvOrDoEvolutions(void)
         }
         ResetDynamicAiFunctions();
         FreeMonSpritesGfx();
-        FreeBattleResources();
-        FreeBattleSpritesData();
+        // FreeBattleResources();
+        // FreeBattleSpritesData();
     }
 }
 
