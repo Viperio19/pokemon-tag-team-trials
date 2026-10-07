@@ -376,7 +376,7 @@ VolcanionCave_2F_Text_AquaGruntFAquaPlayer::
 	.string "the ledge in the last room!\p"
 	.string "I'm so happy!! I can't believe I got\n"
 	.string "to meet the legend himself!!\p"
-	.string "He even signed one of my repels!!\l"
+	.string "He even signed one of my repels!!\n"
 	.string "This is the best day EVER!!!!\p"
 	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}You do realize that you got stuck on\n"
 	.string "another ledge mid-fangirling, right?\p"
@@ -393,7 +393,7 @@ VolcanionCave_2F_Text_AquaGruntFAquaPlayer::
 	.string "I wouldn't want SHELLY to take it\n"
 	.string "from me when she finds out I've been \l"
 	.string "intentionally getting myself stuck\l"
-	.string "so I can talk to AGENT DIGGS.\n"
+	.string "so I can talk to AGENT DIGGS.$"
 
 VolcanionCave_2F_Text_AquaGruntFSprayingRepels::
 	.string "{SPEAKER NAME_AQUA COLOR_AQUA}Thanks, partner!\n"
@@ -1132,12 +1132,6 @@ VolcanionCave_2F_EventScript_Corsola::
 	msgbox VolcanionCave_2F_Text_Corsola, MSGBOX_DEFAULT
 	waitmoncry
 	closemessage
-	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
-	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_2F_EventScript_BattleCorsola
-	delay 10
-	forcesave
-	closemessage
-VolcanionCave_2F_EventScript_BattleCorsola::
 	setwildbattle SPECIES_CORSOLA, 20
 	dowildbattle
 	specialvar VAR_RESULT, GetBattleOutcome

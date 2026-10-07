@@ -457,15 +457,7 @@ static bool32 Fishing_StartEncounter(struct Task *task)
     if (task->tFrameCounter != 0)
     {
         DestroyTask(FindTaskIdByFunc(Task_Fishing));
-        if (IsTagTeamTrialsLinkActive())
-        {
-            FishingWildEncounter(0);
-        }
-        else
-        {
-            gFishAfterSave = TRUE;
-            ForceSaveGame();
-        }
+        FishingWildEncounter(0);
     }
     return FALSE;
 }
