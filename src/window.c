@@ -284,6 +284,7 @@ void RemoveAllWindowsOnBg(u32 bgId)
 
 void FreeAllWindowBuffers(void)
 {
+    DebugPrintf("FreeAllWindowBuffers");
     int i;
 
     for (i = 0; i < NUM_BACKGROUNDS; ++i)

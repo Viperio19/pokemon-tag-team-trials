@@ -2934,6 +2934,10 @@ void TryAddLastUsedBallItemSprites(void)
 {
     if (B_LAST_USED_BALL == FALSE)
         return;
+
+    gLastThrownBall = IS_PLAYER_ONE ? ITEM_GREAT_BALL : ITEM_POKE_BALL;
+    gBallToDisplay = gLastThrownBall;
+
     if (gLastThrownBall == 0
       || (gLastThrownBall != 0 && !CheckBagHasItem(gLastThrownBall, 1)))
     {

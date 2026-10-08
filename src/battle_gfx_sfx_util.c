@@ -130,6 +130,7 @@ void AllocateBattleSpritesData(void)
 
 void FreeBattleSpritesData(void)
 {
+    DebugPrintf("FreeBattleSpritesData");
     if (gBattleSpritesDataPtr == NULL)
         return;
 
@@ -1394,6 +1395,7 @@ void AllocateMonSpritesGfx(void)
 
 void FreeMonSpritesGfx(void)
 {
+    DebugPrintf("FreeMonSpritesGfx");
     if (gMonSpritesGfxPtr == NULL)
         return;
 

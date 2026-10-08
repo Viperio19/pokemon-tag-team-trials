@@ -22,6 +22,7 @@ void AllocateBattleGfxResources(void)
 
 static void FreeBattleGfxResources(void)
 {
+    DebugPrintf("FreeBattleGfxResources");
     FREE_AND_SET_NULL(gBattleAnimBgTileBuffer);
     FREE_AND_SET_NULL(gBattleAnimBgTilemapBuffer);
 }
@@ -70,6 +71,7 @@ void AllocateBattleResources(void)
 
 void FreeBattleResources(void)
 {
+    DebugPrintf("FreeBattleResources");
     if (gBattleTypeFlags & BATTLE_TYPE_TRAINER_TOWER && gMapHeader.regionMapSectionId == MAPSEC_TRAINER_TOWER_2)
         FreeTrainerTowerBattleStruct();
     else if (gBattleTypeFlags & BATTLE_TYPE_TRAINER_HILL)
