@@ -94,6 +94,9 @@ static void FillPalBufferBlack(void)
 
 void WarpFadeInScreen(void)
 {
+    if (FlagGet(FLAG_DONT_FADE_IN_MAP))
+        return;
+
     enum MapType previousMapType = GetLastUsedWarpMapType();
     switch (GetMapPairFadeFromType(previousMapType, GetCurrentMapType()))
     {
@@ -299,11 +302,15 @@ static void SetUpWarpExitTask(void)
 
 void FieldCB_DefaultWarpExit(void)
 {
-    Overworld_PlaySpecialMapMusic();
+    if (!FlagGet(FLAG_DONT_FADE_IN_MAP))
+    {
+        Overworld_PlaySpecialMapMusic();
+        WarpFadeInScreen();
+    }
     FlagClear(FLAG_DOING_PLAYER_SWITCH);
     FlagClear(FLAG_RESET_ROOM);
     FlagClear(FLAG_HIDE_SURF_BLOBS);
-    WarpFadeInScreen();
+    FlagClear(FLAG_DONT_FADE_IN_MAP);
     SetUpWarpExitTask();
     FollowerNPC_WarpSetEnd();
     LockPlayerFieldControls();
@@ -677,7 +684,9 @@ void DoCableClubWarp(void)
     gPlayerFacingDirection = gObjectEvents[gPlayerAvatar.objectEventId].facingDirection;
     LockPlayerFieldControls();
     TryFadeOutOldMapMusic();
-    WarpFadeOutScreen();
+    if (!FlagGet(FLAG_DONT_FADE_OUT_MAP))
+        WarpFadeOutScreen();
+    FlagClear(FLAG_DONT_FADE_OUT_MAP);
     PlaySE(SE_EXIT);
     CreateTask(Task_DoCableClubWarp, 10);
 }
@@ -886,7 +895,7 @@ void DoContestHallWarp(void)
     CreateTask(Task_DoContestHallWarp, 10);
 }
 
-static void SetFlashScanlineEffectWindowBoundary(u16 *dest, u32 y, s32 left, s32 right)
+void SetFlashScanlineEffectWindowBoundary(u16 *dest, u32 y, s32 left, s32 right)
 {
     if (y <= 160)
     {

@@ -393,13 +393,38 @@ Player2Aqua_Text_Cancel::
 Player2Magma_Text_Cancel::
 	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}Alright, let's go.$"
 
-Player2_EventScript_Reconnect::
-	setvar VAR_ACTION_ON_FRAME, 0
+Player2_EventScript_DoLinkBossBattle::
 	closemessage
 	delay 10
+	setvar VAR_ACTION_ON_FRAME, 2
+	setflag FLAG_DONT_FADE_IN_MAP
+	setflag FLAG_CONTINUE_SCRIPT_AFTER_BATTLE
+	special ColosseumPlayerSpotTriggered
+	end
+
+Player2_EventScript_HandlePostBattleScript::
+	tower_closelink
+	setflag FLAG_DONT_FADE_OUT_MAP
+	clearflag FLAG_DONT_FADE_IN_MAP
+	clearflag FLAG_CONTINUE_SCRIPT_AFTER_BATTLE
+	specialvar VAR_RESULT, GetBattleOutcome
+	goto_if_ne VAR_RESULT, B_OUTCOME_WON, Player2_EventScript_BattleLost
+	goto_if_unset FLAG_DEFEATED_VOLCANION_CAVE_1F_GOLEM, Player2_EventScript_DefeatedGolem
+	return
+
+Player2_EventScript_BattleLost::
+	return
+
+Player2_EventScript_DefeatedGolem::
+	setvar VAR_VOLCANION_CAVE_1F_STATE, 3
+	return
+
+Player2_EventScript_Reconnect::
+	closemessage
+	delay 10
+	setvar VAR_ACTION_ON_FRAME, 0
 	setflag FLAG_DO_QUICK_CONNECTION
-	message Player2_Text_ReconnectingForOverworld
-	waitmessage
+	call_if_set FLAG_CONTINUE_SCRIPT_AFTER_BATTLE, Player2_EventScript_HandlePostBattleScript
 	goto EventScript_Player2_TryTradeLinkup
 
 EventScript_Player2_Connect::
@@ -430,7 +455,6 @@ Player2_LinkSuccess::
 	call_if_eq VAR_VOLCANION_CAVE_1F_STATE, 0, Player2_Set1FStateMultiplayerIntro
 	call_if_eq VAR_VOLCANION_CAVE_2F_STATE, 1, Player2_Set2FStateMultiplayerIntro
 	callnative StoreLinkPlayerName
-	setvar VAR_0x8004, USING_TRADE_CENTER
 	copyvar VAR_CABLE_CLUB_STATE, VAR_0x8004
 	callnative SetWarpCurrentPosition
 	setflag FlAG_SHOW_PLAYER_2
@@ -604,9 +628,8 @@ Player2_EventScript_StartSaveAndDisconnect::
 	clearflag FLAG_PLAYER_2_IS_SAVING
 	clearflag FlAG_SHOW_PLAYER_2
 	setvar VAR_ACTION_ON_FRAME, 1
-	message Player2_Text_ClosingConnection
-	waitmessage
 	callnative SetWarpCurrentPosition
+	setflag FLAG_DONT_FADE_IN_MAP
 	special ReturnFromLinkRoom
 	end
 
@@ -622,12 +645,10 @@ Player2_Text_WaitingForOtherPlayerSave::
 	.string "Waiting for the other player to save…\n"
 	.string "… … B Button: Cancel.$"
 
-Player2_Text_ClosingConnection::
-	.string "Closing connection…$"
-
 Player2_EventScript_Save::
 	setvar VAR_ACTION_ON_FRAME, 0
 	forcesave
+	setflag FLAG_DONT_FADE_OUT_MAP
 	goto Player2_EventScript_Reconnect
 	end
 
@@ -692,7 +713,7 @@ Player2_EventScript_WaitForWarp::
 	end
 
 Player2_EventScript_WarpCurrentPosition::
-	setvar VAR_ACTION_ON_FRAME, 3
+	setvar VAR_ACTION_ON_FRAME, 2
 	callnative UpdatePlayer2Pos
 	callnative SetWarpCurrentPosition
 	special ReturnFromLinkRoom
@@ -702,123 +723,3 @@ Player2_EventScript_Warp2F::
 	setwarp MAP_VOLCANION_CAVE_2F, 22, 76
 	special CloseLinkAndWarp
 	end
-
-Player2_EventScript_DoLinkBossBattle::
-	closemessage
-	delay 10
-	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
-	goto_if_eq VAR_RESULT, FALSE, Player2_EventScript_ConnectForMultiplayerBattle
-	message gText_PleaseWaitForLink
-	waitmessage
-	enqueueplayer2command P2_CMD_CONTROL_FLAG, FLAG_PLAYER_2_READY_FOR_LINK_BATTLE, 1
-Player2_Multiplayer_WaitOtherPlayerBattle::
-	delay 1
-	goto_if_unset FLAG_PLAYER_2_READY_FOR_LINK_BATTLE, Player2_Multiplayer_WaitOtherPlayerBattle
-	clearflag FLAG_PLAYER_2_READY_FOR_LINK_BATTLE
-	setvar VAR_ACTION_ON_FRAME, 2
-	message Player2_Text_ClosingOverworldLink
-	waitmessage
-	callnative UpdatePlayer2Pos
-	callnative SetWarpCurrentPosition
-	special ReturnFromLinkRoom
-	end
-
-Player2_EventScript_ConnectForMultiplayerBattle::
-	setvar VAR_ACTION_ON_FRAME, 0
-	specialvar VAR_RESULT, IsWirelessAdapterConnected
-	goto_if_eq VAR_RESULT, TRUE, Player2_EventScript_TryWirelessLink
-	goto Player2_EventScript_TryCableLink
-
-Player2_EventScript_FastConnectForMultiplayerBattle::
-	message Player2_Text_ReconnectingForBattle
-	waitmessage
-	setflag FLAG_DO_QUICK_CONNECTION
-	setvar VAR_ACTION_ON_FRAME, 0
-	specialvar VAR_RESULT, IsWirelessAdapterConnected
-	goto_if_eq VAR_RESULT, TRUE, Player2_EventScript_TryWirelessLink
-	goto Player2_EventScript_TryBattleLinkup
-
-Player2_EventScript_TryCableLink::
-	message gText_PleaseWaitForLink
-	waitmessage
-Player2_EventScript_TryBattleLinkup::
-	setvar VAR_0x8004, USING_LINK_MULTI
-	setvar VAR_0x8005, 0
-	special TryBattleLinkup
-	goto_if_eq VAR_RESULT, LINKUP_SUCCESS, Player2_EventScript_DoLinkMultiBattle
-	goto_if_eq VAR_RESULT, LINKUP_SOMEONE_NOT_READY, Player2_EventScript_CableLinkFailed
-	goto_if_eq VAR_RESULT, LINKUP_DIFF_SELECTIONS, Player2_EventScript_CableLinkFailed
-	goto_if_eq VAR_RESULT, LINKUP_WRONG_NUM_PLAYERS, Player2_EventScript_CableLinkFailed
-	goto_if_eq VAR_RESULT, LINKUP_FAILED, Player2_EventScript_CableLinkFailed
-	goto_if_eq VAR_RESULT, LINKUP_CONNECTION_ERROR, Player2_EventScript_CableLinkFailed
-	goto_if_eq VAR_RESULT, LINKUP_FAILED_BATTLE_TOWER, Player2_EventScript_CableLinkFailed
-	end
-
-Player2_EventScript_CableLinkFailed::
-	clearflag FLAG_DO_QUICK_CONNECTION
-	special CloseLink
-	message Player2_Text_LinkConnectionFailed
-	waitmessage
-	delay 60
-	special LoadPlayerParty
-	releaseall
-	end
-
-Player2_EventScript_TryWirelessLink::
-	setvar VAR_0x8004, LINK_GROUP_BATTLE_TOWER
-	goto Player2_EventScript_ChooseLeader
-	end
-
-Player2_EventScript_ChooseLeader::
-	message CableClub_Text_ChooseGroupLeaderOfTwo
-	waitmessage
-	multichoice 16, 6, MULTI_LINK_LEADER, FALSE
-	switch VAR_RESULT
-	case 0, Player2_EventScript_TryJoinGroup
-	case 1, Player2_EventScript_TryBecomeLeader
-	case 2, Player2_EventScript_CableLinkFailed
-	case MULTI_B_PRESSED, Player2_EventScript_CableLinkFailed
-	end
-
-Player2_EventScript_TryBecomeLeader::
-	call CableClub_EventScript_TryBecomeLinkLeader
-	goto_if_eq VAR_RESULT, LINKUP_SUCCESS, Player2_EventScript_DoLinkMultiBattle
-	goto_if_eq VAR_RESULT, LINKUP_FAILED, Player2_EventScript_ChooseLeader
-	goto_if_eq VAR_RESULT, LINKUP_RETRY_ROLE_ASSIGN, Player2_EventScript_TryBecomeLeader
-	goto_if_eq VAR_RESULT, LINKUP_FAILED_BATTLE_TOWER, Player2_EventScript_CableLinkFailed
-	release
-	return
-
-Player2_EventScript_TryJoinGroup::
-	call CableClub_EventScript_TryJoinLinkGroup
-	goto_if_eq VAR_RESULT, LINKUP_SUCCESS, Player2_EventScript_DoLinkMultiBattle
-	goto_if_eq VAR_RESULT, LINKUP_FAILED, Player2_EventScript_ChooseLeader
-	goto_if_eq VAR_RESULT, LINKUP_RETRY_ROLE_ASSIGN, Player2_EventScript_TryJoinGroup
-	goto_if_eq VAR_RESULT, LINKUP_FAILED_BATTLE_TOWER, Player2_EventScript_CableLinkFailed
-	release
-	return
-
-Player2_EventScript_DoLinkMultiBattle::
-	clearflag FLAG_DO_QUICK_CONNECTION
-	special DoLinkMultiBattle
-	waitstate
-	tower_closelink
-	specialvar VAR_RESULT, GetBattleOutcome
-	goto_if_ne VAR_RESULT, B_OUTCOME_WON, Player2_EventScript_Reconnect
-	goto_if_unset FLAG_DEFEATED_VOLCANION_CAVE_1F_GOLEM, VolcanionCave_1F_EventScript_DefeatedGolemMultiplayer
-	end
-
-Player2_Text_ClosingOverworldLink::
-	.string "Closing overworld link…$"
-
-Player2_Text_ReconnectingForBattle::
-	.string "Reconnecting for battle…$"
-
-Player2_Text_ReconnectingForOverworld::
-	.string "Reconnecting for overworld…$"
-
-Player2_Text_InitiatingLinkBattle:
-	.string "Initiating link battle.$"
-
-Player2_Text_LinkConnectionFailed:
-	.string "Link failed.$"

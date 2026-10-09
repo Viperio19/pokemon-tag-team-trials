@@ -177,6 +177,7 @@ void CB2_LoadMap(void);
 void CB2_ReturnToFieldContestHall(void);
 void CB2_ReturnToFieldCableClub(void);
 void CB2_ReturnToField(void);
+void CB2_ReturnToFieldLink(void);
 void CB2_ReturnToFieldFromMultiplayer(void);
 void CB2_ReturnToFieldWithOpenMenu(void);
 void CB2_ReturnToFieldContinueScript(void);

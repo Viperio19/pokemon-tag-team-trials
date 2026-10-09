@@ -41,6 +41,7 @@ void DoSpinExitWarp(void);
 void DoOrbEffect(void);
 void FadeOutOrbEffect(void);
 void WriteFlashScanlineEffectBuffer(u8 flashLevel);
+void SetFlashScanlineEffectWindowBoundary(u16 *dest, u32 y, s32 left, s32 right);
 bool8 IsPlayerStandingStill(void);
 void DoStairWarp(u16 metatileBehavior, u16 delay);
 bool32 IsDirectionalStairWarpMetatileBehavior(u16 metatileBehavior, enum Direction playerDirection);

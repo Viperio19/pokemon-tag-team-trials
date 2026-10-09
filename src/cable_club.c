@@ -860,13 +860,14 @@ static void Task_StartWiredCableClubBattle(u8 taskId)
     switch (task->tState)
     {
     case 0:
-        FadeScreen(FADE_TO_BLACK, 0);
+        PlayMapChosenOrBattleBGM(0);
+        BattleTransition_StartOnField(GetWildBattleTransition());
         gLinkType = LINKTYPE_BATTLE;
         ClearLinkCallback_2();
         task->tState++;
         break;
     case 1:
-        if (!gPaletteFade.active)
+        if (IsBattleTransitionDone() == TRUE)
             task->tState++;
         break;
     case 2:
@@ -883,14 +884,12 @@ static void Task_StartWiredCableClubBattle(u8 taskId)
             task->tState++;
         break;
     case 5:
-        if (gLinkPlayers[0].trainerId & 1)
-            PlayMapChosenOrBattleBGM(MUS_VS_GYM_LEADER);
-        else
-            PlayMapChosenOrBattleBGM(MUS_VS_TRAINER);
+        gBattleTypeFlags = BATTLE_TYPE_WILD_BOSS | BATTLE_TYPE_DOUBLE | BATTLE_TYPE_LINK | BATTLE_TYPE_MULTI | BATTLE_TYPE_TOWER_LINK_MULTI | BATTLE_TYPE_MULTIPLAYER;
 
-        SetLinkBattleTypeFlags(gSpecialVar_0x8004);
+        TRAINER_BATTLE_PARAM.opponentA = TRAINER_MAY_LILYCOVE_TORCHIC;
+        TRAINER_BATTLE_PARAM.opponentB = 0xFFFF;
+
         CleanupOverworldWindowsAndTilemaps();
-        TRAINER_BATTLE_PARAM.opponentA = TRAINER_LINK_OPPONENT;
         SetMainCallback2(CB2_InitBattle);
         gMain.savedCallback = CB2_ReturnFromCableClubBattle;
         DestroyTask(taskId);
@@ -1000,11 +999,11 @@ static void CB2_ReturnFromUnionRoomBattle(void)
     case 1:
         if (!gReceivedRemoteLinkPlayers)
         {
-            SetMainCallback2(CB2_ReturnToField);
+            SetMainCallback2(CB2_ReturnToFieldLink);
         }
         break;
     case 2:
-        SetMainCallback2(CB2_ReturnToField);
+        SetMainCallback2(CB2_ReturnToFieldLink);
         break;
     }
     RunTasks();
@@ -1035,12 +1034,7 @@ void CB2_ReturnFromCableClubBattle(void)
         }
     }
 
-    if (InUnionRoom() == TRUE)
-        gMain.savedCallback = CB2_ReturnFromUnionRoomBattle;
-    else
-        gMain.savedCallback = CB2_ReturnToFieldFromMultiplayer;
-
-    SetMainCallback2(CB2_SetUpSaveAfterLinkBattle);
+    SetMainCallback2(CB2_ReturnFromUnionRoomBattle);
 }
 
 void CleanupLinkRoomState(void)

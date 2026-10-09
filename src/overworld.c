@@ -118,7 +118,6 @@ extern const struct MapHeader *const *const gMapGroups[];
 
 static void Overworld_ResetStateAfterWhiteOut(void);
 static void CB2_ReturnToFieldLocal(void);
-static void CB2_ReturnToFieldLink(void);
 static void CB2_LoadMapOnReturnToFieldCableClub(void);
 static void CB2_LoadMap2(void);
 static void VBlankCB_Field(void);
@@ -2064,7 +2063,7 @@ static void CB2_ReturnToFieldLocal(void)
     }
 }
 
-static void CB2_ReturnToFieldLink(void)
+void CB2_ReturnToFieldLink(void)
 {
     StartSendingKeysToLink();
     SetMainCallback3(CB1_OverworldLink);
@@ -2222,7 +2221,12 @@ static void InitCurrentFlashLevelScanlineEffect(void)
 {
     u8 flashLevel;
 
-    if (InBattlePyramid())
+    if (FlagGet(FLAG_DONT_FADE_IN_MAP))
+    {
+        SetFlashScanlineEffectWindowBoundary(&gScanlineEffectRegBuffers[0][0], DISPLAY_HEIGHT, 0, DISPLAY_WIDTH);
+        ScanlineEffect_SetParams(sFlashEffectParams);
+    }
+    else if (InBattlePyramid())
     {
         WriteBattlePyramidViewScanlineEffectBuffer();
         ScanlineEffect_SetParams(sFlashEffectParams);
@@ -3220,6 +3224,28 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
     u16 arg2 = gReceivedP2CommandArg2s[linkPartnerId];
     u16 arg3 = gReceivedP2CommandArg3s[linkPartnerId];
     s16 x, y;
+
+    for (u8 i = 0; i < MAX_LINK_PLAYERS; i++)
+    {
+        u8 key = keys[i];
+
+        switch (key)
+        {
+        case LINK_KEY_CODE_EXIT_ROOM:
+            sPlayerLinkStates[i] = PLAYER_LINK_STATE_EXITING_ROOM;
+            break;
+        case LINK_KEY_CODE_READY:
+            sPlayerLinkStates[i] = PLAYER_LINK_STATE_READY;
+            break;
+        case LINK_KEY_CODE_IDLE:
+            sPlayerLinkStates[i] = PLAYER_LINK_STATE_IDLE;
+            break;
+        case LINK_KEY_CODE_EXIT_SEAT:
+            if (sPlayerLinkStates[i] == PLAYER_LINK_STATE_READY)
+                sPlayerLinkStates[i] = PLAYER_LINK_STATE_BUSY;
+            break;
+        }
+    }
 
     if (!gHasReceivedPlayer2Input)
     {

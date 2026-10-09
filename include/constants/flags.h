@@ -124,10 +124,10 @@
 #define FLAG_PLAYER_ONE_CONTROLS_TEXT              0x28B
 #define FLAG_PLAYER_ONE_PRESSED_BUTTON             0x28C
 #define FLAG_RESET_ROOM                            0x28D
+#define FLAG_DONT_FADE_IN_MAP                      0x28E
+#define FLAG_DONT_FADE_OUT_MAP                     0x28F
+#define FLAG_CONTINUE_SCRIPT_AFTER_BATTLE          0x290
 
-#define FLAG_UNUSED_0x28E  0x28E // Unused Flag
-#define FLAG_UNUSED_0x28F  0x28F // Unused Flag
-#define FLAG_UNUSED_0x290  0x290 // Unused Flag
 #define FLAG_UNUSED_0x291  0x291 // Unused Flag
 #define FLAG_UNUSED_0x292  0x292 // Unused Flag
 #define FLAG_UNUSED_0x293  0x293 // Unused Flag
