@@ -924,7 +924,7 @@ static void CB_WaitToStartTrade(void)
 
 static void CB_StartLinkTrade(void)
 {
-    gMain.savedCallback = CB2_StartCreateTradeMenu;
+    gMain.savedCallback = CB2_ReturnToFieldLink;
 
     if (gWirelessCommType)
     {
@@ -1752,7 +1752,7 @@ static void CB_ExitCanceledTrade(void)
             Free(sTradeMenu);
             FreeAllWindowBuffers();
             DestroyWirelessStatusIndicatorSprite();
-            SetMainCallback2(CB2_ReturnToFieldFromMultiplayer);
+            SetMainCallback2(CB2_ReturnToFieldLink);
         }
     }
     else
@@ -1762,7 +1762,7 @@ static void CB_ExitCanceledTrade(void)
             Free(sMenuTextTileBuffer);
             Free(sTradeMenu);
             FreeAllWindowBuffers();
-            SetMainCallback2(CB2_ReturnToFieldFromMultiplayer);
+            SetMainCallback2(CB2_ReturnToFieldLink);
         }
     }
 }
@@ -3607,7 +3607,7 @@ static bool8 DoTradeAnim_Cable(void)
         break;
     case STATE_FADE_OUT_TO_GBA_SEND:
         BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 16, RGB_BLACK);
-        sTradeAnim->state = STATE_WAIT_FADE_OUT_TO_GBA_SEND;
+        sTradeAnim->state = STATE_WAIT_FADE_OUT_TO_NEW_MON;
         break;
     case STATE_WAIT_FADE_OUT_TO_GBA_SEND:
         if (!gPaletteFade.active)
@@ -4081,7 +4081,7 @@ static bool8 DoTradeAnim_Wireless(void)
         break;
     case STATE_FADE_OUT_TO_GBA_SEND:
         BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 16, RGB_BLACK);
-        sTradeAnim->state = STATE_WAIT_FADE_OUT_TO_GBA_SEND;
+        sTradeAnim->state = STATE_WAIT_FADE_OUT_TO_NEW_MON;
         break;
     case STATE_WAIT_FADE_OUT_TO_GBA_SEND:
         if (!gPaletteFade.active)
@@ -4810,6 +4810,8 @@ static void CB2_SaveAndEndTrade(void)
     {
     case 0:
         gMain.state++;
+        VarSet(VAR_ACTION_ON_FRAME, 0);
+        FlagClear(FLAG_DONT_FADE_IN_MAP);
         StringExpandPlaceholders(gStringVar4, gText_CommunicationStandby5);
         DrawTextOnTradeWindow(0, gStringVar4, 0);
         break;
@@ -4842,7 +4844,7 @@ static void CB2_SaveAndEndTrade(void)
         if (gWirelessCommType)
             MysteryGift_TryIncrementStat(CARD_STAT_NUM_TRADES, gLinkPlayers[GetMultiplayerId() ^ 1].trainerId);
 
-        SetContinueGameWarpStatusToDynamicWarp();
+        // SetContinueGameWarpStatusToDynamicWarp();
         LinkFullSave_Init();
         gMain.state++;
         sTradeAnim->timer = 0;
@@ -4854,7 +4856,7 @@ static void CB2_SaveAndEndTrade(void)
     case 52:
         if (LinkFullSave_WriteSector())
         {
-            ClearContinueGameWarpStatus2();
+            // ClearContinueGameWarpStatus2();
             gMain.state = 4;
         }
         else
@@ -4965,6 +4967,8 @@ static void CB2_FreeTradeAnim(void)
         FREE_AND_SET_NULL(sTradeAnim);
         if (gWirelessCommType)
             DestroyWirelessStatusIndicatorSprite();
+        VarSet(VAR_ACTION_ON_FRAME, 2);
+        FlagSet(FLAG_DONT_FADE_IN_MAP);
         SetMainCallback2(gMain.savedCallback);
     }
     RunTasks();

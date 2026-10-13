@@ -2066,6 +2066,7 @@ static void CB2_ReturnToFieldLocal(void)
 void CB2_ReturnToFieldLink(void)
 {
     StartSendingKeysToLink();
+    SetMainCallback1(CB1_Overworld);
     SetMainCallback3(CB1_OverworldLink);
     if (!Overworld_IsRecvQueueAtMax() && ReturnToFieldLink(&gMain.state))
     {
@@ -2472,6 +2473,8 @@ static bool32 ReturnToFieldLocal(u8 *state)
             SetOldRodBob();
         if (FlagGet(FLAG_DROPPED_VOLCANION_CAVE_2F_OLD_ROD) && gSaveBlock1Ptr->location.mapNum == MAP_NUM(MAP_VOLCANION_CAVE_2F))
             SetOldRodBob();
+        if (IS_MULTIPLAYER)
+            RemoveObjectEvent(&gObjectEvents[GetObjectEventIdByLocalId(OBJ_EVENT_ID_PLAYER_2)]);
         (*state)++;
         break;
     case 1:

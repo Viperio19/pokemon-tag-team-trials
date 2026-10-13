@@ -108,6 +108,7 @@ Player2Aqua_Singleplayer_TakeGoodCareOfPokemon::
 	return
 
 Player2_Singleplayer_Talk::
+	setflag FLAG_PLAYER_ONE_CONTROLS_TEXT
 	goto_if_unset FLAG_HIDE_VOLCANION_CAVE_1F_BREAKABLE_ROCK, Player2_Message_Talk
 	goto_if_unset FLAG_DEFEATED_VOLCANION_CAVE_1F_GOLEM, Player2_Message_PreGolem
 	goto_if_eq VAR_VOLCANION_CAVE_2F_STATE, 0, Player2_Message_PreRoom2
@@ -492,8 +493,8 @@ Player2_Multiplayer_WaitResponse::
 	goto_if_eq VAR_VOLCANION_CAVE_2F_STATE, 0, Player2_Multiplayer_MultiChoiceNoTrade
 	multichoicedefault 21, 6, MULTI_PLAYER_2_TRADE, 0, FALSE
 	switch VAR_RESULT
-	case 0, Player2_Multiplayer_Trade
-	case 1, Player2_Multiplayer_Talk
+	case 0, Player2_Multiplayer_Talk
+	case 1, Player2_Multiplayer_Trade
 	case 2, Player2_Multiplayer_Cancel
 	case MULTI_B_PRESSED, Player2_Multiplayer_Cancel
 	release
@@ -524,7 +525,11 @@ Player2_Multiplayer_Talk::
 
 Player2_Multiplayer_Trade::
 	enqueueplayer2command P2_CMD_SET_INTERACTION_VAR, 3
+	closemessage
+	delay 10
 	setvar VAR_0x8005, 0
+	setvar VAR_ACTION_ON_FRAME, 2
+	setflag FLAG_DONT_FADE_IN_MAP
 	special PlayerEnteredTradeSeat
 	end
 
@@ -574,16 +579,8 @@ Player2_Text_WaitingForOtherPlayerChoice::
 
 Player2_Multiplayer_TalkFinish::
 	closemessage
-	delay 10
-	message Player2_Text_WaitingForOtherPlayerToFinish
-	waitmessage
-	delay 10
-	enqueueplayer2command P2_CMD_SET_INTERACTION_VAR, 0
-Player2_Multiplayer_WaitOtherPlayerFinish::
-	delay 1
-	goto_if_ne VAR_P2_INTERACTION_STATE, 0, Player2_Multiplayer_WaitOtherPlayerFinish
-	delay 10
-	closemessage
+	setvar VAR_P2_INTERACTION_STATE, 0
+	clearflag FLAG_PLAYER_ONE_CONTROLS_TEXT
 	release
 	end
 

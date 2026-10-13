@@ -1167,6 +1167,7 @@ static void Task_StartWirelessTrade(u8 taskId)
     case 3:
         if (IsLinkTaskFinished())
         {
+            VarSet(VAR_P2_INTERACTION_STATE, 0);
             CreateTask_CreateTradeMenu();
             DestroyTask(taskId);
         }
