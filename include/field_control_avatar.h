@@ -39,7 +39,7 @@ const u8 *GetCoordEventScriptAtMapPosition(struct MapPosition *position);
 void ClearPoisonStepCounter(void);
 void CancelSignPostMessageBox(struct FieldInput *input);
 void HandleBoulderFallThroughHole(struct ObjectEvent *object);
-void HandleBoulderActivateVictoryRoadSwitch(struct ObjectEvent *boulder, u16 x, u16 y);
+void HandleBoulderActivateVictoryRoadSwitch(u16 graphicsId, u16 x, u16 y);
 bool8 TryStartStepBasedScript(struct MapPosition *, u16, enum Direction);
 
 #define NOT_SIGNPOST 0

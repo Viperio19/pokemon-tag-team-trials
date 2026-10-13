@@ -3310,15 +3310,19 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
             RemoveAnyObjectEventByLocalIdAndMap(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
             break;
         case P2_CMD_MOVE_OBJECT:
-            struct ObjectEvent *boulder = &gObjectEvents[GetObjectEventIdByLocalId(arg1)];
+            struct ObjectEventTemplate *objectEventTemplate = GetObjectEventTemplate(arg1);
             SetObjEventTemplateCoords(arg1, arg2, arg3);
             TryMoveObjectEventToMapCoords(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, arg2, arg3);
-            if (boulder->graphicsId == OBJ_EVENT_GFX_PUSHABLE_BOULDER || boulder->graphicsId == OBJ_EVENT_GFX_SPECIES(PIKACHU))
+            if (objectEventTemplate->graphicsId == OBJ_EVENT_GFX_PUSHABLE_BOULDER || objectEventTemplate->graphicsId == OBJ_EVENT_GFX_SPECIES(PIKACHU))
             {
+                HandleBoulderActivateVictoryRoadSwitch(objectEventTemplate->graphicsId, arg2 + MAP_OFFSET, arg3 + MAP_OFFSET);
                 struct BoulderPos *pos = &gSaveBlock1Ptr->boulderPos[gSaveBlock1Ptr->location.mapNum][arg1];
                 pos->x = arg2;
                 pos->y = arg3;
             }
+            break;
+        case P2_CMD_CLEAR_MOVEMENT:
+            ObjectEventClearHeldMovement(objEvent);
             break;
         case P2_CMD_CONTROL_PLAYER_DIRECTION_LOCKED:
             objEvent->facingDirectionLocked = arg1;
@@ -3384,16 +3388,20 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
         ScriptMovement_StartObjectMovementScript(arg2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, sPlayer2CommandToMovement[command][arg1 - 1]);
         break;
     case P2_CMD_USE_FIELD_MOVE:
-        ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_FIELD_MOVE, gSaveBlock2Ptr->player2Gender));
-        StartSpriteAnim(&gSprites[objEvent->spriteId], ANIM_FIELD_MOVE);
-        ObjectEventSetHeldMovement(objEvent, MOVEMENT_ACTION_START_ANIM_IN_DIRECTION);
+        if (!ObjectEventIsMovementOverridden(objEvent) || ObjectEventClearHeldMovementIfFinished(objEvent))
+        {
+            ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_FIELD_MOVE, gSaveBlock2Ptr->player2Gender));
+            StartSpriteAnim(&gSprites[objEvent->spriteId], ANIM_FIELD_MOVE);
+            ObjectEventSetHeldMovement(objEvent, MOVEMENT_ACTION_START_ANIM_IN_DIRECTION);
+        }
         break;
     case P2_CMD_END_FIELD_MOVE:
         ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
         StartSpriteAnim(&gSprites[objEvent->spriteId], arg1);
         break;
     case P2_CMD_PUSH_BOULDER:
-        StartStrengthAnim(GetObjectEventIdByLocalId(arg1), arg2);
+        if (GetObjectEventIdByLocalId(arg1) != OBJECT_EVENTS_COUNT)
+            StartStrengthAnim(GetObjectEventIdByLocalId(arg1), arg2);
         break;
     case P2_CMD_USE_ROCK_SMASH:
         ScriptMovement_StartObjectMovementScript(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, Common_Movement_RockSmashBreak);

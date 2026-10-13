@@ -1666,14 +1666,14 @@ void HandleBoulderFallThroughHole(struct ObjectEvent * object)
     }
 }
 
-void HandleBoulderActivateVictoryRoadSwitch(struct ObjectEvent *boulder, u16 x, u16 y)
+void HandleBoulderActivateVictoryRoadSwitch(u16 graphicsId, u16 x, u16 y)
 {
     int i;
     const struct CoordEvent * events = gMapHeader.events->coordEvents;
     int n = gMapHeader.events->coordEventCount;
 
     if (MapGridGetMetatileBehaviorAt(x, y) == MB_STRENGTH_BUTTON
-     || (MapGridGetMetatileBehaviorAt(x, y) == MB_PIKACHU_BUTTON && boulder->graphicsId == OBJ_EVENT_GFX_SPECIES(PIKACHU)))
+     || (MapGridGetMetatileBehaviorAt(x, y) == MB_PIKACHU_BUTTON && graphicsId == OBJ_EVENT_GFX_SPECIES(PIKACHU)))
     {
         for (i = 0; i < n; i++)
         {

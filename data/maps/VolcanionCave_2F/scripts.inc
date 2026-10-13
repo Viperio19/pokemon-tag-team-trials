@@ -54,6 +54,7 @@ VolcanionCave_2F_OnWarp:
 VolcanionCave_2F_EventScript_InitObjects::
 	callnative TrySpawnPlayer2
 	setvar VAR_TEMP_1, 1
+	call_if_eq VAR_VOLCANION_CAVE_2F_STATE, 2, VolcanionCave_2F_EventScript_HidePlayers
 	call_if_ne VAR_OLD_ROD_STATE, 2, VolcanionCave_2F_EventScript_RemoveOldRod
 	call_if_eq VAR_OLD_ROD_STATE, 2, VolcanionCave_2F_EventScript_SetOldRodPosition
 	end
@@ -68,12 +69,17 @@ VolcanionCave_2F_EventScript_SetOldRodPosition::
 	callnative SetOldRodBob
 	return
 
+VolcanionCave_2F_EventScript_HidePlayers::
+	hideobjectat LOCALID_PLAYER_2, MAP_VOLCANION_CAVE_2F
+	hideplayer
+	return
+
 VolcanionCave_2F_OnFrame:
 	map_script_2 VAR_ACTION_ON_FRAME, 1, Player2_EventScript_Save
 	map_script_2 VAR_ACTION_ON_FRAME, 2, Player2_EventScript_Reconnect
 	map_script_2 VAR_P2_INTERACTION_STATE, 20, EventScript_Player2_Warp
 	map_script_2 VAR_VOLCANION_CAVE_2F_STATE, 0, VolcanionCave_2F_EventScript_EnterCave
-	map_script_2 VAR_VOLCANION_CAVE_2F_STATE, 2, VolcanionCave_2F_EventScript_Intro
+	map_script_2 VAR_VOLCANION_CAVE_2F_STATE, 2, VolcanionCave_2F_EventScript_EnterCaveMultiplayer
 	map_script_2 VAR_OLD_ROD_STATE, 10, VolcanionCave_2F_EventScript_DropOldRod
 	.2byte 0
 
@@ -119,30 +125,27 @@ VolcanionCave_2F_EventScript_EnterCaveMultiplayer::
 	end
 
 VolcanionCave_2F_EventScript_PlayerAquaEnterMultiplayer::
-	setvar VAR_VOLCANION_CAVE_2F_STATE, 3
-	applymovement LOCALID_PLAYER, VolcanionCave_2F_Movement_PlayerAquaEnterCave
-	waitmovement 0
-	delay 10
-	forcesave
-	closemessage
 	setvar LOCALID_PLAYER_AQUA, LOCALID_PLAYER
 	setvar LOCALID_PLAYER_MAGMA, LOCALID_PLAYER_2
-	setvar VAR_VOLCANION_CAVE_2F_STATE, 1
-	goto Player2_EventScript_Reconnect
+	goto VolcanionCave_2F_EventScript_PlayersEnterMultiplayer
 	end
 
 VolcanionCave_2F_EventScript_PlayerMagmaEnterMultiplayer::
-	setvar VAR_VOLCANION_CAVE_2F_STATE, 3
-	applymovement LOCALID_PLAYER, VolcanionCave_2F_Movement_PlayerMagmaEnterCave
-	waitmovement 0
-	delay 10
-	forcesave
-	closemessage
 	setvar LOCALID_PLAYER_AQUA, LOCALID_PLAYER_2
 	setvar LOCALID_PLAYER_MAGMA, LOCALID_PLAYER
-	setvar VAR_VOLCANION_CAVE_2F_STATE, 1
-	goto Player2_EventScript_Reconnect
+	goto VolcanionCave_2F_EventScript_PlayersEnterMultiplayer
 	end
+
+VolcanionCave_2F_EventScript_PlayersEnterMultiplayer::
+	applymovement LOCALID_PLAYER_AQUA, VolcanionCave_2F_Movement_Player2Enter
+	waitmovement 0
+	applymovement LOCALID_PLAYER_AQUA, VolcanionCave_2F_Movement_PlayerAquaEnterCave
+	waitmovement 0
+	applymovement LOCALID_PLAYER_MAGMA, VolcanionCave_2F_Movement_Player2Enter
+	waitmovement 0
+	applymovement LOCALID_PLAYER_MAGMA, VolcanionCave_2F_Movement_PlayerMagmaEnterCave
+	waitmovement 0
+	goto VolcanionCave_2F_EventScript_Intro
 
 VolcanionCave_2F_Text_IntroName::
 	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}So, you got a name?\p"

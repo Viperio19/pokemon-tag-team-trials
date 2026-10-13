@@ -720,6 +720,9 @@ Player2_EventScript_WarpCurrentPosition::
 	end
 
 Player2_EventScript_Warp2F::
-	setwarp MAP_VOLCANION_CAVE_2F, 22, 76
+	setvar VAR_ACTION_ON_FRAME, 2
+	setvar VAR_VOLCANION_CAVE_2F_STATE, 2
+	setflag FLAG_DONT_FADE_IN_MAP
+	setwarp MAP_VOLCANION_CAVE_2F, 22, 77
 	special CloseLinkAndWarp
 	end
