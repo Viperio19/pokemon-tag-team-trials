@@ -780,6 +780,7 @@ VolcanionCave_2F_EventScript_ChoosePartyMonGoldeen::
 	applymovement LOCALID_2F_GOLDEEN_GRUNT, VolcanionCave_2F_Movement_GoldeenGruntWalkInPlaceJumpRight, P2_MOVEMENT_GOLDEEN_GRUNT_JUMP
 	msgbox VolcanionCave_2F_Text_BedtimeTrain, MSGBOX_DEFAULT
 	closemessage
+	enqueueplayer2command P2_CMD_CONTROL_FLAG, FLAG_SHOWED_GOLDEEN_TO_GOLDEEN_GRUNT, TRUE
 	setflag FLAG_SHOWED_GOLDEEN_TO_GOLDEEN_GRUNT
 	enqueueplayer2command P2_CMD_MOVE_OBJECT, LOCALID_2F_GOLDEEN_GRUNT, 20, 14
 	setobjectxyperm LOCALID_2F_GOLDEEN_GRUNT, 20, 14
@@ -1092,6 +1093,7 @@ VolcanionCave_2F_EventScript_RockSmashCommon:
 	dofieldeffect FLDEFF_USE_ROCK_SMASH
 	waitstate
 VolcanionCave_2F_EventScript_SmashRock:: @ fallthrough
+	enqueueplayer2command P2_CMD_USE_ROCK_SMASH, VAR_LAST_TALKED
 	applymovement VAR_LAST_TALKED, Movement_SmashRock
 	waitmovement 0
 	enqueueplayer2command P2_CMD_REMOVE_OBJECT, VAR_LAST_TALKED
@@ -1183,6 +1185,7 @@ VolcanionCave_2F_EventScript_CaughtCorsola::
 	removeobject LOCALID_2F_CORSOLA
 	setflag FLAG_HIDE_VOLCANION_CAVE_2F_CORSOLA
 	setvar VAR_VOLCANION_CAVE_2F_CORSOLA_STATE, 1
+	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_VOLCANION_CAVE_2F_CORSOLA_STATE, 1
 	release
 	end
 

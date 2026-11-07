@@ -519,12 +519,12 @@ Player2_Multiplayer_MultiChoiceNoTrade::
 	end
 
 Player2_Multiplayer_Talk::
-	enqueueplayer2command P2_CMD_SET_INTERACTION_VAR, 2
+	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 2
 	goto Player2_Singleplayer_Talk
 	end
 
 Player2_Multiplayer_Trade::
-	enqueueplayer2command P2_CMD_SET_INTERACTION_VAR, 3
+	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 3
 	closemessage
 	delay 10
 	setvar VAR_0x8005, 0
@@ -534,7 +534,7 @@ Player2_Multiplayer_Trade::
 	end
 
 Player2_Multiplayer_Cancel::
-	enqueueplayer2command P2_CMD_SET_INTERACTION_VAR, 4
+	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 4
 	callnative IsPlayerOne
 	call_if_eq VAR_RESULT, TRUE, Player2Magma_Singleplayer_Cancel
 	call_if_eq VAR_RESULT, FALSE, Player2Aqua_Singleplayer_Cancel
@@ -697,7 +697,7 @@ Player2_Text_EndOfDemo::
 EventScript_Player2_Warp::
 	message gText_PleaseWaitForLink
 	waitmessage
-	enqueueplayer2command P2_CMD_SET_INTERACTION_VAR, 20
+	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 20
 Player2_EventScript_WaitForWarp::
 	delay 1
 	goto_if_ne VAR_P2_INTERACTION_STATE, 20, Player2_EventScript_WaitForWarp

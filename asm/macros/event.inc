@@ -2034,6 +2034,14 @@
 	.2byte \arg3
 	.endm
 
+	.macro enqueueplayer2varcommand command:req, arg1=0, arg2=0, arg3=0
+	.byte SCR_OP_ENQUEUEPLAYER2VARCOMMAND
+	.2byte \command
+	.2byte \arg1
+	.2byte \arg2
+	.2byte \arg3
+	.endm
+
 	.macro dynmultistack left:req, top:req, ignoreBPress:req, maxBeforeScroll:req, shouldSort:req, initialSelected:req, callbacks:req
 	_dynmultichoice \left, \top, \ignoreBPress, \maxBeforeScroll, \shouldSort, \initialSelected, \callbacks, NULL
 	.endm

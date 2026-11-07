@@ -3627,3 +3627,15 @@ bool8 ScrCmd_enqueueplayer2command(struct ScriptContext * ctx)
 
     return FALSE;
 }
+
+bool8 ScrCmd_enqueueplayer2varcommand(struct ScriptContext * ctx)
+{
+    EnqueuePlayer2CommandToSend(ScriptReadHalfword(ctx),
+                                ScriptReadHalfword(ctx),
+                                VarGet(ScriptReadHalfword(ctx)),
+                                VarGet(ScriptReadHalfword(ctx)));
+
+    Script_RequestEffects(SCREFF_V1 | SCREFF_SAVE);
+
+    return FALSE;
+}
