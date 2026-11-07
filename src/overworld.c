@@ -3150,6 +3150,7 @@ static const u8 *const sPlayer2CommandToMovement[][4] =
     [P2_CMD_WALK_IN_PLACE] = {Common_Movement_WalkInPlaceDown, Common_Movement_WalkInPlaceUp, Common_Movement_WalkInPlaceLeft, Common_Movement_WalkInPlaceRight},
     [P2_CMD_WALK_IN_PLACE_FAST] = {Common_Movement_WalkInPlaceFastDown, Common_Movement_WalkInPlaceFastUp, Common_Movement_WalkInPlaceFastLeft, Common_Movement_WalkInPlaceFastRight},
     [P2_CMD_WALK_IN_PLACE_FASTER] = {Common_Movement_WalkInPlaceFasterDown, Common_Movement_WalkInPlaceFasterUp, Common_Movement_WalkInPlaceFasterLeft, Common_Movement_WalkInPlaceFasterRight},
+    [P2_CMD_WALK_SLOW] = {Common_Movement_WalkDownSlow, Common_Movement_WalkUpSlow, Common_Movement_WalkLeftSlow, Common_Movement_WalkRightSlow},
     [P2_CMD_WALK_NORMAL] = {Common_Movement_WalkDown, Common_Movement_WalkUp, Common_Movement_WalkLeft, Common_Movement_WalkRight},
     [P2_CMD_WALK_FAST] = {Common_Movement_WalkDownFast, Common_Movement_WalkUpFast, Common_Movement_WalkLeftFast, Common_Movement_WalkRightFast},
     [P2_CMD_RUN] = {Common_Movement_RunDown, Common_Movement_RunUp, Common_Movement_RunLeft, Common_Movement_RunRight},
@@ -3161,6 +3162,8 @@ static const u8 *const sPlayer2CommandToMovement[][4] =
 
 static const u8 *const sPlayer2MovementIdToScript[] =
 {
+    [P2_MOVEMENT_FACE_PLAYER_2] = Common_Movement_FacePlayer2,
+    // room 1
     [P2_MOVEMENT_DIGLETT_DIG_DOWN] = VolcanionCave_1F_Movement_DiglettDigDown,
     [P2_MOVEMENT_MAGMA_GRUNT_M_CONFUSED] = VolcanionCave_1F_Movement_MagmaGruntMConfused,
     [P2_MOVEMENT_DIGLETT_DIG_UP] = VolcanionCave_1F_Movement_DiglettDigUp,
@@ -3168,7 +3171,36 @@ static const u8 *const sPlayer2MovementIdToScript[] =
     [P2_MOVEMENT_MAGMA_GRUNT_M_WATCH_BADGE_FALL_DOWN] = VolcanionCave_1F_Movement_MagmaGruntMWatchBadgeFallDown,
     [P2_MOVEMENT_HEAT_BADGE_FALL_DOWN] = VolcanionCave_1F_Movement_BadgeFallDown,
     [P2_MOVEMENT_DIGLETT_ASK_NUMBER] = VolcanionCave_1F_Movement_DiglettAskNumber,
+    // room 2
     [P2_MOVEMENT_EXCLAMATION_MARK] = Common_Movement_ExclamationMark,
+    [P2_MOVEMENT_CORSOLA_NOTICE_PLAYER] = VolcanionCave_2F_Movement_CorsolaNoticePlayer2,
+    [P2_MOVEMENT_CORSOLA_FLEE_UP] = VolcanionCave_2F_Movement_CorsolaFleeUp,
+    [P2_MOVEMENT_CORSOLA_FLEE_DOWN] = VolcanionCave_2F_Movement_CorsolaFleeDown,
+    [P2_MOVEMENT_CORSOLA_FLEE_LEFT_3] = VolcanionCave_2F_Movement_CorsolaFleeLeft3,
+    [P2_MOVEMENT_CORSOLA_FLEE_LEFT_4] = VolcanionCave_2F_Movement_CorsolaFleeLeft4,
+    [P2_MOVEMENT_CORSOLA_FLEE_RIGHT_3] = VolcanionCave_2F_Movement_CorsolaFleeRight3,
+    [P2_MOVEMENT_CORSOLA_FLEE_RIGHT_4] = VolcanionCave_2F_Movement_CorsolaFleeRight4,
+    [P2_MOVEMENT_OLD_ROD_FLOAT_Y24] = VolcanionCave_2F_Movement_OldRodFloatY24,
+    [P2_MOVEMENT_OLD_ROD_JUMP_Y24] = VolcanionCave_2F_Movement_OldRodJumpY24,
+    [P2_MOVEMENT_OLD_ROD_FLOAT_Y26] = VolcanionCave_2F_Movement_OldRodFloatY26,
+    [P2_MOVEMENT_OLD_ROD_JUMP_Y26] = VolcanionCave_2F_Movement_OldRodJumpY26,
+    [P2_MOVEMENT_OLD_ROD_FLOAT_Y27] = VolcanionCave_2F_Movement_OldRodFloatY27,
+    [P2_MOVEMENT_GOLDEEN_GRUNT_JUMP] = VolcanionCave_2F_Movement_GoldeenGruntWalkInPlaceJumpRight,
+    [P2_MOVEMENT_BOULDER_SLIDE_DOWN] = VolcanionCave_2F_Movement_BoulderSlideDown,
+    [P2_MOVEMENT_HOLE_1AB] = VolcanionCave_2F_Movement_Hole1AToB,
+    [P2_MOVEMENT_HOLE_1BA] = VolcanionCave_2F_Movement_Hole1BToA,
+    [P2_MOVEMENT_HOLE_2AB] = VolcanionCave_2F_Movement_Hole2AToB,
+    [P2_MOVEMENT_HOLE_2BA] = VolcanionCave_2F_Movement_Hole2BToA,
+    [P2_MOVEMENT_HOLE_3AB] = VolcanionCave_2F_Movement_Hole3AToB,
+    [P2_MOVEMENT_HOLE_3BA] = VolcanionCave_2F_Movement_Hole3BToA,
+    [P2_MOVEMENT_HOLE_4AB] = VolcanionCave_2F_Movement_Hole4AToB,
+    [P2_MOVEMENT_HOLE_4BA] = VolcanionCave_2F_Movement_Hole4BToA,
+    [P2_MOVEMENT_HOLE_5AB] = VolcanionCave_2F_Movement_Hole5AToB,
+    [P2_MOVEMENT_HOLE_5BA] = VolcanionCave_2F_Movement_Hole5BToA,
+    [P2_MOVEMENT_EXIT_HOLE_SOUTH] = VolcanionCave_2F_Movement_ExitHoleSouth,
+    [P2_MOVEMENT_EXIT_HOLE_NORTH] = VolcanionCave_2F_Movement_ExitHoleNorth,
+    [P2_MOVEMENT_EXIT_HOLE_EAST] = VolcanionCave_2F_Movement_ExitHoleEast,
+    [P2_MOVEMENT_EXIT_HOLE_WEST] = VolcanionCave_2F_Movement_ExitHoleWest,
 };
 
 static void StartPlayer2Movement(const u8 *movementScript)
@@ -3324,6 +3356,9 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
                 pos->y = arg3;
             }
             break;
+        case P2_CMD_HIDE_OBJECT:
+            SetObjectInvisibility(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, TRUE);
+            break;
         case P2_CMD_CLEAR_MOVEMENT:
             ObjectEventClearHeldMovement(objEvent);
             break;
@@ -3381,6 +3416,7 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
     case P2_CMD_WALK_IN_PLACE:
     case P2_CMD_WALK_IN_PLACE_FAST:
     case P2_CMD_WALK_IN_PLACE_FASTER:
+    case P2_CMD_WALK_SLOW:
     case P2_CMD_WALK_NORMAL:
     case P2_CMD_WALK_FAST:
     case P2_CMD_RUN:

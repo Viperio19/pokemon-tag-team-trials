@@ -40,7 +40,7 @@ VolcanionCave_2F_EventScript_RemoveRockBarrier4::
 VolcanionCave_2F_OnTransition:
 	callnative UpdateStrengthBoulderPositions
 	call_if_set FLAG_SHOWED_GOLDEEN_TO_GOLDEEN_GRUNT, VolcanionCave_2F_EventScript_MoveGoldeenGrunt
-	call_if_ne VAR_VOLCANION_CAVE_2F_CORSOLA_X, 0, VolcanionCave_2F_EventScript_UpdateCorsolaPos
+	call_if_ne VAR_VOLCANION_CAVE_2F_CORSOLA_X, 0, VolcanionCave_2F_EventScript_TryUpdateCorsolaPos
 	end
 
 VolcanionCave_2F_EventScript_MoveGoldeenGrunt::
@@ -213,6 +213,7 @@ VolcanionCave_2F_EventScript_DropOldRod::
 	clearflag FLAG_DISABLE_OLD_ROD_BOB
     clearflag FLAG_HIDE_VOLCANION_CAVE_2F_OLD_ROD
     setflag FLAG_DROPPED_VOLCANION_CAVE_2F_OLD_ROD
+	enqueueplayer2command P2_CMD_ADD_OBJECT, LOCALID_2F_OLD_ROD, VAR_OLD_ROD_X, VAR_OLD_ROD_Y
 	addobject LOCALID_2F_OLD_ROD
 	callnative SetOldRodBob
 	removeitem ITEM_OLD_ROD
@@ -231,17 +232,18 @@ VolcanionCave_2F_EventScript_MessageDroppedRod::
 
 VolcanionCave_2F_EventScript_OldRodCurrentsY24::
 	special SpawnCameraObject
-	applymovement LOCALID_2F_OLD_ROD, VolcanionCave_2F_Movement_OldRodFloatY24
+	applymovement LOCALID_2F_OLD_ROD, VolcanionCave_2F_Movement_OldRodFloatY24, P2_MOVEMENT_OLD_ROD_FLOAT_Y24
 	applymovement LOCALID_CAMERA, VolcanionCave_2F_Movement_OldRodFloatY24
 	waitmovement 0
 	callnative StopOldRodBob
 	playse SE_LEDGE
-	applymovement LOCALID_2F_OLD_ROD, VolcanionCave_2F_Movement_OldRodJumpY24
+	applymovement LOCALID_2F_OLD_ROD, VolcanionCave_2F_Movement_OldRodJumpY24, P2_MOVEMENT_OLD_ROD_JUMP_Y24
 	waitmovement 0
 	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceDown
 	waitmovement 0
 	setvar VAR_OLD_ROD_X, 29
 	setvar VAR_OLD_ROD_Y, 25
+	enqueueplayer2command P2_CMD_MOVE_OBJECT, LOCALID_2F_OLD_ROD, VAR_OLD_ROD_X, VAR_OLD_ROD_Y
 	setobjectxyperm LOCALID_2F_OLD_ROD, VAR_OLD_ROD_X, VAR_OLD_ROD_Y
 	delay 20
 	applymovement LOCALID_CAMERA, Common_Movement_WalkUp
@@ -284,15 +286,16 @@ VolcanionCave_2F_EventScript_OldRodCurrentsY25::
 
 VolcanionCave_2F_EventScript_OldRodCurrentsY26::
 	special SpawnCameraObject
-	applymovement LOCALID_2F_OLD_ROD, VolcanionCave_2F_Movement_OldRodFloatY26
+	applymovement LOCALID_2F_OLD_ROD, VolcanionCave_2F_Movement_OldRodFloatY26, P2_MOVEMENT_OLD_ROD_FLOAT_Y26
 	applymovement LOCALID_CAMERA, VolcanionCave_2F_Movement_OldRodFloatY26
 	waitmovement 0
 	callnative StopOldRodBob
 	playse SE_LEDGE
-	applymovement LOCALID_2F_OLD_ROD, VolcanionCave_2F_Movement_OldRodJumpY26
+	applymovement LOCALID_2F_OLD_ROD, VolcanionCave_2F_Movement_OldRodJumpY26, P2_MOVEMENT_OLD_ROD_JUMP_Y26
 	waitmovement 0
 	setvar VAR_OLD_ROD_X, 17
 	setvar VAR_OLD_ROD_Y, 31
+	enqueueplayer2command P2_CMD_MOVE_OBJECT, LOCALID_2F_OLD_ROD, VAR_OLD_ROD_X, VAR_OLD_ROD_Y
 	setobjectxyperm LOCALID_2F_OLD_ROD, VAR_OLD_ROD_X, VAR_OLD_ROD_Y
 	delay 20
 	applymovement LOCALID_CAMERA, VolcanionCave_2F_Movement_CameraMoveBackY26
@@ -345,11 +348,12 @@ VolcanionCave_2F_Movement_CameraMoveBackY26::
 
 VolcanionCave_2F_EventScript_OldRodCurrentsY27::
 	special SpawnCameraObject
-	applymovement LOCALID_2F_OLD_ROD, VolcanionCave_2F_Movement_OldRodFloatY27
+	applymovement LOCALID_2F_OLD_ROD, VolcanionCave_2F_Movement_OldRodFloatY27, P2_MOVEMENT_OLD_ROD_FLOAT_Y27
 	applymovement LOCALID_CAMERA, VolcanionCave_2F_Movement_OldRodFloatY27
 	waitmovement 0
 	setvar VAR_OLD_ROD_X, 27
 	setvar VAR_OLD_ROD_Y, 30
+	enqueueplayer2command P2_CMD_MOVE_OBJECT, LOCALID_2F_OLD_ROD, VAR_OLD_ROD_X, VAR_OLD_ROD_Y
 	setobjectxyperm LOCALID_2F_OLD_ROD, VAR_OLD_ROD_X, VAR_OLD_ROD_Y
 	delay 20
 	applymovement LOCALID_CAMERA, VolcanionCave_2F_Movement_CameraMoveBackY27
@@ -394,7 +398,7 @@ VolcanionCave_2F_Text_DroppedRodFloatedSuccessfully::
 
 VolcanionCave_2F_EventScript_AquaGruntF::
 	lock
-	applymovement LOCALID_2F_AQUA_GRUNT_F, Common_Movement_FacePlayer
+	applymovement LOCALID_2F_AQUA_GRUNT_F, Common_Movement_FacePlayer, P2_MOVEMENT_FACE_PLAYER_2
 	waitmovement 0
 	callnative IsPlayerOne
 	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_2F_EventScript_AquaGruntFMagmaPlayer
@@ -450,7 +454,7 @@ VolcanionCave_2F_Text_NoRepels::
 
 VolcanionCave_2F_EventScript_Diglett::
 	lock
-	applymovement LOCALID_2F_DIGLETT, Common_Movement_FacePlayer
+	applymovement LOCALID_2F_DIGLETT, Common_Movement_FacePlayer, P2_MOVEMENT_FACE_PLAYER_2
 	waitmovement
 	callnative IsPlayerOne
 	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_2F_EventScript_DiglettMagma
@@ -528,7 +532,7 @@ VolcanionCave_2F_Text_AgentDiggs4::
 
 VolcanionCave_2F_EventScript_AquaGruntOldRod::
 	lock
-	faceplayer
+	faceplayer VAR_LAST_TALKED
 	goto_if_set FLAG_DEFEATED_VOLCANION_CAVE_2F_TOXAPEX, VolcanionCave_2F_EventScript_AquaGruntReceivedOldRod
 	goto_if_set FLAG_TALKED_TO_OLD_ROD_GRUNT, VolcanionCave_2F_EventScript_AquaGruntAskBattleShort
 	setflag FLAG_TALKED_TO_OLD_ROD_GRUNT
@@ -703,7 +707,8 @@ VolcanionCave_2F_EventScript_DefeatedExeggutor::
 	playmoncry SPECIES_EXEGGUTOR_ALOLA, CRY_MODE_NORMAL
 	msgbox VolcanionCave_2F_Text_Exeggutor, MSGBOX_DEFAULT
 	waitmoncry
-	setflag FLAG_DEFEATED_VOLCANION_CAVE_2F_EXEGGUTOR
+	enqueueplayer2command P2_CMD_REMOVE_OBJECT, LOCALID_2F_EXEGGUTOR_1
+	enqueueplayer2command P2_CMD_REMOVE_OBJECT, LOCALID_2F_EXEGGUTOR_2
 	removeobject LOCALID_2F_EXEGGUTOR_1
 	removeobject LOCALID_2F_EXEGGUTOR_2
 	release
@@ -714,7 +719,7 @@ VolcanionCave_2F_Text_Exeggutor::
 
 VolcanionCave_2F_EventScript_Toxapex::
 	lock
-	faceplayer
+	faceplayer VAR_LAST_TALKED
 	waitse
 	playmoncry SPECIES_TOXAPEX, CRY_MODE_NORMAL
 	call_if_unset FLAG_DEFEATED_VOLCANION_CAVE_2F_TOXAPEX, VolcanionCave_2F_EventScript_ToxapexHappy
@@ -739,6 +744,7 @@ VolcanionCave_2F_Text_ToxapexSad::
 
 VolcanionCave_2F_EventScript_OldRod::
 	lock
+	enqueueplayer2command P2_CMD_REMOVE_OBJECT, VAR_LAST_TALKED
 	removeobject VAR_LAST_TALKED
 	giveitem ITEM_OLD_ROD
 	clearflag FLAG_DROPPED_VOLCANION_CAVE_2F_OLD_ROD
@@ -750,7 +756,7 @@ VolcanionCave_2F_EventScript_OldRod::
 VolcanionCave_2F_EventScript_MagmaMemberFGoldeen::
 	lock
 	goto_if_set FLAG_SHOWED_GOLDEEN_TO_GOLDEEN_GRUNT, VolcanionCave_2F_EventScript_GoldeenGruntSleeping
-	faceplayer
+	faceplayer LOCALID_2F_GOLDEEN_GRUNT
 	goto_if_set FLAG_TALKED_TO_GOLDEEN_GRUNT, VolcanionCave_2F_EventScript_PleaseShowGoldeen
 	setflag FLAG_TALKED_TO_GOLDEEN_GRUNT
 	msgbox VolcanionCave_2F_Text_IDroppedGoldeen, MSGBOX_DEFAULT
@@ -767,14 +773,15 @@ VolcanionCave_2F_EventScript_ChoosePartyMonGoldeen::
 	goto_if_ne VAR_RESULT, VAR_0x8009, VolcanionCave_2F_EventScript_ThatsNotGoldeen
 	message VolcanionCave_2F_Text_ThatsIt
 	waitmessage
-	applymovement LOCALID_2F_GOLDEEN_GRUNT, Common_Movement_FaceRight
+	applymovement LOCALID_2F_GOLDEEN_GRUNT, Common_Movement_FaceRight, P2_CMD_FACE_DIRECTION, DIR_EAST
 	message VolcanionCave_2F_Text_NicePillow
 	waitmessage
 	waitmovement 0
-	applymovement LOCALID_2F_GOLDEEN_GRUNT, VolcanionCave_2F_Movement_GoldeenGruntWalkInPlace
+	applymovement LOCALID_2F_GOLDEEN_GRUNT, VolcanionCave_2F_Movement_GoldeenGruntWalkInPlaceJumpRight, P2_MOVEMENT_GOLDEEN_GRUNT_JUMP
 	msgbox VolcanionCave_2F_Text_BedtimeTrain, MSGBOX_DEFAULT
 	closemessage
 	setflag FLAG_SHOWED_GOLDEEN_TO_GOLDEEN_GRUNT
+	enqueueplayer2command P2_CMD_MOVE_OBJECT, LOCALID_2F_GOLDEEN_GRUNT, 20, 14
 	setobjectxyperm LOCALID_2F_GOLDEEN_GRUNT, 20, 14
 	release
 	end
@@ -869,7 +876,7 @@ VolcanionCave_2F_Text_GoldeenGruntSleeping::
 	.string "{SPEAKER NAME_MAGMA COLOR_MAGMA}ZZZZZZZZzzzzzzzzzzzzz…\n"
 	.string "Choo-choo!$"
 
-VolcanionCave_2F_Movement_GoldeenGruntWalkInPlace::
+VolcanionCave_2F_Movement_GoldeenGruntWalkInPlaceJumpRight::
 	walk_in_place_faster_right
 	walk_in_place_faster_right
 	walk_in_place_faster_right
@@ -895,10 +902,10 @@ VolcanionCave_2F_EventScript_RedButton::
 	end
 
 VolcanionCave_2F_EventScript_Hole1A::
-	jumphole VolcanionCave_2F_Movement_Hole1AToB, VolcanionCave_2F_Movement_ExitHoleSouth
+	jumpholep2 VolcanionCave_2F_Movement_Hole1AToB, VolcanionCave_2F_Movement_ExitHoleSouth, P2_MOVEMENT_HOLE_1AB, P2_MOVEMENT_EXIT_HOLE_SOUTH
 
 VolcanionCave_2F_EventScript_Hole1B::
-	jumphole VolcanionCave_2F_Movement_Hole1BToA, VolcanionCave_2F_Movement_ExitHoleWest
+	jumpholep2 VolcanionCave_2F_Movement_Hole1BToA, VolcanionCave_2F_Movement_ExitHoleWest, P2_MOVEMENT_HOLE_1BA, P2_MOVEMENT_EXIT_HOLE_WEST
 
 VolcanionCave_2F_Movement_Hole1AToB::
 	walk_fast_right
@@ -929,10 +936,10 @@ VolcanionCave_2F_Movement_Hole1BToA::
 	step_end
 
 VolcanionCave_2F_EventScript_Hole2A::
-	jumphole VolcanionCave_2F_Movement_Hole2AToB, VolcanionCave_2F_Movement_ExitHoleNorth
+	jumpholep2 VolcanionCave_2F_Movement_Hole2AToB, VolcanionCave_2F_Movement_ExitHoleNorth, P2_MOVEMENT_HOLE_2AB, P2_MOVEMENT_EXIT_HOLE_NORTH
 
 VolcanionCave_2F_EventScript_Hole2B::
-	jumphole VolcanionCave_2F_Movement_Hole2BToA, VolcanionCave_2F_Movement_ExitHoleWest
+	jumpholep2 VolcanionCave_2F_Movement_Hole2BToA, VolcanionCave_2F_Movement_ExitHoleWest, P2_MOVEMENT_HOLE_2BA, P2_MOVEMENT_EXIT_HOLE_WEST
 
 VolcanionCave_2F_Movement_Hole2AToB::
 	walk_fast_right
@@ -953,10 +960,10 @@ VolcanionCave_2F_Movement_Hole2BToA::
 	step_end
 
 VolcanionCave_2F_EventScript_Hole3A::
-	jumphole VolcanionCave_2F_Movement_Hole3AToB, VolcanionCave_2F_Movement_ExitHoleNorth
+	jumpholep2 VolcanionCave_2F_Movement_Hole3AToB, VolcanionCave_2F_Movement_ExitHoleNorth, P2_MOVEMENT_HOLE_3AB, P2_MOVEMENT_EXIT_HOLE_NORTH
 
 VolcanionCave_2F_EventScript_Hole3B::
-	jumphole VolcanionCave_2F_Movement_Hole3BToA, VolcanionCave_2F_Movement_ExitHoleSouth
+	jumpholep2 VolcanionCave_2F_Movement_Hole3BToA, VolcanionCave_2F_Movement_ExitHoleSouth, P2_MOVEMENT_HOLE_3BA, P2_MOVEMENT_EXIT_HOLE_SOUTH
 
 VolcanionCave_2F_Movement_Hole3AToB::
 	walk_fast_right
@@ -983,10 +990,10 @@ VolcanionCave_2F_Movement_Hole3BToA::
 	step_end
 
 VolcanionCave_2F_EventScript_Hole4A::
-	jumphole VolcanionCave_2F_Movement_Hole4AToB, VolcanionCave_2F_Movement_ExitHoleSouth
+	jumpholep2 VolcanionCave_2F_Movement_Hole4AToB, VolcanionCave_2F_Movement_ExitHoleSouth, P2_MOVEMENT_HOLE_4AB, P2_MOVEMENT_EXIT_HOLE_SOUTH
 
 VolcanionCave_2F_EventScript_Hole4B::
-	jumphole VolcanionCave_2F_Movement_Hole4BToA, VolcanionCave_2F_Movement_ExitHoleNorth
+	jumpholep2 VolcanionCave_2F_Movement_Hole4BToA, VolcanionCave_2F_Movement_ExitHoleNorth, P2_MOVEMENT_HOLE_4BA, P2_MOVEMENT_EXIT_HOLE_NORTH
 
 VolcanionCave_2F_Movement_Hole4AToB::
 	walk_fast_left
@@ -1009,10 +1016,10 @@ VolcanionCave_2F_Movement_Hole4BToA::
 	step_end
 
 VolcanionCave_2F_EventScript_Hole5A::
-	jumphole VolcanionCave_2F_Movement_Hole5AToB, VolcanionCave_2F_Movement_ExitHoleSouth
+	jumpholep2 VolcanionCave_2F_Movement_Hole5AToB, VolcanionCave_2F_Movement_ExitHoleSouth, P2_MOVEMENT_HOLE_5AB, P2_MOVEMENT_EXIT_HOLE_SOUTH
 
 VolcanionCave_2F_EventScript_Hole5B::
-	jumphole VolcanionCave_2F_Movement_Hole5BToA, VolcanionCave_2F_Movement_ExitHoleSouth
+	jumpholep2 VolcanionCave_2F_Movement_Hole5BToA, VolcanionCave_2F_Movement_ExitHoleSouth, P2_MOVEMENT_HOLE_5BA, P2_MOVEMENT_EXIT_HOLE_SOUTH
 
 VolcanionCave_2F_Movement_Hole5AToB::
 	walk_fast_right
@@ -1087,14 +1094,18 @@ VolcanionCave_2F_EventScript_RockSmashCommon:
 VolcanionCave_2F_EventScript_SmashRock:: @ fallthrough
 	applymovement VAR_LAST_TALKED, Movement_SmashRock
 	waitmovement 0
+	enqueueplayer2command P2_CMD_REMOVE_OBJECT, VAR_LAST_TALKED
 	removeobject VAR_LAST_TALKED
 	delay 10
+	enqueueplayer2command P2_CMD_CONTROL_FLAG, FLAG_ANIMATE_MUD_UNDER_BOULDER, TRUE
 	setflag FLAG_ANIMATE_MUD_UNDER_BOULDER
 	playse SE_FALL
-	applymovement LOCALID_2F_BOULDER_ON_MUD, VolcanionCave_2F_Movement_BoulderSlideDown
+	applymovement LOCALID_2F_BOULDER_ON_MUD, VolcanionCave_2F_Movement_BoulderSlideDown, P2_MOVEMENT_BOULDER_SLIDE_DOWN
 	waitmovement 0
+	enqueueplayer2command P2_CMD_MOVE_OBJECT, LOCALID_2F_BOULDER_ON_MUD, 26, 13
 	setobjectxyperm LOCALID_2F_BOULDER_ON_MUD, 26, 13
 	playse SE_M_STRENGTH
+	enqueueplayer2command P2_CMD_CONTROL_FLAG, FLAG_ANIMATE_MUD_UNDER_BOULDER, FALSE
 	clearflag FLAG_ANIMATE_MUD_UNDER_BOULDER
 	callnative UpdateBoulderOnMudPosition
 	delay 10
@@ -1122,14 +1133,22 @@ VolcanionCave_2F_Movement_BoulderSlideDown::
 	jump_down
 	step_end
 
+VolcanionCave_2F_EventScript_TryUpdateCorsolaPos::
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_2F_EventScript_UpdateCorsolaPos
+	callnative IsPlayerOne
+	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_2F_EventScript_UpdateCorsolaPos
+	return
+
 VolcanionCave_2F_EventScript_UpdateCorsolaPos::
+	enqueueplayer2command P2_CMD_MOVE_OBJECT, LOCALID_2F_CORSOLA, VAR_VOLCANION_CAVE_2F_CORSOLA_X, VAR_VOLCANION_CAVE_2F_CORSOLA_Y
 	setobjectxyperm LOCALID_2F_CORSOLA, VAR_VOLCANION_CAVE_2F_CORSOLA_X, VAR_VOLCANION_CAVE_2F_CORSOLA_Y
 	return
 
 VolcanionCave_2F_EventScript_CorsolaFacePlayer::
 	lock
 	playse SE_ICE_CRACK
-	applymovement LOCALID_2F_CORSOLA, VolcanionCave_2F_Movement_CorsolaNoticePlayer
+	applymovement LOCALID_2F_CORSOLA, VolcanionCave_2F_Movement_CorsolaNoticePlayer, P2_MOVEMENT_CORSOLA_NOTICE_PLAYER
 	waitmovement 0
 	release
 	end
@@ -1139,8 +1158,8 @@ VolcanionCave_2F_EventScript_Corsola::
 	getobjectfacingdirection LOCALID_PLAYER, VAR_0x800A
 	getobjectfacingdirection LOCALID_2F_CORSOLA, VAR_0x800B
 	goto_if_ne VAR_0x800A, VAR_0x800B, VolcanionCave_2F_EventScript_CorsolaFlee
-	applymovement LOCALID_2F_CORSOLA, Common_Movement_ExclamationMark
-	faceplayer
+	applymovement LOCALID_2F_CORSOLA, Common_Movement_ExclamationMark, P2_MOVEMENT_EXCLAMATION_MARK
+	faceplayer LOCALID_2F_CORSOLA
 	waitmovement 0
 	playmoncry SPECIES_CORSOLA, CRY_MODE_ENCOUNTER
 	msgbox VolcanionCave_2F_Text_Corsola, MSGBOX_DEFAULT
@@ -1160,6 +1179,7 @@ VolcanionCave_2F_EventScript_BattleCorsola::
 	end
 
 VolcanionCave_2F_EventScript_CaughtCorsola::
+	enqueueplayer2command P2_CMD_REMOVE_OBJECT, LOCALID_2F_CORSOLA
 	removeobject LOCALID_2F_CORSOLA
 	setflag FLAG_HIDE_VOLCANION_CAVE_2F_CORSOLA
 	setvar VAR_VOLCANION_CAVE_2F_CORSOLA_STATE, 1
@@ -1167,7 +1187,7 @@ VolcanionCave_2F_EventScript_CaughtCorsola::
 	end
 
 VolcanionCave_2F_EventScript_CorsolaFlee::
-	applymovement LOCALID_2F_CORSOLA, VolcanionCave_2F_Movement_CorsolaNoticePlayer
+	applymovement LOCALID_2F_CORSOLA, VolcanionCave_2F_Movement_CorsolaNoticePlayer, P2_MOVEMENT_CORSOLA_NOTICE_PLAYER
 	playmoncry SPECIES_CORSOLA, CRY_MODE_ENCOUNTER
 	waitmovement 0
 	getobjectcurrentxy LOCALID_2F_CORSOLA, CURRENT_POSITION, VAR_0x8008, VAR_0x8009
@@ -1216,38 +1236,39 @@ VolcanionCave_2F_EventScript_CorsolaNEFlee::
 	end
 
 VolcanionCave_2F_EventScript_CorsolaFleeUp::
-	applymovement LOCALID_2F_CORSOLA, VolcanionCave_2F_Movement_CorsolaFleeUp
+	applymovement LOCALID_2F_CORSOLA, VolcanionCave_2F_Movement_CorsolaFleeUp, P2_MOVEMENT_CORSOLA_FLEE_UP
 	goto VolcanionCave_2F_EventScript_CorsolaFleeEnd
 	end
 
 VolcanionCave_2F_EventScript_CorsolaFleeDown::
-	applymovement LOCALID_2F_CORSOLA, VolcanionCave_2F_Movement_CorsolaFleeDown
+	applymovement LOCALID_2F_CORSOLA, VolcanionCave_2F_Movement_CorsolaFleeDown, P2_MOVEMENT_CORSOLA_FLEE_DOWN
 	goto VolcanionCave_2F_EventScript_CorsolaFleeEnd
 	end
 
 VolcanionCave_2F_EventScript_CorsolaFleeLeft3::
-	applymovement LOCALID_2F_CORSOLA, VolcanionCave_2F_Movement_CorsolaFleeLeft3
+	applymovement LOCALID_2F_CORSOLA, VolcanionCave_2F_Movement_CorsolaFleeLeft3, P2_MOVEMENT_CORSOLA_FLEE_LEFT_3
 	goto VolcanionCave_2F_EventScript_CorsolaFleeEnd
 	end
 
 VolcanionCave_2F_EventScript_CorsolaFleeLeft4::
-	applymovement LOCALID_2F_CORSOLA, VolcanionCave_2F_Movement_CorsolaFleeLeft4
+	applymovement LOCALID_2F_CORSOLA, VolcanionCave_2F_Movement_CorsolaFleeLeft4, P2_MOVEMENT_CORSOLA_FLEE_LEFT_4
 	goto VolcanionCave_2F_EventScript_CorsolaFleeEnd
 	end
 
 VolcanionCave_2F_EventScript_CorsolaFleeRight3::
-	applymovement LOCALID_2F_CORSOLA, VolcanionCave_2F_Movement_CorsolaFleeRight3
+	applymovement LOCALID_2F_CORSOLA, VolcanionCave_2F_Movement_CorsolaFleeRight3, P2_MOVEMENT_CORSOLA_FLEE_RIGHT_3
 	goto VolcanionCave_2F_EventScript_CorsolaFleeEnd
 	end
 
 VolcanionCave_2F_EventScript_CorsolaFleeRight4::
-	applymovement LOCALID_2F_CORSOLA, VolcanionCave_2F_Movement_CorsolaFleeRight4
+	applymovement LOCALID_2F_CORSOLA, VolcanionCave_2F_Movement_CorsolaFleeRight4, P2_MOVEMENT_CORSOLA_FLEE_RIGHT_4
 	goto VolcanionCave_2F_EventScript_CorsolaFleeEnd
 	end
 
 VolcanionCave_2F_EventScript_CorsolaFleeEnd::
 	waitmovement 0
 	getobjectcurrentxy LOCALID_2F_CORSOLA, CURRENT_POSITION, VAR_0x8008, VAR_0x8009
+	enqueueplayer2command P2_CMD_MOVE_OBJECT, LOCALID_2F_CORSOLA, VAR_0x8008, VAR_0x8009
 	setobjectxyperm LOCALID_2F_CORSOLA, VAR_0x8008, VAR_0x8009
 	copyvar VAR_VOLCANION_CAVE_2F_CORSOLA_X, VAR_0x8008
 	copyvar VAR_VOLCANION_CAVE_2F_CORSOLA_Y, VAR_0x8009
@@ -1257,6 +1278,11 @@ VolcanionCave_2F_EventScript_CorsolaFleeEnd::
 VolcanionCave_2F_Movement_CorsolaNoticePlayer::
 	emote_exclamation_mark
 	face_player
+	step_end
+
+VolcanionCave_2F_Movement_CorsolaNoticePlayer2::
+	emote_exclamation_mark
+	face_player_2
 	step_end
 
 VolcanionCave_2F_Movement_CorsolaFleeUp::

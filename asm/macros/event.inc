@@ -3072,6 +3072,23 @@
 	call EventScript_BrailleCursorWaitButton
 	.endm
 
+	.macro jumpholep2 movement:req, exit:req, p2movement:req, p2exit:req
+	lock
+	enqueueplayer2command P2_CMD_HIDE_OBJECT, LOCALID_PLAYER_2
+	hideplayer
+	playse SE_FALL
+	waitse
+	delay 16
+	applymovement LOCALID_PLAYER, \movement, \p2movement
+	waitmovement 0
+	delay 16
+	playse SE_LEDGE
+	applymovement LOCALID_PLAYER, \exit, \p2exit
+	waitmovement 0
+	release
+	end
+	.endm
+
 	.macro jumphole movement:req, exit:req
 	lock
 	hideplayer

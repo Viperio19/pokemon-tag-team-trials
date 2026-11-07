@@ -745,6 +745,7 @@ extern const u8 Common_Movement_JumpRight[];
 extern const u8 Common_Movement_JumpLeft[];
 extern const u8 Common_Movement_ExclamationMark[];
 extern const u8 Common_Movement_RockSmashBreak[];
+extern const u8 Common_Movement_FacePlayer2[];
 
 extern const u8 VolcanionCave_1F_Movement_DiglettDigDown[];
 extern const u8 VolcanionCave_1F_Movement_MagmaGruntMConfused[];
@@ -753,6 +754,36 @@ extern const u8 VolcanionCave_1F_Movement_MagmaGruntMSurprised[];
 extern const u8 VolcanionCave_1F_Movement_MagmaGruntMWatchBadgeFallDown[];
 extern const u8 VolcanionCave_1F_Movement_BadgeFallDown[];
 extern const u8 VolcanionCave_1F_Movement_DiglettAskNumber[];
+
+extern const u8 VolcanionCave_2F_Movement_CorsolaNoticePlayer2[];
+extern const u8 VolcanionCave_2F_Movement_CorsolaFleeUp[];
+extern const u8 VolcanionCave_2F_Movement_CorsolaFleeDown[];
+extern const u8 VolcanionCave_2F_Movement_CorsolaFleeLeft3[];
+extern const u8 VolcanionCave_2F_Movement_CorsolaFleeLeft4[];
+extern const u8 VolcanionCave_2F_Movement_CorsolaFleeRight3[];
+extern const u8 VolcanionCave_2F_Movement_CorsolaFleeRight4[];
+extern const u8 VolcanionCave_2F_Movement_OldRodFloatY24[];
+extern const u8 VolcanionCave_2F_Movement_OldRodJumpY24[];
+extern const u8 VolcanionCave_2F_Movement_OldRodFloatY26[];
+extern const u8 VolcanionCave_2F_Movement_OldRodJumpY26[];
+extern const u8 VolcanionCave_2F_Movement_OldRodFloatY27[];
+extern const u8 VolcanionCave_2F_Movement_GoldeenGruntWalkInPlaceJumpRight[];
+extern const u8 VolcanionCave_2F_Movement_BoulderSlideDown[];
+
+extern const u8 VolcanionCave_2F_Movement_Hole1AToB[];
+extern const u8 VolcanionCave_2F_Movement_Hole1BToA[];
+extern const u8 VolcanionCave_2F_Movement_Hole2AToB[];
+extern const u8 VolcanionCave_2F_Movement_Hole2BToA[];
+extern const u8 VolcanionCave_2F_Movement_Hole3AToB[];
+extern const u8 VolcanionCave_2F_Movement_Hole3BToA[];
+extern const u8 VolcanionCave_2F_Movement_Hole4AToB[];
+extern const u8 VolcanionCave_2F_Movement_Hole4BToA[];
+extern const u8 VolcanionCave_2F_Movement_Hole5AToB[];
+extern const u8 VolcanionCave_2F_Movement_Hole5BToA[];
+extern const u8 VolcanionCave_2F_Movement_ExitHoleSouth[];
+extern const u8 VolcanionCave_2F_Movement_ExitHoleNorth[];
+extern const u8 VolcanionCave_2F_Movement_ExitHoleEast[];
+extern const u8 VolcanionCave_2F_Movement_ExitHoleWest[];
 
 extern const u8 EventScript_CancelMessageBox[];
 extern const u8 Common_EventScript_ShowPokemonCenterSign[];

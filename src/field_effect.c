@@ -2161,6 +2161,7 @@ static bool8 WaterfallFieldEffect_ShowMon(struct Task *task, struct ObjectEvent 
     LockPlayerFieldControls();
     if (!ObjectEventIsMovementOverridden(objectEvent))
     {
+        EnqueuePlayer2CommandToSend(P2_CMD_CLEAR_MOVEMENT, 0, 0, 0);
         ObjectEventClearHeldMovementIfFinished(objectEvent);
         gFieldEffectArguments[0] = task->tMonId;
         FieldEffectStart(FLDEFF_FIELD_MOVE_SHOW_MON_INIT);
@@ -2181,6 +2182,7 @@ static bool8 WaterfallFieldEffect_WaitForShowMon(struct Task *task, struct Objec
 
 static bool8 WaterfallFieldEffect_RideUp(struct Task *task, struct ObjectEvent *objectEvent)
 {
+    TrySetPlayer2DirectionCommand(P2_CMD_WALK_SLOW, DIR_NORTH);
     ObjectEventSetHeldMovement(objectEvent, GetWalkSlowMovementAction(DIR_NORTH));
     task->tState++;
     return FALSE;

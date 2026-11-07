@@ -19,7 +19,7 @@ Common_Movement_FacePlayer:
 	face_player
 	step_end
 
-Common_Movement_FacePlayer2:
+Common_Movement_FacePlayer2::
 	face_player_2
 	step_end
 

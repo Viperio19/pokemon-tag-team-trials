@@ -1347,6 +1347,11 @@ bool8 ScrCmd_applymovement(struct ScriptContext *ctx)
     }
     if (p2Movement != 0)
     {
+        if (localId == LOCALID_PLAYER)
+            localId = LOCALID_PLAYER_2;
+        else if (localId == LOCALID_PLAYER_2)
+            localId = LOCALID_PLAYER;
+
         if (direction == 0)
             EnqueuePlayer2CommandToSend(P2_CMD_APPLY_MOVEMENT, localId, p2Movement, 0);
         else
