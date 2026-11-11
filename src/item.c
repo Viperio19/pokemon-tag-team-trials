@@ -240,6 +240,24 @@ static bool32 NONNULL BagPocket_CheckHasItem(struct BagPocket *pocket, enum Item
     return count == 0;
 }
 
+u16 GetBagItemFirstQuantity(enum Item itemId)
+{
+    if (GetItemPocket(itemId) >= POCKETS_COUNT)
+        return 0;
+
+    struct BagPocket *pocket = &gBagPockets[GetItemPocket(itemId)];
+    struct ItemSlot tempItem;
+    
+    for (u32 i = 0; i < pocket->capacity; i++)
+    {
+        tempItem = BagPocket_GetSlotData(pocket, i);
+        if (tempItem.itemId == itemId)
+            return tempItem.quantity;
+    }
+
+    return 0;
+}
+
 bool32 CheckBagHasItem(enum Item itemId, u16 count)
 {
     if (GetItemPocket(itemId) >= POCKETS_COUNT)

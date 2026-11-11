@@ -401,11 +401,13 @@ Player2_EventScript_DoLinkBossBattle::
 	setflag FLAG_DONT_FADE_IN_MAP
 	setflag FLAG_CONTINUE_SCRIPT_AFTER_BATTLE
 	callnative UpdatePlayer2Pos
+	callnative SavePlayerBag
 	special ColosseumPlayerSpotTriggered
 	end
 
 Player2_EventScript_HandlePostBattleScript::
 	tower_closelink
+	callnative LoadPlayerBag
 	setflag FLAG_DONT_FADE_OUT_MAP
 	clearflag FLAG_DONT_FADE_IN_MAP
 	clearflag FLAG_CONTINUE_SCRIPT_AFTER_BATTLE

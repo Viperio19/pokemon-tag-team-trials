@@ -32,6 +32,7 @@ EWRAM_DATA struct PokemonStorageASLR gPokemonStorage = {0};
 
 EWRAM_DATA struct LoadedSaveData gLoadedSaveData = {0};
 EWRAM_DATA u32 gLastEncryptionKey = 0;
+EWRAM_DATA struct ItemSlot gBackupItemSlots[BITEM_COUNT] = {0};
 
 // IWRAM common
 COMMON_DATA bool32 gFlashMemoryPresent = 0;
@@ -247,36 +248,33 @@ void CopyPartyAndObjectsFromSave(void)
     LoadObjectEvents();
 }
 
+static const enum Item sBackupItemToItem[] =
+{
+    [BITEM_POKE_BALL] = ITEM_POKE_BALL,
+    [BITEM_GREAT_BALL] = ITEM_GREAT_BALL,
+    [BITEM_STARDUST] = ITEM_STARDUST,
+    [BITEM_REPEL] = ITEM_REPEL,
+    [BITEM_EMPTY_REPEL] = ITEM_EMPTY_REPEL,
+    [BITEM_SIGNED_REPEL] = ITEM_SIGNED_REPEL,
+    [BITEM_OLD_ROD] = ITEM_OLD_ROD,
+};
+
 void LoadPlayerBag(void)
 {
-    int i;
-
-    // load player bag.
-    memcpy(&gLoadedSaveData.bag, &gSaveBlock1Ptr->bag, sizeof(struct Bag));
-
-    // load mail.
-    for (i = 0; i < MAIL_COUNT; i++)
-        gLoadedSaveData.mail[i] = gSaveBlock1Ptr->mail[i];
-
-    gLastEncryptionKey = gSaveBlock2Ptr->encryptionKey;
+    ClearBag();
+    for (int i = 0; i < BITEM_COUNT; i++)
+    {
+        AddBagItem(gBackupItemSlots[i].itemId, gBackupItemSlots[i].quantity);
+    }  
 }
 
 void SavePlayerBag(void)
 {
-    int i;
-    u32 encryptionKeyBackup;
-
-    // save player bag.
-    memcpy(&gSaveBlock1Ptr->bag, &gLoadedSaveData.bag, sizeof(struct Bag));
-
-    // save mail.
-    for (i = 0; i < MAIL_COUNT; i++)
-        gSaveBlock1Ptr->mail[i] = gLoadedSaveData.mail[i];
-
-    encryptionKeyBackup = gSaveBlock2Ptr->encryptionKey;
-    gSaveBlock2Ptr->encryptionKey = gLastEncryptionKey;
-    ApplyNewEncryptionKeyToBagItems(encryptionKeyBackup);
-    gSaveBlock2Ptr->encryptionKey = encryptionKeyBackup; // updated twice?
+    for (int i = 0; i < BITEM_COUNT; i++)
+    {
+        gBackupItemSlots[i].itemId = sBackupItemToItem[i];
+        gBackupItemSlots[i].quantity = GetBagItemFirstQuantity(sBackupItemToItem[i]);
+    }
 }
 
 void ApplyNewEncryptionKeyToHword(u16 *hWord, u32 newKey)

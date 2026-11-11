@@ -39,6 +39,20 @@ extern struct PokemonStorageASLR gPokemonStorage;
 
 extern struct LoadedSaveData gLoadedSaveData;
 
+enum BackupItem
+{
+    BITEM_POKE_BALL,
+    BITEM_GREAT_BALL,
+    BITEM_STARDUST,
+    BITEM_REPEL,
+    BITEM_EMPTY_REPEL,
+    BITEM_SIGNED_REPEL,
+    BITEM_OLD_ROD,
+    BITEM_COUNT
+};
+
+extern struct ItemSlot gBackupItemSlots[BITEM_COUNT];
+
 extern bool32 gFlashMemoryPresent;
 extern struct SaveBlock1 *gSaveBlock1Ptr;
 extern struct SaveBlock2 *gSaveBlock2Ptr;
