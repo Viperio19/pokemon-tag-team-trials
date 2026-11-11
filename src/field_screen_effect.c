@@ -546,7 +546,8 @@ void DoWarp(void)
     GetWarpGroupAndNum(&mapGroup, &mapNum);
 
     // Reset player 2 for room 3 when re-entering the room
-    if (!FlagGet(FLAG_DOING_PLAYER_SWITCH)
+    if (!IS_MULTIPLAYER
+     && !FlagGet(FLAG_DOING_PLAYER_SWITCH)
      && mapNum == MAP_NUM(MAP_VOLCANION_CAVE_3F)
      && mapNum == gSaveBlock2Ptr->player2Pos.mapNum
      && mapGroup == gSaveBlock2Ptr->player2Pos.mapGroup

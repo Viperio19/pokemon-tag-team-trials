@@ -1107,7 +1107,8 @@ bool8 ScrCmd_setwarp(struct ScriptContext *ctx)
 
 void SetWarpCurrentPosition(void)
 {
-    SetWarpDestination(gSaveBlock1Ptr->location.mapGroup, gSaveBlock1Ptr->location.mapNum, WARP_ID_NONE, gSaveBlock1Ptr->pos.x, gSaveBlock1Ptr->pos.y);
+    struct ObjectEvent *objEvent = &gObjectEvents[GetObjectEventIdByLocalId(OBJ_EVENT_ID_PLAYER)];
+    SetWarpDestination(gSaveBlock1Ptr->location.mapGroup, gSaveBlock1Ptr->location.mapNum, WARP_ID_NONE, objEvent->currentCoords.x - MAP_OFFSET, objEvent->currentCoords.y - MAP_OFFSET);
 }
 
 bool8 ScrCmd_setdynamicwarp(struct ScriptContext *ctx)

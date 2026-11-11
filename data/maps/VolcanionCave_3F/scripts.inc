@@ -8,8 +8,19 @@ VolcanionCave_3F_MapScripts::
 VolcanionCave_3F_OnTransition:
 	goto_if_set FLAG_DOING_CREDITS, VolcanionCave_3F_EventScript_SetUpCredits
 	callnative UpdateStrengthBoulderPositions
-	call_if_ne VAR_VOLCANION_CAVE_3F_STATE, 0, VolcanionCave_3F_EventScript_SetWeatherFog
+	call_if_eq VAR_VOLCANION_CAVE_3F_STATE, 2, VolcanionCave_3F_EventScript_SetPlayer2Pos
+	call_if_ge VAR_VOLCANION_CAVE_3F_STATE, 2, VolcanionCave_3F_EventScript_SetWeatherFog
 	end
+
+VolcanionCave_3F_EventScript_SetPlayer2Pos::
+	callnative IsPlayerOne
+	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_3F_EventScript_SetPlayer2Pos2
+	setobjectxy LOCALID_PLAYER_2, 17, 22
+	return
+
+VolcanionCave_3F_EventScript_SetPlayer2Pos2::
+	setobjectxy LOCALID_PLAYER_2, 15, 22
+	return
 
 VolcanionCave_3F_EventScript_SetWeatherFog::
 	setweather WEATHER_FOG_HORIZONTAL
@@ -38,6 +49,7 @@ VolcanionCave_3F_EventScript_TrySpawnPlayer2::
 	setvar VAR_TEMP_1, 1
 	goto_if_set FLAG_DOING_CREDITS, VolcanionCave_3F_EventScript_DontSpawnPlayer2
 	goto_if_eq VAR_VOLCANION_CAVE_3F_STATE, 0, VolcanionCave_3F_EventScript_SpawnHiddenPlayer2
+	goto_if_eq VAR_VOLCANION_CAVE_3F_STATE, 1, VolcanionCave_3F_EventScript_SetPlayersForMultiplayerIntro
 	callnative TrySpawnPlayer2
 	end
 
@@ -49,11 +61,26 @@ VolcanionCave_3F_EventScript_SpawnHiddenPlayer2::
 	hideobjectat LOCALID_PLAYER_2, MAP_VOLCANION_CAVE_3F
 	end
 
+VolcanionCave_3F_EventScript_SetPlayersForMultiplayerIntro::
+	callnative SpawnPlayer2For3FIntro
+	callnative IsPlayerOne
+	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_3F_EventScript_SetPlayersForMultiplayerIntro1
+	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_3F_EventScript_SetPlayersForMultiplayerIntro2
+VolcanionCave_3F_EventScript_SetPlayersForMultiplayerIntro1::
+	hideobjectat LOCALID_PLAYER_2, MAP_VOLCANION_CAVE_3F
+	end
+VolcanionCave_3F_EventScript_SetPlayersForMultiplayerIntro2::
+	hideobjectat LOCALID_PLAYER, MAP_VOLCANION_CAVE_3F
+	setobjectxy LOCALID_PLAYER_2, 16, 35
+	end
+
 VolcanionCave_3F_OnFrame:
 	map_script_2 VAR_ACTION_ON_FRAME, 1, Player2_EventScript_Save
 	map_script_2 VAR_ACTION_ON_FRAME, 2, Player2_EventScript_Reconnect
 	map_script_2 VAR_P2_INTERACTION_STATE, 20, EventScript_Player2_Warp
 	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 0, VolcanionCave_3F_EventScript_EnterCave
+	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 1, VolcanionCave_3F_EventScript_EnterCaveMultiplayer
+	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 2, VolcanionCave_3F_EventScript_IntroPostBattle
 	.2byte 0
 
 #define LOCALID_PLAYER_AQUA  VAR_0x800A
@@ -66,6 +93,7 @@ VolcanionCave_3F_EventScript_EnterCave::
 	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_3F_EventScript_PlayersEnter
 	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_3F_EventScript_PlayersEnter2
 VolcanionCave_3F_EventScript_Intro::
+	setflag FLAG_PLAYER_ONE_CONTROLS_TEXT
 	delay 10
 	applymovement LOCALID_PLAYER_MAGMA, Common_Movement_WalkInPlaceFasterLeft
 	applymovement LOCALID_PLAYER_AQUA, Common_Movement_WalkInPlaceFasterRight
@@ -127,9 +155,18 @@ VolcanionCave_3F_EventScript_Intro::
 	closemessage
 	special WaitWeather
 	setwildbattle SPECIES_VOLCANION, 40, TRUE
+	clearflag FLAG_PLAYER_ONE_CONTROLS_TEXT
+	special RemoveCameraObject
+	@ Multiplayer battle
+	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
+	goto_if_eq VAR_RESULT, TRUE, Player2_EventScript_DoLinkBossBattle
+	@ Singleplayer battle
 	multi_fixed_players_vs_wild PARTNER_PLAYER_2
 	specialvar VAR_RESULT, GetBattleOutcome
 	goto_if_eq VAR_RESULT, B_OUTCOME_WON, VolcanionCave_3F_EventScript_DefeatedVolcanion
+VolcanionCave_3F_EventScript_IntroPostBattle::
+	special SpawnCameraObject
+	setflag FLAG_PLAYER_ONE_CONTROLS_TEXT
 	message VolcanionCave_3F_Text_IntroAwNuts
 	waitmessage
 	closemessage
@@ -162,7 +199,7 @@ VolcanionCave_3F_EventScript_Intro::
 	playse SE_M_ROCK_THROW
 	call VolcanionCave_3F_EventScript_SetMetatilesRocksBroken
 	special DrawWholeMapView
-	setvar VAR_VOLCANION_CAVE_3F_STATE, 1
+	setvar VAR_VOLCANION_CAVE_3F_STATE, 3
 	fadedefaultbgm
 	delay 100
 	applymovement LOCALID_PLAYER_MAGMA, Common_Movement_WalkInPlaceFasterLeft
@@ -172,6 +209,8 @@ VolcanionCave_3F_EventScript_Intro::
 	waitmessage
 	closemessage
 	special RemoveCameraObject
+	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
+	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_3F_EventScript_IntroEnd
 	special SpawnCameraObject
 	callnative IsPlayerOne
 	call_if_eq VAR_RESULT, TRUE, VolcanionCave_3F_EventScript_CameraResetToAqua
@@ -179,8 +218,39 @@ VolcanionCave_3F_EventScript_Intro::
 	waitmovement 0
 	special RemoveCameraObject
 	forcesave
+	closemessage
+VolcanionCave_3F_EventScript_IntroEnd::
+	clearflag FLAG_PLAYER_ONE_CONTROLS_TEXT
 	release
 	end
+
+VolcanionCave_3F_EventScript_EnterCaveMultiplayer::
+	lock
+	special SpawnCameraObject
+	callnative IsPlayerOne
+	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_3F_EventScript_PlayerAquaEnterMultiplayer
+	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_3F_EventScript_PlayerMagmaEnterMultiplayer
+	end
+
+VolcanionCave_3F_EventScript_PlayerAquaEnterMultiplayer::
+	setvar LOCALID_PLAYER_AQUA, LOCALID_PLAYER
+	setvar LOCALID_PLAYER_MAGMA, LOCALID_PLAYER_2
+	goto VolcanionCave_3F_EventScript_PlayersEnterMultiplayer
+	end
+
+VolcanionCave_3F_EventScript_PlayerMagmaEnterMultiplayer::
+	setvar LOCALID_PLAYER_AQUA, LOCALID_PLAYER_2
+	setvar LOCALID_PLAYER_MAGMA, LOCALID_PLAYER
+	goto VolcanionCave_3F_EventScript_PlayersEnterMultiplayer
+	end
+	
+VolcanionCave_3F_EventScript_PlayersEnterMultiplayer::
+	setobjectxy LOCALID_PLAYER_MAGMA, 16, 36
+	applymovement LOCALID_CAMERA, VolcanionCave_3F_Movement_CameraMoveWithPlayersEntering
+	applymovement LOCALID_PLAYER_AQUA, VolcanionCave_3F_Movement_PlayerAquaEnterCave
+	applymovement LOCALID_PLAYER_MAGMA, VolcanionCave_3F_Movement_Player2MagmaEnterCave
+	waitmovement 0
+	goto VolcanionCave_3F_EventScript_Intro
 
 VolcanionCave_3F_EventScript_PlayersEnter::
 	applymovement LOCALID_CAMERA, VolcanionCave_3F_Movement_CameraMoveWithPlayersEntering
@@ -208,8 +278,8 @@ VolcanionCave_3F_EventScript_VolcanionCry::
 	setvar VAR_0x8006, 10  @ Num shakes
 	setvar VAR_0x8007, 4  @ Shake delay
 	applymovement LOCALID_3F_VOLCANION, Common_Movement_WalkInPlaceDown
-	call_if_eq VAR_VOLCANION_CAVE_3F_STATE, 0, VolcanionCave_3F_EventScript_IntroUnknownCry
-	call_if_ne VAR_VOLCANION_CAVE_3F_STATE, 0, VolcanionCave_3F_EventScript_IntroVolcanionCry
+	call_if_le VAR_VOLCANION_CAVE_3F_STATE, 2, VolcanionCave_3F_EventScript_IntroUnknownCry
+	call_if_ge VAR_VOLCANION_CAVE_3F_STATE, 3, VolcanionCave_3F_EventScript_IntroVolcanionCry
 	playmoncry SPECIES_VOLCANION, CRY_MODE_NORMAL
 	special ShakeScreen
 	delay 30
@@ -530,7 +600,7 @@ VolcanionCave_3F_OnLoad::
 	call_if_eq VAR_VOLCANION_CAVE_3F_STRENGTH_BUTTON_6, 100, VolcanionCave_3F_EventScript_RemoveRockBarrier6
 	call_if_eq VAR_VOLCANION_CAVE_3F_STRENGTH_BUTTON_7, 100, VolcanionCave_3F_EventScript_RemoveRockBarrier7
 	callnative UpdateGemMetatiles
-	call_if_ge VAR_VOLCANION_CAVE_3F_STATE, 1, VolcanionCave_3F_EventScript_SetMetatilesRocksBroken
+	call_if_ge VAR_VOLCANION_CAVE_3F_STATE, 3, VolcanionCave_3F_EventScript_SetMetatilesRocksBroken
 	call_if_eq VAR_GOLEM_ROCK_SLIDE_STATE, 0, VolcanionCave_3F_EventScript_SetMetatilesNoRockSlideBlockade
 	call_if_ne VAR_GOLEM_ROCK_SLIDE_STATE, 0, VolcanionCave_3F_EventScript_SetMetatilesRockSlideBlockade
 	call_if_set FLAG_SPAWN_VOLCANION_CAVE_3F_TEAM_ROCKET, VolcanionCave_3F_EventScript_SpawnTeamRocket

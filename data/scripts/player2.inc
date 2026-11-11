@@ -400,6 +400,7 @@ Player2_EventScript_DoLinkBossBattle::
 	setvar VAR_ACTION_ON_FRAME, 2
 	setflag FLAG_DONT_FADE_IN_MAP
 	setflag FLAG_CONTINUE_SCRIPT_AFTER_BATTLE
+	callnative UpdatePlayer2Pos
 	special ColosseumPlayerSpotTriggered
 	end
 
@@ -408,9 +409,14 @@ Player2_EventScript_HandlePostBattleScript::
 	setflag FLAG_DONT_FADE_OUT_MAP
 	clearflag FLAG_DONT_FADE_IN_MAP
 	clearflag FLAG_CONTINUE_SCRIPT_AFTER_BATTLE
+	goto_if_eq VAR_VOLCANION_CAVE_3F_STATE, 1, Player2_EventScript_3FIntro
 	specialvar VAR_RESULT, GetBattleOutcome
 	goto_if_ne VAR_RESULT, B_OUTCOME_WON, Player2_EventScript_BattleLost
 	goto_if_unset FLAG_DEFEATED_VOLCANION_CAVE_1F_GOLEM, Player2_EventScript_DefeatedGolem
+	return
+
+Player2_EventScript_3FIntro::
+	setvar VAR_VOLCANION_CAVE_3F_STATE, 2
 	return
 
 Player2_EventScript_BattleLost::
@@ -703,8 +709,14 @@ Player2_EventScript_WaitForWarp::
 	goto_if_ne VAR_P2_INTERACTION_STATE, 20, Player2_EventScript_WaitForWarp
 	setvar VAR_P2_INTERACTION_STATE, 0
 	setflag FlAG_SHOW_PLAYER_2
+	@ Warp to current position
 	goto_if_set FLAG_RESET_ROOM, Player2_EventScript_WarpCurrentPosition
+	@ Warp to 2F
 	goto_if_eq VAR_VOLCANION_CAVE_2F_STATE, 0, Player2_EventScript_Warp2F
+	@ Warp to 3F
+	setvar VAR_ACTION_ON_FRAME, 2
+	setvar VAR_VOLCANION_CAVE_3F_STATE, 1
+	setflag FLAG_DONT_FADE_IN_MAP
 	setwarp MAP_VOLCANION_CAVE_3F, 16, 35
 	special CloseLinkAndWarp
 	end

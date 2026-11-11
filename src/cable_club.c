@@ -860,8 +860,22 @@ static void Task_StartWiredCableClubBattle(u8 taskId)
     switch (task->tState)
     {
     case 0:
-        PlayMapChosenOrBattleBGM(0);
-        BattleTransition_StartOnField(GetWildBattleTransition());
+        gBattleTypeFlags = BATTLE_TYPE_WILD_BOSS | BATTLE_TYPE_DOUBLE | BATTLE_TYPE_LINK | BATTLE_TYPE_MULTI | BATTLE_TYPE_TOWER_LINK_MULTI | BATTLE_TYPE_MULTIPLAYER;
+
+        TRAINER_BATTLE_PARAM.opponentA = TRAINER_MAY_LILYCOVE_TORCHIC;
+        TRAINER_BATTLE_PARAM.opponentB = 0xFFFF;
+        
+        if (GetMonData(&gParties[B_TRAINER_OPPONENT_A][0], MON_DATA_SPECIES) == SPECIES_VOLCANION)
+        {
+            gBattleTypeFlags |= BATTLE_TYPE_LEGENDARY | BATTLE_TYPE_WILD_BOSS;
+            PlayMapChosenOrBattleBGM(MUS_VS_VOLCANION);
+            BattleTransition_StartOnField(B_TRANSITION_BLUR);
+        }
+        else
+        {
+            PlayMapChosenOrBattleBGM(0);
+            BattleTransition_StartOnField(GetWildBattleTransition());
+        }
         gLinkType = LINKTYPE_BATTLE;
         ClearLinkCallback_2();
         task->tState++;
@@ -884,11 +898,6 @@ static void Task_StartWiredCableClubBattle(u8 taskId)
             task->tState++;
         break;
     case 5:
-        gBattleTypeFlags = BATTLE_TYPE_WILD_BOSS | BATTLE_TYPE_DOUBLE | BATTLE_TYPE_LINK | BATTLE_TYPE_MULTI | BATTLE_TYPE_TOWER_LINK_MULTI | BATTLE_TYPE_MULTIPLAYER;
-
-        TRAINER_BATTLE_PARAM.opponentA = TRAINER_MAY_LILYCOVE_TORCHIC;
-        TRAINER_BATTLE_PARAM.opponentB = 0xFFFF;
-
         CleanupOverworldWindowsAndTilemaps();
         SetMainCallback2(CB2_InitBattle);
         gMain.savedCallback = CB2_ReturnFromCableClubBattle;

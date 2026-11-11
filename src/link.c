@@ -25,6 +25,9 @@
 #include "battle.h"
 #include "link.h"
 #include "link_rfu.h"
+#include "event_object_movement.h"
+#include "fieldmap.h"
+#include "constants/event_objects.h"
 #include "constants/rgb.h"
 #include "constants/trade.h"
 
@@ -329,8 +332,9 @@ static void InitLocalLinkPlayer(void)
     {
         gLocalLinkPlayer.progressFlags |= 0x10;
     }
-    gLocalLinkPlayer.x = gSaveBlock1Ptr->pos.x;
-    gLocalLinkPlayer.y = gSaveBlock1Ptr->pos.y;
+    struct ObjectEvent *objEvent = &gObjectEvents[GetObjectEventIdByLocalId(OBJ_EVENT_ID_PLAYER)];
+    gLocalLinkPlayer.x = objEvent->currentCoords.x - MAP_OFFSET;
+    gLocalLinkPlayer.y = objEvent->currentCoords.y - MAP_OFFSET;
     gLocalLinkPlayer.facingDirection = gObjectEvents[gPlayerAvatar.objectEventId].facingDirection;
 }
 

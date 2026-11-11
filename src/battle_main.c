@@ -3147,8 +3147,6 @@ static void DoBattleIntro(void)
     s32 i;
     enum BattlerId battler;
 
-    DebugPrintf("DoBattleIntro state = %d", gBattleStruct->eventState.battleIntro);
-
     switch ((enum BattleIntroStates)gBattleStruct->eventState.battleIntro)
     {
     case BATTLE_INTRO_STATE_GET_MON_DATA:
@@ -5283,7 +5281,6 @@ static void HandleEndTurn_MonFled(void)
 
 static void HandleEndTurn_FinishBattle(void)
 {
-    DebugPrintf("HandleEndTurn_FinishBattle");
     if (gCurrentActionFuncId == B_ACTION_TRY_FINISH || gCurrentActionFuncId == B_ACTION_FINISHED)
     {
         if ((!(gBattleTypeFlags & (BATTLE_TYPE_LINK

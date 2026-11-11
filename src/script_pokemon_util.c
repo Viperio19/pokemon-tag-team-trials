@@ -147,7 +147,7 @@ void CreateScriptedWildMon(enum Species species, u8 level, enum Item item)
     }
     if (species == SPECIES_VOLCANION)
     {
-        if (VarGet(VAR_VOLCANION_CAVE_3F_STATE) == 0)
+        if (VarGet(VAR_VOLCANION_CAVE_3F_STATE) <= 3)
             SetMonData(&gParties[B_TRAINER_OPPONENT_A][0], MON_DATA_NICKNAME, COMPOUND_STRING("???"));
 
         u16 hp = GetMonData(&gParties[B_TRAINER_OPPONENT_A][0], MON_DATA_HP);
