@@ -77,7 +77,8 @@ VolcanionCave_3F_EventScript_SetPlayersForMultiplayerIntro2::
 VolcanionCave_3F_OnFrame:
 	map_script_2 VAR_ACTION_ON_FRAME, 1, Player2_EventScript_Save
 	map_script_2 VAR_ACTION_ON_FRAME, 2, Player2_EventScript_Reconnect
-	map_script_2 VAR_P2_INTERACTION_STATE, 20, EventScript_Player2_Warp
+	map_script_2 VAR_P2_INTERACTION_STATE, 10, EventScript_Player2_Warp
+	map_script_2 VAR_P2_INTERACTION_STATE, 15, VolcanionCave_3F_EventScript_DiglettPlayer2
 	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 0, VolcanionCave_3F_EventScript_EnterCave
 	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 1, VolcanionCave_3F_EventScript_EnterCaveMultiplayer
 	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 2, VolcanionCave_3F_EventScript_IntroPostBattle
@@ -93,7 +94,7 @@ VolcanionCave_3F_EventScript_EnterCave::
 	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_3F_EventScript_PlayersEnter
 	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_3F_EventScript_PlayersEnter2
 VolcanionCave_3F_EventScript_Intro::
-	setflag FLAG_PLAYER_ONE_CONTROLS_TEXT
+	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 1
 	delay 10
 	applymovement LOCALID_PLAYER_MAGMA, Common_Movement_WalkInPlaceFasterLeft
 	applymovement LOCALID_PLAYER_AQUA, Common_Movement_WalkInPlaceFasterRight
@@ -155,7 +156,7 @@ VolcanionCave_3F_EventScript_Intro::
 	closemessage
 	special WaitWeather
 	setwildbattle SPECIES_VOLCANION, 40, TRUE
-	clearflag FLAG_PLAYER_ONE_CONTROLS_TEXT
+	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 0
 	special RemoveCameraObject
 	@ Multiplayer battle
 	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
@@ -166,7 +167,7 @@ VolcanionCave_3F_EventScript_Intro::
 	goto_if_eq VAR_RESULT, B_OUTCOME_WON, VolcanionCave_3F_EventScript_DefeatedVolcanion
 VolcanionCave_3F_EventScript_IntroPostBattle::
 	special SpawnCameraObject
-	setflag FLAG_PLAYER_ONE_CONTROLS_TEXT
+	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 1
 	message VolcanionCave_3F_Text_IntroAwNuts
 	waitmessage
 	closemessage
@@ -220,7 +221,7 @@ VolcanionCave_3F_EventScript_IntroPostBattle::
 	forcesave
 	closemessage
 VolcanionCave_3F_EventScript_IntroEnd::
-	clearflag FLAG_PLAYER_ONE_CONTROLS_TEXT
+	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 0
 	release
 	end
 
@@ -2579,14 +2580,64 @@ VolcanionCave_3F_Movement_ExitHoleWest::
 
 VolcanionCave_3F_EventScript_Diglett::
 	lock
-	applymovement LOCALID_3F_DIGLETT, Common_Movement_FacePlayer
-	waitmovement 0
+	special SpawnCameraObject
+	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
+	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_3F_EventScript_DiglettMultiplayer
 	callnative IsPlayerOne
 	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_3F_EventScript_DiglettMagma
 	goto VolcanionCave_3F_EventScript_DiglettAqua
 	end
 
+VolcanionCave_3F_EventScript_DiglettMultiplayer::
+	message gText_PleaseWaitForLink
+	waitmessage
+	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 15
+VolcanionCave_3F_EventScript_DiglettWaitForPlayer2::
+	delay 1
+	goto_if_ne VAR_P2_INTERACTION_STATE, 15, VolcanionCave_3F_EventScript_DiglettWaitForPlayer2
+	setvar VAR_P2_INTERACTION_STATE, 0
+
+	@ Set current player in control of text
+	callnative IsPlayerOne
+	call_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_SetP1ControlsText
+	call_if_eq VAR_RESULT, FALSE, Player2_Multiplayer_SetP2ControlsText
+
+	@ Start cutscene for both players
+	callnative IsPlayerOne
+	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_3F_EventScript_DiglettMagma
+	goto VolcanionCave_3F_EventScript_DiglettAqua
+	end
+
+VolcanionCave_3F_EventScript_DiglettPlayer2::
+	lock
+	setvar VAR_P2_INTERACTION_STATE, 0
+	setflag FLAG_WATCHING_OTHER_PLAYER_CUTSCENE
+	getplayerxy VAR_0x8002, VAR_0x8003
+
+	@ Move to other player position
+	special SpawnCameraObject
+	fadescreen FADE_TO_BLACK
+	setobjectxy LOCALID_CAMERA, 9, 21
+	fadescreen FADE_FROM_BLACK
+	callnative UpdateSaveBlockPosToCamera
+	special DrawWholeMapView
+	delay 10
+
+	@ Set other player in control of text
+	callnative IsPlayerOne
+	call_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_SetP2ControlsText
+	call_if_eq VAR_RESULT, FALSE, Player2_Multiplayer_SetP1ControlsText
+
+	@ Start cutscene for both players
+	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 15
+	callnative IsPlayerOne
+	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_3F_EventScript_DiglettAqua
+	goto VolcanionCave_3F_EventScript_DiglettMagma
+	end
+
 VolcanionCave_3F_EventScript_DiglettMagma::
+	call_if_set FLAG_WATCHING_OTHER_PLAYER_CUTSCENE, VolcanionCave_3F_EventScript_DiglettFacePlayer2
+	call_if_unset FLAG_WATCHING_OTHER_PLAYER_CUTSCENE, VolcanionCave_3F_EventScript_DiglettFacePlayer
 	call VolcanionCave_3F_EventScript_DiglettCry
 	message VolcanionCave_3F_Text_AskDiggsHelpMagma
 	waitmessage
@@ -2605,10 +2656,14 @@ VolcanionCave_3F_EventScript_DiglettMagma::
 	message VolcanionCave_3F_Text_RipDiggsMagma
 	waitmessage
 	closemessage
+	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 0
+	goto_if_set FLAG_WATCHING_OTHER_PLAYER_CUTSCENE, VolcanionCave_3F_EventScript_Player2CutsceneEnd
 	release
 	end
 
 VolcanionCave_3F_EventScript_DiglettAqua::
+	call_if_set FLAG_WATCHING_OTHER_PLAYER_CUTSCENE, VolcanionCave_3F_EventScript_DiglettFacePlayer2
+	call_if_unset FLAG_WATCHING_OTHER_PLAYER_CUTSCENE, VolcanionCave_3F_EventScript_DiglettFacePlayer
 	call VolcanionCave_3F_EventScript_AgentDiggsCry
 	message VolcanionCave_3F_Text_AskDiggsHelpAqua
 	waitmessage
@@ -2627,6 +2682,30 @@ VolcanionCave_3F_EventScript_DiglettAqua::
 	message VolcanionCave_3F_Text_RipDiggsAqua
 	waitmessage
 	closemessage
+	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 0
+	goto_if_set FLAG_WATCHING_OTHER_PLAYER_CUTSCENE, VolcanionCave_3F_EventScript_Player2CutsceneEnd
+	release
+	end
+
+VolcanionCave_3F_EventScript_DiglettFacePlayer::
+	applymovement LOCALID_3F_DIGLETT, Common_Movement_FacePlayer
+	return
+
+VolcanionCave_3F_EventScript_DiglettFacePlayer2::
+	applymovement LOCALID_3F_DIGLETT, Common_Movement_FacePlayer2
+	return
+
+VolcanionCave_3F_EventScript_Player2CutsceneEnd::
+	special RemoveCameraObject
+	clearflag FLAG_WATCHING_OTHER_PLAYER_CUTSCENE
+	fadescreen FADE_TO_BLACK
+	special SpawnCameraObject
+	setobjectxy LOCALID_CAMERA, VAR_0x8002, VAR_0x8003
+	fadescreen FADE_FROM_BLACK
+	callnative UpdateSaveBlockPosToCamera
+	special RemoveCameraObject
+	special DrawWholeMapView
+	delay 10
 	release
 	end
 
@@ -2645,7 +2724,6 @@ VolcanionCave_3F_EventScript_AgentDiggsCry::
 	return
 
 VolcanionCave_3F_EventScript_DiglettUseDig::
-	special SpawnCameraObject
 	applymovement LOCALID_3F_DIGLETT, VolcanionCave_3F_Movement_DiglettDigDown
 	delay 10
 	playse SE_M_DIG
@@ -2687,6 +2765,7 @@ VolcanionCave_3F_EventScript_DiglettUseDig::
 	call VolcanionCave_3F_EventScript_SetHPBar
 	lock
 	fadedefaultbgm
+	special DrawWholeMapView
 	applymovement LOCALID_CAMERA, VolcanionCave_3F_Movement_CameraMoveDownToDiglett
 	applymovement LOCALID_3F_DIGLETT, VolcanionCave_3F_Movement_DiglettDigBackUp
 	waitmovement 0
@@ -2708,69 +2787,69 @@ VolcanionCave_3F_EventScript_VolcanionUseSteamEruption::
 	delay 20
 	playse SE_M_HYDRO_PUMP
 	setmetatile 16, 22, METATILE_General_SteamEruption_EndFloor, FALSE
-	special DrawWholeMapView
+	callnative DrawPartialMapView
 	delay 2
 	setmetatile 16, 22, METATILE_General_SteamEruption_EndFull, FALSE
-	special DrawWholeMapView
+	callnative DrawPartialMapView
 	delay 2
 	setmetatile 16, 22, METATILE_General_SteamEruption_Connection, FALSE
 	setmetatile 16, 23, METATILE_General_SteamEruption_EndStairs, FALSE
-	special DrawWholeMapView
+	callnative DrawPartialMapView
 	delay 2
 	setmetatile 16, 22, METATILE_General_SteamEruption_Main, FALSE
 	setmetatile 16, 23, METATILE_General_SteamEruption_EndFull, FALSE
-	special DrawWholeMapView
+	callnative DrawPartialMapView
 	delay 2
 	setmetatile 16, 22, METATILE_General_SteamEruption_Main, FALSE
 	setmetatile 16, 23, METATILE_General_SteamEruption_Connection, FALSE
 	setmetatile 16, 24, METATILE_General_SteamEruption_EndFloor, FALSE
-	special DrawWholeMapView
+	callnative DrawPartialMapView
 	applymovement LOCALID_3F_DIGLETT, VolcanionCave_3F_Movement_DiglettGetPushedBack
 	applymovement LOCALID_CAMERA, VolcanionCave_3F_Movement_DiglettGetPushedBack
 	delay 2
 	setmetatile 16, 22, METATILE_General_SteamEruption_Main, FALSE
 	setmetatile 16, 23, METATILE_General_SteamEruption_Main, FALSE
 	setmetatile 16, 24, METATILE_General_SteamEruption_EndFull, FALSE
-	special DrawWholeMapView
+	callnative DrawPartialMapView
 	delay 2
 	setmetatile 16, 22, METATILE_General_SteamEruption_Main, FALSE
 	setmetatile 16, 23, METATILE_General_SteamEruption_Main, FALSE
 	setmetatile 16, 24, METATILE_General_SteamEruption_Connection, FALSE
 	setmetatile 16, 25, METATILE_General_SteamEruption_EndFloor, FALSE
-	special DrawWholeMapView
+	callnative DrawPartialMapView
 	delay 100
 	setmetatile 16, 22, METATILE_General_SteamEruption_BottomHalf, FALSE
 	setmetatile 16, 23, METATILE_General_SteamEruption_Main, FALSE
 	setmetatile 16, 24, METATILE_General_SteamEruption_Main, FALSE
 	setmetatile 16, 25, METATILE_General_SteamEruption_EndTopHalf, FALSE
-	special DrawWholeMapView
+	callnative DrawPartialMapView
 	delay 2
 	setmetatile 16, 22, METATILE_Cave_FloorSmooth, FALSE
 	setmetatile 16, 23, METATILE_General_SteamEruption_Main, FALSE
 	setmetatile 16, 24, METATILE_General_SteamEruption_Main, FALSE
 	setmetatile 16, 25, METATILE_General_SteamEruption_TopHalf, FALSE
-	special DrawWholeMapView
+	callnative DrawPartialMapView
 	delay 2
 	setmetatile 16, 23, METATILE_General_SteamEruption_BottomHalfStairs, FALSE
 	setmetatile 16, 24, METATILE_General_SteamEruption_Main, FALSE
 	setmetatile 16, 25, METATILE_General_SteamEruption_TopHalf, FALSE
-	special DrawWholeMapView
+	callnative DrawPartialMapView
 	delay 2
 	setmetatile 16, 23, METATILE_Cave_Stairs, FALSE
 	setmetatile 16, 24, METATILE_General_SteamEruption_Main, FALSE
 	setmetatile 16, 25, METATILE_General_SteamEruption_TopHalf, FALSE
-	special DrawWholeMapView
+	callnative DrawPartialMapView
 	delay 2
 	setmetatile 16, 24, METATILE_General_SteamEruption_BottomHalf, FALSE
 	setmetatile 16, 25, METATILE_General_SteamEruption_TopHalf, FALSE
-	special DrawWholeMapView
+	callnative DrawPartialMapView
 	delay 2
 	setmetatile 16, 24, METATILE_Cave_FloorSmooth, FALSE
 	setmetatile 16, 25, METATILE_General_SteamEruption_TopHalf, FALSE
-	special DrawWholeMapView
+	callnative DrawPartialMapView
 	delay 2
 	setmetatile 16, 25, METATILE_Cave_FloorSmooth, FALSE
-	special DrawWholeMapView
+	callnative DrawPartialMapView
 	closemessage
 	playse SE_SUPER_EFFECTIVE
 	applymovement LOCALID_3F_DIGLETT, VolcanionCave_3F_Movement_PlayerFlicker
@@ -2790,11 +2869,21 @@ VolcanionCave_3F_EventScript_VolcanionUseSteamEruption::
 
 VolcanionCave_3F_EventScript_CameraMoveToPlayerAfterSteamEruption::
 	playse SE_PIN
+	call_if_set FLAG_WATCHING_OTHER_PLAYER_CUTSCENE, VolcanionCave_3F_EventScript_Player2ExclamationMark
+	call_if_unset FLAG_WATCHING_OTHER_PLAYER_CUTSCENE, VolcanionCave_3F_EventScript_PlayerExclamationMark
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	delay 20
 	applymovement LOCALID_CAMERA, VolcanionCave_3F_Movement_CameraMoveToPlayerAfterSteamEruption
 	waitmovement 0
 	special RemoveCameraObject
+	return
+
+VolcanionCave_3F_EventScript_PlayerExclamationMark::
+	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
+	return
+
+VolcanionCave_3F_EventScript_Player2ExclamationMark::
+	applymovement LOCALID_PLAYER_2, Common_Movement_ExclamationMark
 	return
 
 VolcanionCave_3F_Movement_DiglettDigDown::

@@ -242,7 +242,7 @@
 #define VAR_SOOTOPOLIS_WALLACE_STATE                     0x40D8
 #define VAR_HAS_TALKED_TO_SEAFLOOR_CAVERN_ENTRANCE_GRUNT 0x40D9
 #define VAR_REGISTER_BIRCH_STATE                         0x40DA
-#define VAR_UNUSED_0x40DB                                0x40DB
+#define VAR_ONE_PLAYER_CONTROLS_TEXT                     0x40DB
 #define VAR_VOLCANION_CAVE_2F_STRENGTH_BUTTON_4          0x40DC
 #define VAR_GIFT_PICHU_SLOT                              0x40DD
 #define VAR_LOCALID_CURRENT_HP_BAR                       0x40DE
@@ -251,7 +251,7 @@
 #define VAR_GOLEM_ROCK_SLIDE_STATE                       0x40E1
 #define VAR_GOLEM_ROCK_SLIDE_TIMER                       0x40E2
 #define VAR_VOLCANION_CAVE_3F_PIKACHU_STATE              0x40E3
-#define VAR_ACTION_ON_FRAME                                0x40E4
+#define VAR_ACTION_ON_FRAME                              0x40E4
 #define VAR_VOLCANION_CAVE_2F_STRENGTH_BUTTON_3          0x40E5
 #define VAR_DAILY_SLOTS                                  0x40E6
 #define VAR_DAILY_WILDS                                  0x40E7

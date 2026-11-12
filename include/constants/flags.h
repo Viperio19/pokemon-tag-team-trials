@@ -121,8 +121,8 @@
 #define FLAG_PLAYER_2_FINISHED_SCRIPT              0x288
 #define FLAG_PLAYER_2_READY_FOR_LINK_BATTLE        0x289
 #define FLAG_DO_QUICK_CONNECTION                   0x28A
-#define FLAG_PLAYER_ONE_CONTROLS_TEXT              0x28B
-#define FLAG_PLAYER_ONE_PRESSED_BUTTON             0x28C
+#define FLAG_WATCHING_OTHER_PLAYER_CUTSCENE        0x28B
+#define FLAG_PLAYER_IN_CONTROL_PRESSED_BUTTON      0x28C
 #define FLAG_RESET_ROOM                            0x28D
 #define FLAG_DONT_FADE_IN_MAP                      0x28E
 #define FLAG_DONT_FADE_OUT_MAP                     0x28F

@@ -108,7 +108,6 @@ Player2Aqua_Singleplayer_TakeGoodCareOfPokemon::
 	return
 
 Player2_Singleplayer_Talk::
-	setflag FLAG_PLAYER_ONE_CONTROLS_TEXT
 	goto_if_unset FLAG_HIDE_VOLCANION_CAVE_1F_BREAKABLE_ROCK, Player2_Message_Talk
 	goto_if_unset FLAG_DEFEATED_VOLCANION_CAVE_1F_GOLEM, Player2_Message_PreGolem
 	goto_if_eq VAR_VOLCANION_CAVE_2F_STATE, 0, Player2_Message_PreRoom2
@@ -492,7 +491,7 @@ Player2_Multiplayer_WaitResponse::
 	addvar VAR_P2_INTERACTION_COUNTDOWN, 1
 	goto_if_eq VAR_P2_INTERACTION_COUNTDOWN, 50, Player2_Multiplayer_OtherPlayerBusy
 	goto_if_eq VAR_P2_INTERACTION_STATE, 0, Player2_Multiplayer_WaitResponse
-	goto_if_eq VAR_P2_INTERACTION_STATE, 10, Player2_Multiplayer_OtherPlayerBusy
+	goto_if_eq VAR_P2_INTERACTION_STATE, 5, Player2_Multiplayer_OtherPlayerBusy
 	faceplayer
 	callnative IsPlayerOne
 	call_if_eq VAR_RESULT, TRUE, Player2Magma_Message_HiPlayer
@@ -528,8 +527,19 @@ Player2_Multiplayer_MultiChoiceNoTrade::
 
 Player2_Multiplayer_Talk::
 	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 2
+	callnative IsPlayerOne
+	call_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_SetP1ControlsText
+	call_if_eq VAR_RESULT, FALSE, Player2_Multiplayer_SetP2ControlsText
 	goto Player2_Singleplayer_Talk
 	end
+
+Player2_Multiplayer_SetP1ControlsText::
+	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 1
+	return
+
+Player2_Multiplayer_SetP2ControlsText::
+	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 2
+	return
 
 Player2_Multiplayer_Trade::
 	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 3
@@ -564,10 +574,17 @@ EventScript_Player2_GotInteractedWith::
 	waitmessage
 Player2_Multiplayer_WaitOtherPlayerDecision::
 	delay 1
-	goto_if_eq VAR_P2_INTERACTION_STATE, 2, Player2_Singleplayer_Talk
+	goto_if_eq VAR_P2_INTERACTION_STATE, 2, Player2_Multiplayer_Interacted_Talk
 	goto_if_eq VAR_P2_INTERACTION_STATE, 3, Player2_Multiplayer_Trade
 	goto_if_eq VAR_P2_INTERACTION_STATE, 4, Player2_Multiplayer_CancelInverted
 	goto Player2_Multiplayer_WaitOtherPlayerDecision
+	end
+
+Player2_Multiplayer_Interacted_Talk::
+	callnative IsPlayerOne
+	call_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_SetP2ControlsText
+	call_if_eq VAR_RESULT, FALSE, Player2_Multiplayer_SetP1ControlsText
+	goto Player2_Singleplayer_Talk
 	end
 
 Player2_Multiplayer_CancelInverted::
@@ -588,7 +605,7 @@ Player2_Text_WaitingForOtherPlayerChoice::
 Player2_Multiplayer_TalkFinish::
 	closemessage
 	setvar VAR_P2_INTERACTION_STATE, 0
-	clearflag FLAG_PLAYER_ONE_CONTROLS_TEXT
+	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 0
 	release
 	end
 
@@ -705,10 +722,10 @@ Player2_Text_EndOfDemo::
 EventScript_Player2_Warp::
 	message gText_PleaseWaitForLink
 	waitmessage
-	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 20
+	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 10
 Player2_EventScript_WaitForWarp::
 	delay 1
-	goto_if_ne VAR_P2_INTERACTION_STATE, 20, Player2_EventScript_WaitForWarp
+	goto_if_ne VAR_P2_INTERACTION_STATE, 10, Player2_EventScript_WaitForWarp
 	setvar VAR_P2_INTERACTION_STATE, 0
 	setflag FlAG_SHOW_PLAYER_2
 	@ Warp to current position

@@ -11,6 +11,7 @@
 #include "rotating_gate.h"
 #include "sprite.h"
 #include "text.h"
+#include "constants/event_objects.h"
 
 //EWRAM_DATA bool8 gUnusedBikeCameraAheadPanback = FALSE;   //  Old EWRAM variable that was never set to anything other than false
 
@@ -94,6 +95,35 @@ void GetCameraOffsetWithPan(s16 *x, s16 *y)
 void DrawWholeMapView(void)
 {
     DrawWholeMapViewInternal(gSaveBlock1Ptr->pos.x, gSaveBlock1Ptr->pos.y, gMapHeader.mapLayout);
+    sFieldCameraOffset.copyBGToVRAM = TRUE;
+}
+
+static void DrawPartialMapViewInternal(int x, int y, const struct MapLayout *mapLayout)
+{
+    u8 i;
+    u8 j;
+    u32 r6;
+    u8 temp;
+
+    for (i = 6; i < 24; i += 2)
+    {
+        temp = sFieldCameraOffset.yTileOffset + i;
+        if (temp >= 32)
+            temp -= 32;
+        r6 = temp * 32;
+        for (j = 14; j < 16; j += 2)
+        {
+            temp = sFieldCameraOffset.xTileOffset + j;
+            if (temp >= 32)
+                temp -= 32;
+            DrawMetatileAt(mapLayout, r6 + temp, x + j / 2, y + i / 2);
+        }
+    }
+}
+
+void DrawPartialMapView(void)
+{
+    DrawPartialMapViewInternal(gSaveBlock1Ptr->pos.x, gSaveBlock1Ptr->pos.y, gMapHeader.mapLayout);
     sFieldCameraOffset.copyBGToVRAM = TRUE;
 }
 
@@ -487,6 +517,19 @@ void CameraUpdate(void)
     AddCameraPixelOffset(&sFieldCameraOffset, movementSpeedX, movementSpeedY);
     gTotalCameraPixelOffsetX -= movementSpeedX;
     gTotalCameraPixelOffsetY -= movementSpeedY;
+}
+
+void UpdateSaveBlockPosToCamera(void)
+{
+    u8 objId = GetObjectEventIdByLocalId(LOCALID_CAMERA);
+    
+    int deltaX = gObjectEvents[objId].currentCoords.x - MAP_OFFSET - gSaveBlock1Ptr->pos.x;
+    int deltaY = gObjectEvents[objId].currentCoords.y - MAP_OFFSET - gSaveBlock1Ptr->pos.y;
+
+    CameraMove(deltaX, deltaY);
+    UpdateObjectEventsForCameraUpdate(deltaX, deltaY);
+    AddCameraTileOffset(&sFieldCameraOffset, deltaX * 2, deltaY * 2);
+    RedrawMapSlicesForCameraUpdate(&sFieldCameraOffset, deltaX * 2, deltaY * 2);
 }
 
 void SetCameraPanningCallback(void (*callback)(void))

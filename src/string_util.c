@@ -3,6 +3,7 @@
 #include "text.h"
 #include "strings.h"
 #include "union_room_chat.h"
+#include "event_data.h"
 
 EWRAM_DATA u8 gStringVar1[0x100] = {0};
 EWRAM_DATA u8 gStringVar2[0x100] = {0};
@@ -440,6 +441,8 @@ static const u8 *ExpandPlaceholder_UnknownStringVar(void)
 
 static const u8 *ExpandPlaceholder_PlayerName(void)
 {
+    if (FlagGet(FLAG_WATCHING_OTHER_PLAYER_CUTSCENE))
+        return gSaveBlock2Ptr->player2Name;
     return gSaveBlock2Ptr->playerName;
 }
 

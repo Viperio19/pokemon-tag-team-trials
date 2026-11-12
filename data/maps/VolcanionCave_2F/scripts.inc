@@ -77,7 +77,7 @@ VolcanionCave_2F_EventScript_HidePlayers::
 VolcanionCave_2F_OnFrame:
 	map_script_2 VAR_ACTION_ON_FRAME, 1, Player2_EventScript_Save
 	map_script_2 VAR_ACTION_ON_FRAME, 2, Player2_EventScript_Reconnect
-	map_script_2 VAR_P2_INTERACTION_STATE, 20, EventScript_Player2_Warp
+	map_script_2 VAR_P2_INTERACTION_STATE, 10, EventScript_Player2_Warp
 	map_script_2 VAR_VOLCANION_CAVE_2F_STATE, 0, VolcanionCave_2F_EventScript_EnterCave
 	map_script_2 VAR_VOLCANION_CAVE_2F_STATE, 2, VolcanionCave_2F_EventScript_EnterCaveMultiplayer
 	map_script_2 VAR_OLD_ROD_STATE, 10, VolcanionCave_2F_EventScript_DropOldRod
@@ -96,7 +96,7 @@ VolcanionCave_2F_EventScript_EnterCave::
 	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_2F_EventScript_PlayersEnter2
 VolcanionCave_2F_EventScript_Intro::
 	setvar VAR_VOLCANION_CAVE_2F_STATE, 3
-	setflag FLAG_PLAYER_ONE_CONTROLS_TEXT
+	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 1
 	delay 30
 	applymovement LOCALID_PLAYER_MAGMA, Common_Movement_WalkInPlaceFasterLeft
 	applymovement LOCALID_PLAYER_AQUA, Common_Movement_WalkInPlaceFasterRight
@@ -113,7 +113,7 @@ VolcanionCave_2F_EventScript_Intro::
 	forcesave
 	closemessage
 VolcanionCave_2F_EventScript_IntroEnd::
-	clearflag FLAG_PLAYER_ONE_CONTROLS_TEXT
+	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 0
 	callnative UpdatePlayer2Pos
 	release
 	end

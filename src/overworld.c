@@ -3329,7 +3329,7 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
                 ScriptContext_SetupScript(EventScript_Player2_GotInteractedWith);
             }
             else
-                EnqueuePlayer2CommandToSend(P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 10, 0);
+                EnqueuePlayer2CommandToSend(P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 5, 0);
             break;
         case P2_CMD_REMOVE_OBJECT:
             RemoveAnyObjectEventByLocalIdAndMap(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);

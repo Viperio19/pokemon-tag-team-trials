@@ -1246,20 +1246,21 @@ bool32 TextPrinterWaitAutoMode(struct TextPrinter *textPrinter)
 
 void SetResultWithButtonPress(bool32 *result)
 {
-    if (IS_MULTIPLAYER && FlagGet(FLAG_PLAYER_ONE_CONTROLS_TEXT))
+    if (IS_MULTIPLAYER && VarGet(VAR_ONE_PLAYER_CONTROLS_TEXT) > 0)
     {
-        if (IS_PLAYER_ONE)
+        if ((IS_PLAYER_ONE && VarGet(VAR_ONE_PLAYER_CONTROLS_TEXT) == 1)
+         || (!IS_PLAYER_ONE && VarGet(VAR_ONE_PLAYER_CONTROLS_TEXT) == 2))
         {
             if (JOY_NEW(A_BUTTON | B_BUTTON))
             {
-                EnqueuePlayer2CommandToSend(P2_CMD_CONTROL_FLAG, FLAG_PLAYER_ONE_PRESSED_BUTTON, TRUE, 0);
+                EnqueuePlayer2CommandToSend(P2_CMD_CONTROL_FLAG, FLAG_PLAYER_IN_CONTROL_PRESSED_BUTTON, TRUE, 0);
                 *result = TRUE;
                 PlaySE(SE_SELECT);
             }
         }
-        else if (FlagGet(FLAG_PLAYER_ONE_PRESSED_BUTTON))
+        else if (FlagGet(FLAG_PLAYER_IN_CONTROL_PRESSED_BUTTON))
         {
-            FlagClear(FLAG_PLAYER_ONE_PRESSED_BUTTON);
+            FlagClear(FLAG_PLAYER_IN_CONTROL_PRESSED_BUTTON);
             *result = TRUE;
             PlaySE(SE_SELECT);
         }
