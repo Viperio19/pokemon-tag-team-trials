@@ -642,6 +642,7 @@ VolcanionCave_3F_EventScript_RemoveRockBarrier7::
 	return
 
 VolcanionCave_3F_EventScript_BlueButton::
+	enqueueplayer2command P2_CMD_PRESS_GEMS_BUTTON, 1
 	setvar VAR_TEMP_F, 1
 	playse SE_PIN
 	callnative UpdateGemMetatiles
@@ -654,6 +655,7 @@ VolcanionCave_3F_EventScript_BlueButtonGolem::
 	return
 
 VolcanionCave_3F_EventScript_RedButton::
+	enqueueplayer2command P2_CMD_PRESS_GEMS_BUTTON, 0
 	setvar VAR_TEMP_F, 0
 	playse SE_PIN
 	callnative UpdateGemMetatiles
@@ -2010,10 +2012,10 @@ VolcanionCave_3F_EventScript_GolemSatisfied::
 	end
 
 VolcanionCave_3F_EventScript_Hole1A::
-	jumphole VolcanionCave_3F_Movement_Hole1AToB, VolcanionCave_3F_Movement_ExitHoleNorth
+	jumpholep2 VolcanionCave_3F_Movement_Hole1AToB, VolcanionCave_3F_Movement_ExitHoleNorth, P2_MOVEMENT_EXIT_HOLE_NORTH
 
 VolcanionCave_3F_EventScript_Hole1B::
-	jumphole VolcanionCave_3F_Movement_Hole1BToA, VolcanionCave_3F_Movement_ExitHoleSouth
+	jumpholep2 VolcanionCave_3F_Movement_Hole1BToA, VolcanionCave_3F_Movement_ExitHoleSouth, P2_MOVEMENT_EXIT_HOLE_SOUTH
 
 VolcanionCave_3F_Movement_Hole1AToB::
 	walk_fast_up
@@ -2048,10 +2050,10 @@ VolcanionCave_3F_Movement_Hole1BToA::
 	step_end
 
 VolcanionCave_3F_EventScript_Hole2A::
-	jumphole VolcanionCave_3F_Movement_Hole2AToB, VolcanionCave_3F_Movement_ExitHoleSouth
+	jumpholep2 VolcanionCave_3F_Movement_Hole2AToB, VolcanionCave_3F_Movement_ExitHoleSouth, P2_MOVEMENT_EXIT_HOLE_SOUTH
 
 VolcanionCave_3F_EventScript_Hole2B::
-	jumphole VolcanionCave_3F_Movement_Hole2BToA, VolcanionCave_3F_Movement_ExitHoleNorth
+	jumpholep2 VolcanionCave_3F_Movement_Hole2BToA, VolcanionCave_3F_Movement_ExitHoleNorth, P2_MOVEMENT_EXIT_HOLE_NORTH
 
 VolcanionCave_3F_Movement_Hole2AToB::
 	walk_fast_down
@@ -2074,10 +2076,10 @@ VolcanionCave_3F_Movement_Hole2BToA::
 	step_end
 
 VolcanionCave_3F_EventScript_Hole3A::
-	jumphole VolcanionCave_3F_Movement_Hole3AToB, VolcanionCave_3F_Movement_ExitHoleWest
+	jumpholep2 VolcanionCave_3F_Movement_Hole3AToB, VolcanionCave_3F_Movement_ExitHoleWest, P2_MOVEMENT_EXIT_HOLE_WEST
 
 VolcanionCave_3F_EventScript_Hole3B::
-	jumphole VolcanionCave_3F_Movement_Hole3BToA, VolcanionCave_3F_Movement_ExitHoleNorth
+	jumpholep2 VolcanionCave_3F_Movement_Hole3BToA, VolcanionCave_3F_Movement_ExitHoleNorth, P2_MOVEMENT_EXIT_HOLE_NORTH
 
 VolcanionCave_3F_Movement_Hole3AToB::
 	walk_fast_left
@@ -2096,10 +2098,10 @@ VolcanionCave_3F_Movement_Hole3BToA::
 	step_end
 
 VolcanionCave_3F_EventScript_Hole4A::
-	jumphole VolcanionCave_3F_Movement_Hole4AToB, VolcanionCave_3F_Movement_ExitHoleNorth
+	jumpholep2 VolcanionCave_3F_Movement_Hole4AToB, VolcanionCave_3F_Movement_ExitHoleNorth, P2_MOVEMENT_EXIT_HOLE_NORTH
 
 VolcanionCave_3F_EventScript_Hole4B::
-	jumphole VolcanionCave_3F_Movement_Hole4BToA, VolcanionCave_3F_Movement_ExitHoleWest
+	jumpholep2 VolcanionCave_3F_Movement_Hole4BToA, VolcanionCave_3F_Movement_ExitHoleWest, P2_MOVEMENT_EXIT_HOLE_WEST
 
 VolcanionCave_3F_Movement_Hole4AToB::
 	walk_fast_left
@@ -2124,10 +2126,10 @@ VolcanionCave_3F_Movement_Hole4BToA::
 	step_end
 
 VolcanionCave_3F_EventScript_Hole5A::
-	jumphole VolcanionCave_3F_Movement_Hole5AToB, VolcanionCave_3F_Movement_ExitHoleNorth
+	jumpholep2 VolcanionCave_3F_Movement_Hole5AToB, VolcanionCave_3F_Movement_ExitHoleNorth, P2_MOVEMENT_EXIT_HOLE_NORTH
 
 VolcanionCave_3F_EventScript_Hole5B::
-	jumphole VolcanionCave_3F_Movement_Hole5BToA, VolcanionCave_3F_Movement_ExitHoleSouth
+	jumpholep2 VolcanionCave_3F_Movement_Hole5BToA, VolcanionCave_3F_Movement_ExitHoleSouth, P2_MOVEMENT_EXIT_HOLE_SOUTH
 
 VolcanionCave_3F_Movement_Hole5AToB::
 	walk_fast_down
@@ -2188,10 +2190,10 @@ VolcanionCave_3F_Movement_Hole5BToA::
 	step_end
 
 VolcanionCave_3F_EventScript_Hole6A::
-	jumphole VolcanionCave_3F_Movement_Hole6AToB, VolcanionCave_3F_Movement_ExitHoleWest
+	jumpholep2 VolcanionCave_3F_Movement_Hole6AToB, VolcanionCave_3F_Movement_ExitHoleWest, P2_MOVEMENT_EXIT_HOLE_WEST
 
 VolcanionCave_3F_EventScript_Hole6B::
-	jumphole VolcanionCave_3F_Movement_Hole6BToA, VolcanionCave_3F_Movement_ExitHoleNorth
+	jumpholep2 VolcanionCave_3F_Movement_Hole6BToA, VolcanionCave_3F_Movement_ExitHoleNorth, P2_MOVEMENT_EXIT_HOLE_NORTH
 
 VolcanionCave_3F_Movement_Hole6AToB::
 	walk_fast_down
@@ -2216,10 +2218,10 @@ VolcanionCave_3F_Movement_Hole6BToA::
 	step_end
 
 VolcanionCave_3F_EventScript_Hole7A::
-	jumphole VolcanionCave_3F_Movement_Hole7AToB, VolcanionCave_3F_Movement_ExitHoleWest
+	jumpholep2 VolcanionCave_3F_Movement_Hole7AToB, VolcanionCave_3F_Movement_ExitHoleWest, P2_MOVEMENT_EXIT_HOLE_WEST
 
 VolcanionCave_3F_EventScript_Hole7B::
-	jumphole VolcanionCave_3F_Movement_Hole7BToA, VolcanionCave_3F_Movement_ExitHoleSouth
+	jumpholep2 VolcanionCave_3F_Movement_Hole7BToA, VolcanionCave_3F_Movement_ExitHoleSouth, P2_MOVEMENT_EXIT_HOLE_SOUTH
 
 VolcanionCave_3F_Movement_Hole7AToB::
 	walk_fast_right
@@ -2274,10 +2276,10 @@ VolcanionCave_3F_Movement_Hole7BToA::
 	step_end
 
 VolcanionCave_3F_EventScript_Hole8A::
-	jumphole VolcanionCave_3F_Movement_Hole8AToB, VolcanionCave_3F_Movement_ExitHoleEast
+	jumpholep2 VolcanionCave_3F_Movement_Hole8AToB, VolcanionCave_3F_Movement_ExitHoleEast, P2_MOVEMENT_EXIT_HOLE_EAST
 
 VolcanionCave_3F_EventScript_Hole8B::
-	jumphole VolcanionCave_3F_Movement_Hole8BToA, VolcanionCave_3F_Movement_ExitHoleSouth
+	jumpholep2 VolcanionCave_3F_Movement_Hole8BToA, VolcanionCave_3F_Movement_ExitHoleSouth, P2_MOVEMENT_EXIT_HOLE_SOUTH
 
 VolcanionCave_3F_Movement_Hole8AToB::
 	walk_fast_right
@@ -2324,10 +2326,10 @@ VolcanionCave_3F_Movement_Hole8BToA::
 	step_end
 
 VolcanionCave_3F_EventScript_Hole9A::
-	jumphole VolcanionCave_3F_Movement_Hole9AToB, VolcanionCave_3F_Movement_ExitHoleSouth
+	jumpholep2 VolcanionCave_3F_Movement_Hole9AToB, VolcanionCave_3F_Movement_ExitHoleSouth, P2_MOVEMENT_EXIT_HOLE_SOUTH
 
 VolcanionCave_3F_EventScript_Hole9B::
-	jumphole VolcanionCave_3F_Movement_Hole9BToA, VolcanionCave_3F_Movement_ExitHoleWest
+	jumpholep2 VolcanionCave_3F_Movement_Hole9BToA, VolcanionCave_3F_Movement_ExitHoleWest, P2_MOVEMENT_EXIT_HOLE_WEST
 
 VolcanionCave_3F_Movement_Hole9AToB::
 	walk_fast_down
@@ -2366,10 +2368,10 @@ VolcanionCave_3F_Movement_Hole9BToA::
 	step_end
 
 VolcanionCave_3F_EventScript_Hole10A::
-	jumphole VolcanionCave_3F_Movement_Hole10AToB, VolcanionCave_3F_Movement_ExitHoleSouth
+	jumpholep2 VolcanionCave_3F_Movement_Hole10AToB, VolcanionCave_3F_Movement_ExitHoleSouth, P2_MOVEMENT_EXIT_HOLE_SOUTH
 
 VolcanionCave_3F_EventScript_Hole10B::
-	jumphole VolcanionCave_3F_Movement_Hole10BToA, VolcanionCave_3F_Movement_ExitHoleNorth
+	jumpholep2 VolcanionCave_3F_Movement_Hole10BToA, VolcanionCave_3F_Movement_ExitHoleNorth, P2_MOVEMENT_EXIT_HOLE_NORTH
 
 VolcanionCave_3F_Movement_Hole10AToB::
 	walk_fast_right
@@ -2390,10 +2392,10 @@ VolcanionCave_3F_Movement_Hole10BToA::
 	step_end
 
 VolcanionCave_3F_EventScript_Hole11A::
-	jumphole VolcanionCave_3F_Movement_Hole11AToB, VolcanionCave_3F_Movement_ExitHoleSouth
+	jumpholep2 VolcanionCave_3F_Movement_Hole11AToB, VolcanionCave_3F_Movement_ExitHoleSouth, P2_MOVEMENT_EXIT_HOLE_SOUTH
 
 VolcanionCave_3F_EventScript_Hole11B::
-	jumphole VolcanionCave_3F_Movement_Hole11BToA, VolcanionCave_3F_Movement_ExitHoleNorth
+	jumpholep2 VolcanionCave_3F_Movement_Hole11BToA, VolcanionCave_3F_Movement_ExitHoleNorth, P2_MOVEMENT_EXIT_HOLE_NORTH
 
 VolcanionCave_3F_Movement_Hole11AToB::
 	walk_fast_down
@@ -2416,10 +2418,10 @@ VolcanionCave_3F_Movement_Hole11BToA::
 	step_end
 
 VolcanionCave_3F_EventScript_Hole12A::
-	jumphole VolcanionCave_3F_Movement_Hole12AToB, VolcanionCave_3F_Movement_ExitHoleNorth
+	jumpholep2 VolcanionCave_3F_Movement_Hole12AToB, VolcanionCave_3F_Movement_ExitHoleNorth, P2_MOVEMENT_EXIT_HOLE_NORTH
 
 VolcanionCave_3F_EventScript_Hole12B::
-	jumphole VolcanionCave_3F_Movement_Hole12BToA, VolcanionCave_3F_Movement_ExitHoleEast
+	jumpholep2 VolcanionCave_3F_Movement_Hole12BToA, VolcanionCave_3F_Movement_ExitHoleEast, P2_MOVEMENT_EXIT_HOLE_EAST
 
 VolcanionCave_3F_Movement_Hole12AToB::
 	walk_fast_down
@@ -2474,10 +2476,10 @@ VolcanionCave_3F_Movement_Hole12BToA::
 	step_end
 
 VolcanionCave_3F_EventScript_Hole13A::
-	jumphole VolcanionCave_3F_Movement_Hole13AToB, VolcanionCave_3F_Movement_ExitHoleWest
+	jumpholep2 VolcanionCave_3F_Movement_Hole13AToB, VolcanionCave_3F_Movement_ExitHoleWest, P2_MOVEMENT_EXIT_HOLE_WEST
 
 VolcanionCave_3F_EventScript_Hole13B::
-	jumphole VolcanionCave_3F_Movement_Hole13BToA, VolcanionCave_3F_Movement_ExitHoleSouth
+	jumpholep2 VolcanionCave_3F_Movement_Hole13BToA, VolcanionCave_3F_Movement_ExitHoleSouth, P2_MOVEMENT_EXIT_HOLE_SOUTH
 
 VolcanionCave_3F_Movement_Hole13AToB::
 	walk_fast_up
@@ -2508,10 +2510,10 @@ VolcanionCave_3F_Movement_Hole13BToA::
 	step_end
 
 VolcanionCave_3F_EventScript_Hole14A::
-	jumphole VolcanionCave_3F_Movement_Hole14AToB, VolcanionCave_3F_Movement_ExitHoleEast
+	jumpholep2 VolcanionCave_3F_Movement_Hole14AToB, VolcanionCave_3F_Movement_ExitHoleEast, P2_MOVEMENT_EXIT_HOLE_EAST
 
 VolcanionCave_3F_EventScript_Hole14B::
-	jumphole VolcanionCave_3F_Movement_Hole14BToA, VolcanionCave_3F_Movement_ExitHoleNorth
+	jumpholep2 VolcanionCave_3F_Movement_Hole14BToA, VolcanionCave_3F_Movement_ExitHoleNorth, P2_MOVEMENT_EXIT_HOLE_NORTH
 
 VolcanionCave_3F_Movement_Hole14AToB::
 	walk_fast_up

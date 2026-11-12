@@ -770,16 +770,6 @@ extern const u8 VolcanionCave_2F_Movement_OldRodFloatY27[];
 extern const u8 VolcanionCave_2F_Movement_GoldeenGruntWalkInPlaceJumpRight[];
 extern const u8 VolcanionCave_2F_Movement_BoulderSlideDown[];
 
-extern const u8 VolcanionCave_2F_Movement_Hole1AToB[];
-extern const u8 VolcanionCave_2F_Movement_Hole1BToA[];
-extern const u8 VolcanionCave_2F_Movement_Hole2AToB[];
-extern const u8 VolcanionCave_2F_Movement_Hole2BToA[];
-extern const u8 VolcanionCave_2F_Movement_Hole3AToB[];
-extern const u8 VolcanionCave_2F_Movement_Hole3BToA[];
-extern const u8 VolcanionCave_2F_Movement_Hole4AToB[];
-extern const u8 VolcanionCave_2F_Movement_Hole4BToA[];
-extern const u8 VolcanionCave_2F_Movement_Hole5AToB[];
-extern const u8 VolcanionCave_2F_Movement_Hole5BToA[];
 extern const u8 VolcanionCave_2F_Movement_ExitHoleSouth[];
 extern const u8 VolcanionCave_2F_Movement_ExitHoleNorth[];
 extern const u8 VolcanionCave_2F_Movement_ExitHoleEast[];

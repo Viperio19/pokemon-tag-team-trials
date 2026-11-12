@@ -3187,16 +3187,6 @@ static const u8 *const sPlayer2MovementIdToScript[] =
     [P2_MOVEMENT_OLD_ROD_FLOAT_Y27] = VolcanionCave_2F_Movement_OldRodFloatY27,
     [P2_MOVEMENT_GOLDEEN_GRUNT_JUMP] = VolcanionCave_2F_Movement_GoldeenGruntWalkInPlaceJumpRight,
     [P2_MOVEMENT_BOULDER_SLIDE_DOWN] = VolcanionCave_2F_Movement_BoulderSlideDown,
-    [P2_MOVEMENT_HOLE_1AB] = VolcanionCave_2F_Movement_Hole1AToB,
-    [P2_MOVEMENT_HOLE_1BA] = VolcanionCave_2F_Movement_Hole1BToA,
-    [P2_MOVEMENT_HOLE_2AB] = VolcanionCave_2F_Movement_Hole2AToB,
-    [P2_MOVEMENT_HOLE_2BA] = VolcanionCave_2F_Movement_Hole2BToA,
-    [P2_MOVEMENT_HOLE_3AB] = VolcanionCave_2F_Movement_Hole3AToB,
-    [P2_MOVEMENT_HOLE_3BA] = VolcanionCave_2F_Movement_Hole3BToA,
-    [P2_MOVEMENT_HOLE_4AB] = VolcanionCave_2F_Movement_Hole4AToB,
-    [P2_MOVEMENT_HOLE_4BA] = VolcanionCave_2F_Movement_Hole4BToA,
-    [P2_MOVEMENT_HOLE_5AB] = VolcanionCave_2F_Movement_Hole5AToB,
-    [P2_MOVEMENT_HOLE_5BA] = VolcanionCave_2F_Movement_Hole5BToA,
     [P2_MOVEMENT_EXIT_HOLE_SOUTH] = VolcanionCave_2F_Movement_ExitHoleSouth,
     [P2_MOVEMENT_EXIT_HOLE_NORTH] = VolcanionCave_2F_Movement_ExitHoleNorth,
     [P2_MOVEMENT_EXIT_HOLE_EAST] = VolcanionCave_2F_Movement_ExitHoleEast,
@@ -3355,6 +3345,9 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
                 pos->x = arg2;
                 pos->y = arg3;
             }
+            break;
+        case P2_CMD_MOVE_PLAYER:
+            TryMoveObjectEventToMapCoords(LOCALID_PLAYER_2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, arg1, arg2);
             break;
         case P2_CMD_HIDE_OBJECT:
             SetObjectInvisibility(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, TRUE);
