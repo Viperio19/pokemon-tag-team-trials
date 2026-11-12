@@ -79,6 +79,7 @@ VolcanionCave_3F_OnFrame:
 	map_script_2 VAR_ACTION_ON_FRAME, 2, Player2_EventScript_Reconnect
 	map_script_2 VAR_P2_INTERACTION_STATE, 10, EventScript_Player2_Warp
 	map_script_2 VAR_P2_INTERACTION_STATE, 15, VolcanionCave_3F_EventScript_DiglettPlayer2
+	map_script_2 VAR_P2_INTERACTION_STATE, 16, VolcanionCave_3F_EventScript_ZinniaPlayer2
 	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 0, VolcanionCave_3F_EventScript_EnterCave
 	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 1, VolcanionCave_3F_EventScript_EnterCaveMultiplayer
 	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 2, VolcanionCave_3F_EventScript_IntroPostBattle
@@ -1197,13 +1198,75 @@ VolcanionCave_3F_Text_Epilogue::
 	.string "TO BE CONTINUED IN:\n"
 	.string "{PAUSE 60}POKéMON LEGENDS Z-A\p$"
 
+#define LOCALID_CUTSCENE_PLAYER VAR_0x800A
+#define VAR_CUTSCENE_TEAM       VAR_0x800B
+
+VolcanionCave_3F_EventScript_ZinniaTrigger::
+	lock
+	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
+	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_3F_EventScript_ZinniaMultiplayer
+	setvar LOCALID_CUTSCENE_PLAYER LOCALID_PLAYER
+	callnative IsPlayerOne
+	setvar VAR_CUTSCENE_TEAM, 2
+	subvar VAR_CUTSCENE_TEAM, VAR_RESULT
+	goto VolcanionCave_3F_EventScript_ZinniaEnter
+	end
+
+VolcanionCave_3F_EventScript_ZinniaMultiplayer::
+	message gText_PleaseWaitForLink
+	waitmessage
+	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 16
+VolcanionCave_3F_EventScriptZinniaWaitForPlayer2::
+	delay 1
+	goto_if_ne VAR_P2_INTERACTION_STATE, 16, VolcanionCave_3F_EventScriptZinniaWaitForPlayer2
+	setvar VAR_P2_INTERACTION_STATE, 0
+
+	@ Set current player in control of text
+	callnative IsPlayerOne
+	call_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_SetP1ControlsText
+	call_if_eq VAR_RESULT, FALSE, Player2_Multiplayer_SetP2ControlsText
+	setvar LOCALID_CUTSCENE_PLAYER LOCALID_PLAYER
+	copyvar VAR_CUTSCENE_TEAM VAR_ONE_PLAYER_CONTROLS_TEXT 
+
+	@ Start cutscene for both players
+	goto VolcanionCave_3F_EventScript_ZinniaEnter
+	end
+
+VolcanionCave_3F_EventScript_ZinniaPlayer2::
+	lock
+	setvar VAR_P2_INTERACTION_STATE, 0
+	setflag FLAG_WATCHING_OTHER_PLAYER_CUTSCENE
+	getplayerxy VAR_0x8002, VAR_0x8003
+
+	@ Move to other player position
+	special SpawnCameraObject
+	fadescreen FADE_TO_BLACK
+	setobjectxy LOCALID_CAMERA, 4, 38
+	fadescreen FADE_FROM_BLACK
+	callnative UpdateSaveBlockPosToCamera
+	special DrawWholeMapView
+	special RemoveCameraObject
+	delay 10
+
+	@ Set other player in control of text
+	callnative IsPlayerOne
+	call_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_SetP2ControlsText
+	call_if_eq VAR_RESULT, FALSE, Player2_Multiplayer_SetP1ControlsText
+	setvar LOCALID_CUTSCENE_PLAYER LOCALID_PLAYER_2
+	copyvar VAR_CUTSCENE_TEAM VAR_ONE_PLAYER_CONTROLS_TEXT 
+
+	@ Start cutscene for both players
+	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 16
+	goto VolcanionCave_3F_EventScript_ZinniaEnter
+	end
+
 VolcanionCave_3F_EventScript_ZinniaEnter::
 	setvar VAR_ZINNIA_STATE, 1
 	addobject LOCALID_3F_WHISMUR
 	applymovement LOCALID_3F_WHISMUR, VolcanionCave_3F_Movement_WhismurEnter
 	delay 4
 	playse SE_LEDGE
-	applymovement LOCALID_PLAYER, VolcanionCave_3F_Movement_PlayerGetPushedByWhismur
+	applymovement LOCALID_CUTSCENE_PLAYER, VolcanionCave_3F_Movement_PlayerGetPushedByWhismur
 	waitmovement 0
 	callnative HideWarpArrow
 	playmoncry SPECIES_WHISMUR, CRY_MODE_NORMAL
@@ -1216,12 +1279,17 @@ VolcanionCave_3F_EventScript_ZinniaEnter::
 	setobjectxyperm LOCALID_3F_ZINNIA, 4, 38
 	setobjectxy LOCALID_3F_ZINNIA, 4, 39
 	applymovement LOCALID_3F_ZINNIA, VolcanionCave_3F_Movement_ZinniaEnter
-	delay 30
-	playse SE_PIN
 	waitmovement 0
-	callnative IsPlayerOne
-	call_if_eq VAR_RESULT, TRUE, VolcanionCave_3F_EventScript_ZinniaDialogueAqua
-	call_if_eq VAR_RESULT, FALSE, VolcanionCave_3F_EventScript_ZinniaDialogueMagma
+	delay 10
+	call_if_eq VAR_CUTSCENE_TEAM, 1, VolcanionCave_3F_EventScript_ZinniaIntroAqua
+	call_if_eq VAR_CUTSCENE_TEAM, 2, VolcanionCave_3F_EventScript_ZinniaIntroMagma
+	waitmessage
+	waitse
+	playse SE_PIN
+	applymovement LOCALID_3F_ZINNIA, VolcanionCave_3F_Movement_ZinniaNoticePlayer
+	waitmovement 0
+	call_if_eq VAR_CUTSCENE_TEAM, 1, VolcanionCave_3F_EventScript_ZinniaDialogueAqua
+	call_if_eq VAR_CUTSCENE_TEAM, 2, VolcanionCave_3F_EventScript_ZinniaDialogueMagma
 	waitmessage
 	applymovement LOCALID_3F_ZINNIA, Common_Movement_WalkInPlaceUp
 	waitmovement 0
@@ -1250,9 +1318,8 @@ VolcanionCave_3F_EventScript_ZinniaEnter::
 	applymovement LOCALID_3F_WHISMUR, VolcanionCave_3F_Movement_WhismurRunToVolcanion
 	applymovement LOCALID_CAMERA, VolcanionCave_3F_Movement_CameraMoveWithWhismurToVolcanion
 	waitmovement 0
-	callnative IsPlayerOne
-	call_if_eq VAR_RESULT, TRUE, VolcanionCave_3F_EventScript_AsterUsedScreeeechAqua
-	call_if_eq VAR_RESULT, FALSE, VolcanionCave_3F_EventScript_AsterUsedScreeeechMagma
+	call_if_eq VAR_CUTSCENE_TEAM, 1, VolcanionCave_3F_EventScript_AsterUsedScreeeechAqua
+	call_if_eq VAR_CUTSCENE_TEAM, 2, VolcanionCave_3F_EventScript_AsterUsedScreeeechMagma
 	waitmessage
 	setvar VAR_0x8004, 0  @ Vertical pan
 	setvar VAR_0x8005, 7  @ Horizontal pan
@@ -1289,8 +1356,18 @@ VolcanionCave_3F_EventScript_ZinniaEnter::
 	message VolcanionCave_3F_Text_GoodJobAster
 	waitmessage
 	closemessage
+	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 0
+	goto_if_set FLAG_WATCHING_OTHER_PLAYER_CUTSCENE, VolcanionCave_3F_EventScript_Player2CutsceneEnd
 	release
 	end
+
+VolcanionCave_3F_EventScript_ZinniaIntroAqua::
+	message VolcanionCave_3F_Text_ZinniaIntroAqua
+	return
+
+VolcanionCave_3F_EventScript_ZinniaIntroMagma::
+	message VolcanionCave_3F_Text_ZinniaIntroMagma
+	return
 
 VolcanionCave_3F_EventScript_ZinniaDialogueAqua::
 	message VolcanionCave_3F_Text_ZinniaDialogueAqua
@@ -1323,7 +1400,9 @@ VolcanionCave_3F_Movement_PlayerGetPushedByWhismur::
 
 VolcanionCave_3F_Movement_ZinniaEnter::
 	walk_up
-	delay_16
+	step_end
+
+VolcanionCave_3F_Movement_ZinniaNoticePlayer::
 	emote_exclamation_mark
 	walk_in_place_right
 	step_end
@@ -1517,11 +1596,19 @@ VolcanionCave_3F_Movement_CameraMoveBackToZinnia::
 VolcanionCave_3F_Text_WhismurCry::
 	.string "{SPEAKER NAME_WHISMUR COLOR_ZINNIA}Walawala!\p$"
 
-VolcanionCave_3F_Text_ZinniaDialogueAqua::
+VolcanionCave_3F_Text_ZinniaIntroAqua::
 	.string "{SPEAKER NAME_AQUA_QUESTION COLOR_ZINNIA}Come on, ASTER!\p"
 	.string "We're so close to finding what we're\n"
 	.string "looking for, I can feel it!\p"
-	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}And what do we have here?\p"
+	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}And what do we have here?\p$"
+
+VolcanionCave_3F_Text_ZinniaIntroMagma::
+	.string "{SPEAKER NAME_AQUA_QUESTION COLOR_ZINNIA}Come on, ASTER!\p"
+	.string "We're so close to finding what we're\n"
+	.string "looking for, I can feel it!\p"
+	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}Weird.\p$"
+
+VolcanionCave_3F_Text_ZinniaDialogueAqua::
 	.string "{SPEAKER NAME_AQUA_QUESTION COLOR_ZINNIA}Excuse me?\p"
 	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}Just when I thought I found a new\n"
 	.string "AQUA GRUNT to befriend, this walking\l"
@@ -1534,7 +1621,7 @@ VolcanionCave_3F_Text_ZinniaDialogueAqua::
 	.string "isn't even dyed orange!\p"
 	.string "This is TEAM AQUA, not the CIRCUS!!\p"
 	.string "{SPEAKER NAME_AQUA_QUESTION COLOR_ZINNIA}Wow, and here I thought this was\n"
-	.string "a pretty convicing disguise.\p"
+	.string "a pretty convincing disguise.\p"
 	.string "You found me out, I'm not actually\n"
 	.string "a TEAM AQUA GRUNT.\p"
 	.string "{SPEAKER NAME_PLAYER_AQUA COLOR_AQUA}YOU'RE A SPY FROM TEAM MAGMA????\p"
@@ -1560,10 +1647,6 @@ VolcanionCave_3F_Text_ZinniaDialogueAqua::
 	.string "{SPEAKER NAME_ZINNIA COLOR_ZINNIA}You betcha!\p$"
 
 VolcanionCave_3F_Text_ZinniaDialogueMagma::
-	.string "{SPEAKER NAME_AQUA_QUESTION COLOR_ZINNIA}Come on, ASTER!\p"
-	.string "We're so close to finding what we're\n"
-	.string "looking for, I can feel it!\p"
-	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}Weird.\p"
 	.string "{SPEAKER NAME_AQUA_QUESTION COLOR_ZINNIA}Excuse me?\p"
 	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}Your hair, it's not orange like the\n"
 	.string "rest of the AQUA GRUNTS.\p"
