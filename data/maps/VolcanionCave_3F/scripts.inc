@@ -4189,6 +4189,8 @@ VolcanionCave_3F_EventScript_UseDig::
 	waitmoncry
 	waitmessage
 	playse SE_M_DIG
+	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
+	goto_if_eq VAR_RESULT, TRUE, Player2_EventScript_ResetMap
 	warp MAP_VOLCANION_CAVE_3F, 16, 35
 	waitstate
 	end

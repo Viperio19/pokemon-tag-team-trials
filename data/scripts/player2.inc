@@ -729,7 +729,7 @@ Player2_EventScript_WaitForWarp::
 	setvar VAR_P2_INTERACTION_STATE, 0
 	setflag FlAG_SHOW_PLAYER_2
 	@ Warp to current position
-	goto_if_set FLAG_RESET_ROOM, Player2_EventScript_WarpCurrentPosition
+	goto_if_set FLAG_RESET_ROOM, Player2_EventScript_WarpResetRoom
 	@ Warp to 2F
 	goto_if_eq VAR_VOLCANION_CAVE_2F_STATE, 0, Player2_EventScript_Warp2F
 	@ Warp to 3F
@@ -740,12 +740,31 @@ Player2_EventScript_WaitForWarp::
 	special CloseLinkAndWarp
 	end
 
-Player2_EventScript_WarpCurrentPosition::
+Player2_EventScript_WarpResetRoom::
+	goto_if_ne VAR_VOLCANION_CAVE_3F_STATE, 0, Player2_EventScript_WarpReset3F
 	setvar VAR_ACTION_ON_FRAME, 2
+	setflag FLAG_DONT_FADE_IN_MAP
 	callnative UpdatePlayer2Pos
 	callnative SetWarpCurrentPosition
 	special ReturnFromLinkRoom
 	end
+
+Player2_EventScript_WarpReset3F::
+	setvar VAR_ACTION_ON_FRAME, 2
+	setflag FLAG_DONT_FADE_IN_MAP
+	callnative IsPlayerOne
+	call_if_eq VAR_RESULT, TRUE, Player2_EventScript_SetWarpReset3FP1
+	call_if_eq VAR_RESULT, FALSE, Player2_EventScript_SetWarpReset3FP2
+	special CloseLinkAndWarp
+	end
+
+Player2_EventScript_SetWarpReset3FP1::
+	setwarp MAP_VOLCANION_CAVE_3F, 15, 32
+	return
+
+Player2_EventScript_SetWarpReset3FP2::
+	setwarp MAP_VOLCANION_CAVE_3F, 17, 32
+	return
 
 Player2_EventScript_Warp2F::
 	setvar VAR_ACTION_ON_FRAME, 2

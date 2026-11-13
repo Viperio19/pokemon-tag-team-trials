@@ -395,6 +395,8 @@ static void BuildMultiplayerStartMenu(void)
     AddStartMenuAction(MENU_ACTION_OPTION);
     if (!IsTagTeamTrialsLinkActive())
         AddStartMenuAction(MENU_ACTION_CONNECT);
+    else if (gSaveBlock1Ptr->location.mapNum == MAP_NUM(MAP_VOLCANION_CAVE_3F) && !FlagGet(FLAG_DOING_CREDITS))
+        AddStartMenuAction(MENU_ACTION_DIG);
     AddStartMenuAction(MENU_ACTION_EXIT);
 }
 
