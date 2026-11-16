@@ -414,6 +414,7 @@ Player2_EventScript_HandlePostBattleScript::
 	specialvar VAR_RESULT, GetBattleOutcome
 	goto_if_ne VAR_RESULT, B_OUTCOME_WON, Player2_EventScript_BattleLost
 	goto_if_unset FLAG_DEFEATED_VOLCANION_CAVE_1F_GOLEM, Player2_EventScript_DefeatedGolem
+	goto Player2_EventScript_DefeatedVolcanion
 	return
 
 Player2_EventScript_3FIntro::
@@ -425,6 +426,22 @@ Player2_EventScript_BattleLost::
 
 Player2_EventScript_DefeatedGolem::
 	setvar VAR_VOLCANION_CAVE_1F_STATE, 3
+	return
+
+Player2_EventScript_DefeatedVolcanion::
+	callnative IsPlayerOne
+	call_if_eq VAR_RESULT, TRUE, Player2_EventScript_SetPlayer1DefeatedVolcanion
+	call_if_eq VAR_RESULT, FALSE, Player2_EventScript_SetPlayer2DefeatedVolcanion
+	turnobject LOCALID_PLAYER, DIR_NORTH
+	setvar VAR_VOLCANION_CAVE_3F_STATE, 4
+	return
+
+Player2_EventScript_SetPlayer1DefeatedVolcanion::
+	setobjectxy LOCALID_PLAYER, 15, 22
+	return
+
+Player2_EventScript_SetPlayer2DefeatedVolcanion::
+	setobjectxy LOCALID_PLAYER, 17, 22
 	return
 
 Player2_EventScript_Reconnect::

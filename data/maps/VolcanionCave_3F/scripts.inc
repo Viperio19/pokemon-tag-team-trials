@@ -83,6 +83,8 @@ VolcanionCave_3F_OnFrame:
 	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 0, VolcanionCave_3F_EventScript_EnterCave
 	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 1, VolcanionCave_3F_EventScript_EnterCaveMultiplayer
 	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 2, VolcanionCave_3F_EventScript_IntroPostBattle
+	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 4, VolcanionCave_3F_EventScript_DefeatedVolcanion
+	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 6, VolcanionCave_3F_EventScript_CreditsSequence
 	.2byte 0
 
 #define LOCALID_PLAYER_AQUA  VAR_0x800A
@@ -767,6 +769,9 @@ VolcanionCave_3F_EventScript_Volcanion::
 	lock
 	call VolcanionCave_3F_EventScript_VolcanionCry
 	closemessage
+	setwildbattle SPECIES_VOLCANION, 40, TRUE
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_EventScript_DoLinkBossBattle
 	goto_if_unset FLAG_PLAYER_2_READY_TO_BATTLE_TOGETHER, VolcanionCave_3F_EventScript_AskVolcanionMultiBattle
 	clearflag FLAG_PLAYER_2_READY_TO_BATTLE_TOGETHER
 	getplayerxy VAR_0x8008, VAR_0x8009
@@ -774,7 +779,6 @@ VolcanionCave_3F_EventScript_Volcanion::
 	callnative IsPlayerOne
 	call_if_eq VAR_RESULT, TRUE, VolcanionCave_3F_EventScript_PlayerWalkLeftForBattle
 	call_if_eq VAR_RESULT, FALSE, VolcanionCave_3F_EventScript_PlayerWalkRightForBattle
-	setwildbattle SPECIES_VOLCANION, 40, TRUE
 	multi_fixed_players_vs_wild PARTNER_PLAYER_2
 	specialvar VAR_RESULT, GetBattleOutcome
 	goto_if_eq VAR_RESULT, B_OUTCOME_WON, VolcanionCave_3F_EventScript_DefeatedVolcanion
@@ -856,6 +860,8 @@ VolcanionCave_3F_Movement_CameraCenterRightForBattle::
 	step_end
 
 VolcanionCave_3F_EventScript_DefeatedVolcanion::
+	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 1
+	setvar VAR_VOLCANION_CAVE_3F_STATE, 5
 	setvar VAR_CURRENT_HP_BAR_COLOR, 0
 	call VolcanionCave_3F_EventScript_SetHPBar
 	playmoncry SPECIES_VOLCANION, CRY_MODE_NORMAL
@@ -2954,7 +2960,6 @@ VolcanionCave_3F_EventScript_CameraMoveToPlayerAfterSteamEruption::
 	playse SE_PIN
 	call_if_set FLAG_WATCHING_OTHER_PLAYER_CUTSCENE, VolcanionCave_3F_EventScript_Player2ExclamationMark
 	call_if_unset FLAG_WATCHING_OTHER_PLAYER_CUTSCENE, VolcanionCave_3F_EventScript_PlayerExclamationMark
-	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	delay 20
 	applymovement LOCALID_CAMERA, VolcanionCave_3F_Movement_CameraMoveToPlayerAfterSteamEruption
 	waitmovement 0
@@ -3815,6 +3820,18 @@ VolcanionCave_3F_EventScript_Credits::
 	message VolcanionCave_3F_Text_Epilogue
 	waitmessage
 	closemessage
+	callnative IsMultiplayer
+	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_3F_EventScript_CreditsSequence
+VolcanionCave_3F_EventScript_CreditsDisconnect::
+	setvar VAR_VOLCANION_CAVE_3F_STATE, 6
+	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 0
+	callnative SetWarpCurrentPosition
+	setflag FLAG_DONT_FADE_IN_MAP
+	special ReturnFromLinkRoom
+	end
+
+VolcanionCave_3F_EventScript_CreditsSequence::
+	setvar VAR_VOLCANION_CAVE_3F_STATE, 7
 	setflag FLAG_DO_CREDITS_TITLE
 	creditsmessage Credits_TagTeamTrials, Credits_Credits
 	clearflag FLAG_DO_CREDITS_TITLE

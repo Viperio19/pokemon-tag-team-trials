@@ -1238,7 +1238,7 @@ static u16 GetNightMusicFromTrack(u16 track)
 
 u16 GetLocationMusic(struct WarpData *warp)
 {
-    if (warp->mapGroup == MAP_GROUP(MAP_VOLCANION_CAVE_3F) && warp->mapNum == MAP_NUM(MAP_VOLCANION_CAVE_3F) && VarGet(VAR_VOLCANION_CAVE_3F_STATE) == 0)
+    if (warp->mapGroup == MAP_GROUP(MAP_VOLCANION_CAVE_3F) && warp->mapNum == MAP_NUM(MAP_VOLCANION_CAVE_3F) && VarGet(VAR_VOLCANION_CAVE_3F_STATE) <= 1)
         return MUS_VOLCANION_CAVE_2F;
     if (NoMusicInSootopolisWithLegendaries(warp) == TRUE)
         return MUS_NONE;
