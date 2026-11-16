@@ -695,14 +695,17 @@ VolcanionCave_3F_EventScript_SetHPBar::
 	case_call 2, VolcanionCave_3F_EventScript_SetHPBarYellow
 	case_call 3, VolcanionCave_3F_EventScript_SetHPBarRed
 	goto_if_eq VAR_LOCALID_CURRENT_HP_BAR, 0, VolcanionCave_3F_EventScript_AddNoHPBar
+	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_LOCALID_CURRENT_HP_BAR, VAR_LOCALID_CURRENT_HP_BAR
 	addobject VAR_LOCALID_CURRENT_HP_BAR
 	setobjectxyperm VAR_LOCALID_CURRENT_HP_BAR, 16, 19
 	setobjectxy VAR_LOCALID_CURRENT_HP_BAR, 16, 19
+	enqueueplayer2command P2_CMD_ADD_OBJECT, VAR_LOCALID_CURRENT_HP_BAR, 16, 19
 	return
 
 VolcanionCave_3F_EventScript_RemoveHPBar::
 	setobjectxyperm VAR_LOCALID_CURRENT_HP_BAR, 43, 18
 	setobjectxy VAR_LOCALID_CURRENT_HP_BAR, 43, 18
+	enqueueplayer2command P2_CMD_MOVE_OBJECT, VAR_LOCALID_CURRENT_HP_BAR, 43, 18
 	return
 
 VolcanionCave_3F_EventScript_AddNoHPBar::
@@ -1222,10 +1225,11 @@ VolcanionCave_3F_EventScript_ZinniaMultiplayer::
 	message gText_PleaseWaitForLink
 	waitmessage
 	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 16
-VolcanionCave_3F_EventScriptZinniaWaitForPlayer2::
+VolcanionCave_3F_EventScript_ZinniaWaitForPlayer2::
 	delay 1
-	goto_if_ne VAR_P2_INTERACTION_STATE, 16, VolcanionCave_3F_EventScriptZinniaWaitForPlayer2
+	goto_if_ne VAR_P2_INTERACTION_STATE, 16, VolcanionCave_3F_EventScript_ZinniaWaitForPlayer2
 	setvar VAR_P2_INTERACTION_STATE, 0
+	setvar VAR_SHARED_CUTSCENE_STATE, 1
 
 	@ Set current player in control of text
 	callnative IsPlayerOne
@@ -1241,7 +1245,7 @@ VolcanionCave_3F_EventScriptZinniaWaitForPlayer2::
 VolcanionCave_3F_EventScript_ZinniaPlayer2::
 	lock
 	setvar VAR_P2_INTERACTION_STATE, 0
-	setflag FLAG_WATCHING_OTHER_PLAYER_CUTSCENE
+	setvar VAR_SHARED_CUTSCENE_STATE, 2
 	getplayerxy VAR_0x8002, VAR_0x8003
 
 	@ Move to other player position
@@ -1363,7 +1367,8 @@ VolcanionCave_3F_EventScript_ZinniaEnter::
 	waitmessage
 	closemessage
 	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 0
-	goto_if_set FLAG_WATCHING_OTHER_PLAYER_CUTSCENE, VolcanionCave_3F_EventScript_Player2CutsceneEnd
+	goto_if_eq VAR_SHARED_CUTSCENE_STATE, 2, VolcanionCave_3F_EventScript_Player2CutsceneEnd
+	setvar VAR_SHARED_CUTSCENE_STATE, 0
 	release
 	end
 
@@ -1735,10 +1740,9 @@ VolcanionCave_3F_EventScript_Whismur::
 	end
 
 VolcanionCave_3F_EventScript_Golem::
-	applymovement LOCALID_3F_GOLEM, Common_Movement_FacePlayer
+	lock
+	applymovement LOCALID_3F_GOLEM, Common_Movement_FacePlayer, P2_MOVEMENT_FACE_PLAYER_2
 	goto_if_set FLAG_ROCK_SLIDE_HIT_VOLCANION, VolcanionCave_3F_EventScript_GolemSatisfied
-	call VolcanionCave_3F_EventScript_SetMetatilesRockSlideBlockade
-	special DrawWholeMapView
 	playmoncry SPECIES_GOLEM_ALOLA, CRY_MODE_ENCOUNTER
 	message VolcanionCave_3F_Text_GolemCry
 	waitmoncry
@@ -1752,6 +1756,9 @@ VolcanionCave_3F_EventScript_Golem::
 	closemessage
 	delay 20
 	playbgm MUS_VS_VOLCANION, FALSE
+	enqueueplayer2command P2_CMD_SET_ROCK_SLIDE_BLOCKADE, TRUE
+	call VolcanionCave_3F_EventScript_SetMetatilesRockSlideBlockade
+	special DrawWholeMapView
 	call VolcanionCave_3F_EventScript_RockSlideSpawnRocks
 	resetobjectsubpriority LOCALID_3F_ROCK_SLIDE_1, MAP_VOLCANION_CAVE_3F
 	resetobjectsubpriority LOCALID_3F_ROCK_SLIDE_2, MAP_VOLCANION_CAVE_3F
@@ -1759,11 +1766,11 @@ VolcanionCave_3F_EventScript_Golem::
 	message VolcanionCave_3F_Text_GolemUsedRockSlide
 	delay 5
 	playse SE_PIN
-	applymovement LOCALID_PLAYER, VolcanionCave_3F_Movement_PlayerNoticeRockSlide
+	applymovement LOCALID_PLAYER, VolcanionCave_3F_Movement_PlayerNoticeRockSlide, P2_MOVEMENT_PLAYER_NOTICE_ROCK_SLIDE
 	waitmovement 0
 	waitmessage
 	closemessage
-	applymovement LOCALID_PLAYER, VolcanionCave_3F_Movement_PlayerDodgeRockSlideLeftDown
+	applymovement LOCALID_PLAYER, VolcanionCave_3F_Movement_PlayerDodgeRockSlideLeftDown, P2_MOVEMENT_PLAYER_DODGE_ROCK_SLIDE_LEFT_DOWN
 	call VolcanionCave_3F_EventScript_RockSlideDropRocks
 	call VolcanionCave_3F_EventScript_RockSlideRemoveRocks
 	callnative IsPlayerOne
@@ -1773,13 +1780,13 @@ VolcanionCave_3F_EventScript_Golem::
 	call VolcanionCave_3F_EventScript_RockSlideSpawnRocks
 	delay 5
 	playse SE_PIN
-	applymovement LOCALID_PLAYER, VolcanionCave_3F_Movement_PlayerNoticeRockSlide
+	applymovement LOCALID_PLAYER, VolcanionCave_3F_Movement_PlayerNoticeRockSlide, P2_MOVEMENT_PLAYER_NOTICE_ROCK_SLIDE
 	waitmovement 0
 	delay 20
 	callnative IsPlayerOne
 	call_if_eq VAR_RESULT, TRUE, VolcanionCave_3F_EventScript_GottaRunAqua
 	call_if_eq VAR_RESULT, FALSE, VolcanionCave_3F_EventScript_GottaRunMagma
-	applymovement LOCALID_PLAYER, VolcanionCave_3F_Movement_PlayerDodgeRockSlideUp
+	applymovement LOCALID_PLAYER, VolcanionCave_3F_Movement_PlayerDodgeRockSlideUp, P2_MOVEMENT_PLAYER_DODGE_ROCK_SLIDE_UP
 	call VolcanionCave_3F_EventScript_RockSlideDropRocks
 	call VolcanionCave_3F_EventScript_RockSlideRemoveRocks
 	closemessage
@@ -1789,6 +1796,7 @@ VolcanionCave_3F_EventScript_Golem::
 	end
 
 VolcanionCave_3F_EventScript_GolemUsedRockSlide::
+	enqueueplayer2command P2_CMD_PLAY_BGM, MUS_VS_VOLCANION
 	playbgm MUS_VS_VOLCANION, FALSE
 	call VolcanionCave_3F_EventScript_RockSlideSpawnRocks
 	resetobjectsubpriority LOCALID_3F_ROCK_SLIDE_1, MAP_VOLCANION_CAVE_3F
@@ -1797,17 +1805,18 @@ VolcanionCave_3F_EventScript_GolemUsedRockSlide::
 	message VolcanionCave_3F_Text_GolemUsedRockSlide
 	delay 5
 	playse SE_PIN
-	applymovement LOCALID_PLAYER, VolcanionCave_3F_Movement_PlayerNoticeRockSlide
+	applymovement LOCALID_PLAYER, VolcanionCave_3F_Movement_PlayerNoticeRockSlide, P2_MOVEMENT_PLAYER_NOTICE_ROCK_SLIDE
 	waitmovement 0
 	waitmessage
 	delay 20
 	callnative IsPlayerOne
 	call_if_eq VAR_RESULT, TRUE, VolcanionCave_3F_EventScript_GottaRunAqua
 	call_if_eq VAR_RESULT, FALSE, VolcanionCave_3F_EventScript_GottaRunMagma
-	applymovement LOCALID_PLAYER, VolcanionCave_3F_Movement_PlayerDodgeRockSlideLeftDown
+	applymovement LOCALID_PLAYER, VolcanionCave_3F_Movement_PlayerDodgeRockSlideLeftDown, P2_MOVEMENT_PLAYER_DODGE_ROCK_SLIDE_LEFT_DOWN
 	call VolcanionCave_3F_EventScript_RockSlideDropRocks
 	call VolcanionCave_3F_EventScript_RockSlideRemoveRocks
 	closemessage
+	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_GOLEM_ROCK_SLIDE_STATE, 4
 	setvar VAR_GOLEM_ROCK_SLIDE_STATE, 1
 	setvar VAR_GOLEM_ROCK_SLIDE_TIMER, 0
 	goto VolcanionCave_3F_EventScript_RockSlide
@@ -1840,6 +1849,7 @@ VolcanionCave_3F_EventScript_RockSlideSpawnRocks::
 	setvar VAR_0x8006, 10  @ Num shakes
 	setvar VAR_0x8007, 4  @ Shake delay
 	special ShakeScreen
+	enqueueplayer2command P2_CMD_SHAKE_SCREEN, VAR_0x8005, VAR_0x8006, VAR_0x8007
 
 	@ Spawn rocks
 	getplayerxy VAR_0x8008, VAR_0x8009
@@ -1869,13 +1879,13 @@ VolcanionCave_3F_EventScript_RockSlideDropRocks::
 	applymovement LOCALID_3F_ROCK_SLIDE_3, VolcanionCave_3F_Movement_Rock3FallDown
 	applymovement LOCALID_3F_ROCK_SLIDE_2, VolcanionCave_3F_Movement_Rock2FallDown
 	delay 30
-	playse SE_FALL
+	playse_multiplayer SE_FALL
 	delay 20
-	playse SE_M_ROCK_THROW
+	playse_multiplayer SE_M_ROCK_THROW
 	delay 8
-	playse SE_M_ROCK_THROW
+	playse_multiplayer SE_M_ROCK_THROW
 	delay 8
-	playse SE_M_ROCK_THROW
+	playse_multiplayer SE_M_ROCK_THROW
 	waitmovement 0
 	return
 
@@ -2010,8 +2020,9 @@ VolcanionCave_3F_Text_GottaRunMagma::
 
 VolcanionCave_3F_EventScript_RockSlideHitPlayer::
 	setvar VAR_GOLEM_ROCK_SLIDE_STATE, 4
-	applymovement LOCALID_PLAYER, VolcanionCave_3F_Movement_PlayerFlicker
+	applymovement LOCALID_PLAYER, VolcanionCave_3F_Movement_PlayerFlicker, P2_MOVEMENT_PLAYER_FLICKER
 	waitmovement 0
+	enqueueplayer2command P2_CMD_FADE_DEFAULT_BGM
 	fadedefaultbgm
 	message VolcanionCave_3F_Text_YouGotHit
 	waitmessage
@@ -2040,20 +2051,25 @@ VolcanionCave_3F_Text_YouGotHit::
 	.string "For now…\p$"
 
 VolcanionCave_3F_EventScript_RockSlideHitVolcanion::
-	call VolcanionCave_3F_EventScript_SetMetatilesNoRockSlideBlockade
-	special DrawWholeMapView
+	enqueueplayer2command P2_CMD_CONTROL_FLAG, FLAG_ROCK_SLIDE_HIT_VOLCANION, TRUE
 	setflag FLAG_ROCK_SLIDE_HIT_VOLCANION
+	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_GOLEM_ROCK_SLIDE_STATE, 0
 	setvar VAR_GOLEM_ROCK_SLIDE_STATE, 0
-	applymovement LOCALID_3F_VOLCANION, VolcanionCave_3F_Movement_VolcanionFlicker
-	applymovement VAR_LOCALID_CURRENT_HP_BAR, VolcanionCave_3F_Movement_VolcanionFlicker
+	applymovement LOCALID_3F_VOLCANION, VolcanionCave_3F_Movement_VolcanionFlicker, P2_MOVEMENT_VOLCANION_FLICKER
+	applymovement VAR_LOCALID_CURRENT_HP_BAR, VolcanionCave_3F_Movement_VolcanionFlicker, P2_MOVEMENT_VOLCANION_FLICKER
 	waitmovement 0
 	addvar VAR_CURRENT_HP_BAR_COLOR, 1
-	applymovement LOCALID_3F_VOLCANION, VolcanionCave_3F_Movement_VolcanionSetVisible
+	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_CURRENT_HP_BAR_COLOR, VAR_CURRENT_HP_BAR_COLOR
+	applymovement LOCALID_3F_VOLCANION, VolcanionCave_3F_Movement_VolcanionSetVisible, P2_MOVEMENT_VOLCANION_SET_INVISIBLE
 	call VolcanionCave_3F_EventScript_SetHPBar
 	lock
 	message VolcanionCave_3F_Text_VolcanionGotHit
 	waitmessage
+	enqueueplayer2command P2_CMD_FADE_DEFAULT_BGM
 	fadedefaultbgm
+	enqueueplayer2command P2_CMD_SET_ROCK_SLIDE_BLOCKADE, FALSE
+	call VolcanionCave_3F_EventScript_SetMetatilesNoRockSlideBlockade
+	special DrawWholeMapView
 	call VolcanionCave_3F_EventScript_VolcanionCry
 	closemessage
 	delay 10
@@ -2685,6 +2701,7 @@ VolcanionCave_3F_EventScript_DiglettWaitForPlayer2::
 	delay 1
 	goto_if_ne VAR_P2_INTERACTION_STATE, 15, VolcanionCave_3F_EventScript_DiglettWaitForPlayer2
 	setvar VAR_P2_INTERACTION_STATE, 0
+	setvar VAR_SHARED_CUTSCENE_STATE, 1
 
 	@ Set current player in control of text
 	callnative IsPlayerOne
@@ -2700,7 +2717,7 @@ VolcanionCave_3F_EventScript_DiglettWaitForPlayer2::
 VolcanionCave_3F_EventScript_DiglettPlayer2::
 	lock
 	setvar VAR_P2_INTERACTION_STATE, 0
-	setflag FLAG_WATCHING_OTHER_PLAYER_CUTSCENE
+	setvar VAR_SHARED_CUTSCENE_STATE, 2
 	getplayerxy VAR_0x8002, VAR_0x8003
 
 	@ Move to other player position
@@ -2725,8 +2742,8 @@ VolcanionCave_3F_EventScript_DiglettPlayer2::
 	end
 
 VolcanionCave_3F_EventScript_DiglettMagma::
-	call_if_set FLAG_WATCHING_OTHER_PLAYER_CUTSCENE, VolcanionCave_3F_EventScript_DiglettFacePlayer2
-	call_if_unset FLAG_WATCHING_OTHER_PLAYER_CUTSCENE, VolcanionCave_3F_EventScript_DiglettFacePlayer
+	call_if_eq VAR_SHARED_CUTSCENE_STATE, 2, VolcanionCave_3F_EventScript_DiglettFacePlayer2
+	call_if_ne VAR_SHARED_CUTSCENE_STATE, 2, VolcanionCave_3F_EventScript_DiglettFacePlayer
 	call VolcanionCave_3F_EventScript_DiglettCry
 	message VolcanionCave_3F_Text_AskDiggsHelpMagma
 	waitmessage
@@ -2746,13 +2763,14 @@ VolcanionCave_3F_EventScript_DiglettMagma::
 	waitmessage
 	closemessage
 	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 0
-	goto_if_set FLAG_WATCHING_OTHER_PLAYER_CUTSCENE, VolcanionCave_3F_EventScript_Player2CutsceneEnd
+	goto_if_eq VAR_SHARED_CUTSCENE_STATE, 2, VolcanionCave_3F_EventScript_Player2CutsceneEnd
+	setvar VAR_SHARED_CUTSCENE_STATE, 0
 	release
 	end
 
 VolcanionCave_3F_EventScript_DiglettAqua::
-	call_if_set FLAG_WATCHING_OTHER_PLAYER_CUTSCENE, VolcanionCave_3F_EventScript_DiglettFacePlayer2
-	call_if_unset FLAG_WATCHING_OTHER_PLAYER_CUTSCENE, VolcanionCave_3F_EventScript_DiglettFacePlayer
+	call_if_eq VAR_SHARED_CUTSCENE_STATE, 2, VolcanionCave_3F_EventScript_DiglettFacePlayer2
+	call_if_ne VAR_SHARED_CUTSCENE_STATE, 2, VolcanionCave_3F_EventScript_DiglettFacePlayer
 	call VolcanionCave_3F_EventScript_AgentDiggsCry
 	message VolcanionCave_3F_Text_AskDiggsHelpAqua
 	waitmessage
@@ -2772,7 +2790,8 @@ VolcanionCave_3F_EventScript_DiglettAqua::
 	waitmessage
 	closemessage
 	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 0
-	goto_if_set FLAG_WATCHING_OTHER_PLAYER_CUTSCENE, VolcanionCave_3F_EventScript_Player2CutsceneEnd
+	goto_if_eq VAR_SHARED_CUTSCENE_STATE, 2, VolcanionCave_3F_EventScript_Player2CutsceneEnd
+	setvar VAR_SHARED_CUTSCENE_STATE, 0
 	release
 	end
 
@@ -2786,7 +2805,7 @@ VolcanionCave_3F_EventScript_DiglettFacePlayer2::
 
 VolcanionCave_3F_EventScript_Player2CutsceneEnd::
 	special RemoveCameraObject
-	clearflag FLAG_WATCHING_OTHER_PLAYER_CUTSCENE
+	setvar VAR_SHARED_CUTSCENE_STATE, 0
 	fadescreen FADE_TO_BLACK
 	special SpawnCameraObject
 	setobjectxy LOCALID_CAMERA, VAR_0x8002, VAR_0x8003
@@ -2958,8 +2977,8 @@ VolcanionCave_3F_EventScript_VolcanionUseSteamEruption::
 
 VolcanionCave_3F_EventScript_CameraMoveToPlayerAfterSteamEruption::
 	playse SE_PIN
-	call_if_set FLAG_WATCHING_OTHER_PLAYER_CUTSCENE, VolcanionCave_3F_EventScript_Player2ExclamationMark
-	call_if_unset FLAG_WATCHING_OTHER_PLAYER_CUTSCENE, VolcanionCave_3F_EventScript_PlayerExclamationMark
+	call_if_eq VAR_SHARED_CUTSCENE_STATE, 2, VolcanionCave_3F_EventScript_Player2ExclamationMark
+	call_if_ne VAR_SHARED_CUTSCENE_STATE, 2, VolcanionCave_3F_EventScript_PlayerExclamationMark
 	delay 20
 	applymovement LOCALID_CAMERA, VolcanionCave_3F_Movement_CameraMoveToPlayerAfterSteamEruption
 	waitmovement 0

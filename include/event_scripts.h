@@ -775,6 +775,16 @@ extern const u8 VolcanionCave_2F_Movement_ExitHoleNorth[];
 extern const u8 VolcanionCave_2F_Movement_ExitHoleEast[];
 extern const u8 VolcanionCave_2F_Movement_ExitHoleWest[];
 
+extern const u8 VolcanionCave_3F_Movement_PlayerNoticeRockSlide[];
+extern const u8 VolcanionCave_3F_Movement_PlayerDodgeRockSlideLeftDown[];
+extern const u8 VolcanionCave_3F_Movement_PlayerDodgeRockSlideUp[];
+extern const u8 VolcanionCave_3F_Movement_Rock1FallDown[];
+extern const u8 VolcanionCave_3F_Movement_Rock2FallDown[];
+extern const u8 VolcanionCave_3F_Movement_Rock3FallDown[];
+extern const u8 VolcanionCave_3F_Movement_PlayerFlicker[];
+extern const u8 VolcanionCave_3F_Movement_VolcanionFlicker[];
+extern const u8 VolcanionCave_3F_Movement_VolcanionSetVisible[];
+
 extern const u8 EventScript_CancelMessageBox[];
 extern const u8 Common_EventScript_ShowPokemonCenterSign[];
 extern const u8 Common_EventScript_ShowPokemartSign[];

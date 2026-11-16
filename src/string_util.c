@@ -441,7 +441,7 @@ static const u8 *ExpandPlaceholder_UnknownStringVar(void)
 
 static const u8 *ExpandPlaceholder_PlayerName(void)
 {
-    if (FlagGet(FLAG_WATCHING_OTHER_PLAYER_CUTSCENE))
+    if (VarGet(VAR_SHARED_CUTSCENE_STATE) == 2)
         return gSaveBlock2Ptr->player2Name;
     return gSaveBlock2Ptr->playerName;
 }

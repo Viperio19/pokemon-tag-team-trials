@@ -382,6 +382,11 @@
 	.2byte \song
 	.endm
 
+	.macro playse_multiplayer song:req
+	playse \song
+	enqueueplayer2command P2_CMD_PLAY_SE, \song
+	.endm
+
 	@ Blocks script execution until the currently-playing sound (triggered by playse) finishes playing.
 	.macro waitse
 	.byte SCR_OP_WAITSE
@@ -696,6 +701,11 @@
 			.2byte \localId
 			map \map
 		.endif
+	.endm
+
+	.macro removeobject_multiplayer localId:req, map
+	removeobject \localId, \map
+	enqueueplayer2command P2_CMD_REMOVE_OBJECT, \localId
 	.endm
 
 	@ Attempts to spawn the specified (localId) object the specified map.

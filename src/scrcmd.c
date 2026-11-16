@@ -3620,10 +3620,15 @@ bool8 ScrCmd_waitflagorbbutton(struct ScriptContext *ctx)
 
 bool8 ScrCmd_enqueueplayer2command(struct ScriptContext * ctx)
 {
-    EnqueuePlayer2CommandToSend(ScriptReadHalfword(ctx),
-                                VarGet(ScriptReadHalfword(ctx)),
-                                VarGet(ScriptReadHalfword(ctx)),
-                                VarGet(ScriptReadHalfword(ctx)));
+    u16 command = ScriptReadHalfword(ctx);
+    u16 arg1 = VarGet(ScriptReadHalfword(ctx));
+    u16 arg2 = VarGet(ScriptReadHalfword(ctx));
+    u16 arg3 = VarGet(ScriptReadHalfword(ctx));
+
+    if (VarGet(VAR_SHARED_CUTSCENE_STATE) != 0)
+        return FALSE;
+
+    EnqueuePlayer2CommandToSend(command, arg1, arg2, arg3);
 
     Script_RequestEffects(SCREFF_V1 | SCREFF_SAVE);
 
@@ -3632,10 +3637,15 @@ bool8 ScrCmd_enqueueplayer2command(struct ScriptContext * ctx)
 
 bool8 ScrCmd_enqueueplayer2varcommand(struct ScriptContext * ctx)
 {
-    EnqueuePlayer2CommandToSend(ScriptReadHalfword(ctx),
-                                ScriptReadHalfword(ctx),
-                                VarGet(ScriptReadHalfword(ctx)),
-                                VarGet(ScriptReadHalfword(ctx)));
+    u16 command = ScriptReadHalfword(ctx);
+    u16 arg1 = ScriptReadHalfword(ctx);
+    u16 arg2 = VarGet(ScriptReadHalfword(ctx));
+    u16 arg3 = VarGet(ScriptReadHalfword(ctx));
+
+    if (VarGet(VAR_SHARED_CUTSCENE_STATE) != 0)
+        return FALSE;
+
+    EnqueuePlayer2CommandToSend(command, arg1, arg2, arg3);
 
     Script_RequestEffects(SCREFF_V1 | SCREFF_SAVE);
 

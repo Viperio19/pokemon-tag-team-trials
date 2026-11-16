@@ -3047,7 +3047,7 @@ static const struct GemMetatiles sRedPressedMetatiles[GEM_METATILES_COUNT] =
     [GEM_METATILE_RED_WATER_EDGE] = {METATILE_Cave_CoolGem_Red_WaterEdge_Empty, FALSE},
 };
 
-void SetMetatile(u16 x, u16 y, enum GemMetatile gemMetatile)
+void SetGemMetatile(u16 x, u16 y, enum GemMetatile gemMetatile)
 {
     bool8 isImpassable;
     u16 metatileId;
@@ -3076,49 +3076,49 @@ void UpdateGemMetatiles(void)
     if (gSaveBlock1Ptr->location.mapNum == MAP_NUM(MAP_VOLCANION_CAVE_2F))
     {
         // Room 2
-        SetMetatile(7, 47, GEM_METATILE_BLUE_BUTTON);
-        SetMetatile(17, 11, GEM_METATILE_BLUE_BUTTON);
-        SetMetatile(11, 46, GEM_METATILE_RED_BUTTON);
-        SetMetatile(9, 46, GEM_METATILE_BLUE_FLOOR_SMOOTH);
-        SetMetatile(33, 58, GEM_METATILE_BLUE_MUD);
-        SetMetatile(35, 50, GEM_METATILE_BLUE_MUD);
-        SetMetatile(21, 11, GEM_METATILE_BLUE_FLOOR_SMOOTH);
-        SetMetatile(8, 48, GEM_METATILE_RED_FLOOR_SMOOTH);
-        SetMetatile(11, 47, GEM_METATILE_RED_FLOOR_SMOOTH);
-        SetMetatile(17, 9, GEM_METATILE_RED_FLOOR_SMOOTH);
+        SetGemMetatile(7, 47, GEM_METATILE_BLUE_BUTTON);
+        SetGemMetatile(17, 11, GEM_METATILE_BLUE_BUTTON);
+        SetGemMetatile(11, 46, GEM_METATILE_RED_BUTTON);
+        SetGemMetatile(9, 46, GEM_METATILE_BLUE_FLOOR_SMOOTH);
+        SetGemMetatile(33, 58, GEM_METATILE_BLUE_MUD);
+        SetGemMetatile(35, 50, GEM_METATILE_BLUE_MUD);
+        SetGemMetatile(21, 11, GEM_METATILE_BLUE_FLOOR_SMOOTH);
+        SetGemMetatile(8, 48, GEM_METATILE_RED_FLOOR_SMOOTH);
+        SetGemMetatile(11, 47, GEM_METATILE_RED_FLOOR_SMOOTH);
+        SetGemMetatile(17, 9, GEM_METATILE_RED_FLOOR_SMOOTH);
     }
     else
     {
         // Golem puzzle
-        SetMetatile(25, 31, GEM_METATILE_BLUE_BUTTON);
-        SetMetatile(30, 31, GEM_METATILE_BLUE_BUTTON);
-        SetMetatile(24, 37, GEM_METATILE_BLUE_BUTTON);
-        SetMetatile(28, 29, GEM_METATILE_RED_BUTTON);
-        SetMetatile(24, 31, GEM_METATILE_RED_BUTTON);
-        SetMetatile(27, 28, GEM_METATILE_BLUE_FLOOR);
-        SetMetatile(24, 30, GEM_METATILE_BLUE_WATER_EDGE);
-        SetMetatile(23, 33, GEM_METATILE_BLUE_MUD);
-        SetMetatile(25, 33, GEM_METATILE_BLUE_FLOOR);
-        SetMetatile(28, 33, GEM_METATILE_BLUE_FLOOR);
-        SetMetatile(29, 34, GEM_METATILE_BLUE_FLOOR);
-        SetMetatile(26, 36, GEM_METATILE_BLUE_FLOOR);
-        SetMetatile(25, 28, GEM_METATILE_RED_FLOOR);
-        SetMetatile(29, 31, GEM_METATILE_RED_FLOOR);
-        SetMetatile(27, 34, GEM_METATILE_RED_WATER_EDGE);
-        SetMetatile(24, 36, GEM_METATILE_RED_FLOOR);
-        SetMetatile(27, 37, GEM_METATILE_RED_FLOOR);
+        SetGemMetatile(25, 31, GEM_METATILE_BLUE_BUTTON);
+        SetGemMetatile(30, 31, GEM_METATILE_BLUE_BUTTON);
+        SetGemMetatile(24, 37, GEM_METATILE_BLUE_BUTTON);
+        SetGemMetatile(28, 29, GEM_METATILE_RED_BUTTON);
+        SetGemMetatile(24, 31, GEM_METATILE_RED_BUTTON);
+        SetGemMetatile(27, 28, GEM_METATILE_BLUE_FLOOR);
+        SetGemMetatile(24, 30, GEM_METATILE_BLUE_WATER_EDGE);
+        SetGemMetatile(23, 33, GEM_METATILE_BLUE_MUD);
+        SetGemMetatile(25, 33, GEM_METATILE_BLUE_FLOOR);
+        SetGemMetatile(28, 33, GEM_METATILE_BLUE_FLOOR);
+        SetGemMetatile(29, 34, GEM_METATILE_BLUE_FLOOR);
+        SetGemMetatile(26, 36, GEM_METATILE_BLUE_FLOOR);
+        SetGemMetatile(25, 28, GEM_METATILE_RED_FLOOR);
+        SetGemMetatile(29, 31, GEM_METATILE_RED_FLOOR);
+        SetGemMetatile(27, 34, GEM_METATILE_RED_WATER_EDGE);
+        SetGemMetatile(24, 36, GEM_METATILE_RED_FLOOR);
+        SetGemMetatile(27, 37, GEM_METATILE_RED_FLOOR);
         // Agent diggs puzzle
-        SetMetatile(1, 10, GEM_METATILE_BLUE_BUTTON);
-        SetMetatile(10, 1, GEM_METATILE_BLUE_BUTTON);
-        SetMetatile(10, 18, GEM_METATILE_BLUE_BUTTON);
-        SetMetatile(1, 9, GEM_METATILE_RED_BUTTON);
-        SetMetatile(4, 18, GEM_METATILE_RED_BUTTON);
-        SetMetatile(6, 19, GEM_METATILE_RED_BUTTON);
-        SetMetatile(7, 1, GEM_METATILE_BLUE_FLOOR_SMOOTH);
-        SetMetatile(1, 8, GEM_METATILE_BLUE_FLOOR_SMOOTH);
-        SetMetatile(5, 8, GEM_METATILE_BLUE_FLOOR_SMOOTH);
-        SetMetatile(9, 1, GEM_METATILE_RED_FLOOR_SMOOTH);
-        SetMetatile(9, 10, GEM_METATILE_RED_FLOOR);
+        SetGemMetatile(1, 10, GEM_METATILE_BLUE_BUTTON);
+        SetGemMetatile(10, 1, GEM_METATILE_BLUE_BUTTON);
+        SetGemMetatile(10, 18, GEM_METATILE_BLUE_BUTTON);
+        SetGemMetatile(1, 9, GEM_METATILE_RED_BUTTON);
+        SetGemMetatile(4, 18, GEM_METATILE_RED_BUTTON);
+        SetGemMetatile(6, 19, GEM_METATILE_RED_BUTTON);
+        SetGemMetatile(7, 1, GEM_METATILE_BLUE_FLOOR_SMOOTH);
+        SetGemMetatile(1, 8, GEM_METATILE_BLUE_FLOOR_SMOOTH);
+        SetGemMetatile(5, 8, GEM_METATILE_BLUE_FLOOR_SMOOTH);
+        SetGemMetatile(9, 1, GEM_METATILE_RED_FLOOR_SMOOTH);
+        SetGemMetatile(9, 10, GEM_METATILE_RED_FLOOR);
     }
     DrawWholeMapView();
 }
@@ -3191,6 +3191,16 @@ static const u8 *const sPlayer2MovementIdToScript[] =
     [P2_MOVEMENT_EXIT_HOLE_NORTH] = VolcanionCave_2F_Movement_ExitHoleNorth,
     [P2_MOVEMENT_EXIT_HOLE_EAST] = VolcanionCave_2F_Movement_ExitHoleEast,
     [P2_MOVEMENT_EXIT_HOLE_WEST] = VolcanionCave_2F_Movement_ExitHoleWest,
+    // room 3
+    [P2_MOVEMENT_PLAYER_NOTICE_ROCK_SLIDE] = VolcanionCave_3F_Movement_PlayerNoticeRockSlide,
+    [P2_MOVEMENT_PLAYER_DODGE_ROCK_SLIDE_LEFT_DOWN] = VolcanionCave_3F_Movement_PlayerDodgeRockSlideLeftDown,
+    [P2_MOVEMENT_PLAYER_DODGE_ROCK_SLIDE_UP] = VolcanionCave_3F_Movement_PlayerDodgeRockSlideUp,
+    [P2_MOVEMENT_ROCK_1_FALL_DOWN] = VolcanionCave_3F_Movement_Rock1FallDown,
+    [P2_MOVEMENT_ROCK_2_FALL_DOWN] = VolcanionCave_3F_Movement_Rock2FallDown,
+    [P2_MOVEMENT_ROCK_3_FALL_DOWN] = VolcanionCave_3F_Movement_Rock3FallDown,
+    [P2_MOVEMENT_PLAYER_FLICKER] = VolcanionCave_3F_Movement_PlayerFlicker,
+    [P2_MOVEMENT_VOLCANION_FLICKER] = VolcanionCave_3F_Movement_VolcanionFlicker,
+    [P2_MOVEMENT_VOLCANION_SET_INVISIBLE] = VolcanionCave_3F_Movement_VolcanionSetVisible,
 };
 
 static void StartPlayer2Movement(const u8 *movementScript)
@@ -3369,6 +3379,43 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
         case P2_CMD_PRESS_GEMS_BUTTON:
             VarSet(VAR_TEMP_F, arg1);
             UpdateGemMetatiles();
+            break;
+        case P2_CMD_SET_ROCK_SLIDE_BLOCKADE:
+            if (arg1)
+            {
+                MapGridSetMetatileIdAt(5 + MAP_OFFSET, 25 + MAP_OFFSET, METATILE_Cave_Rock_1 | MAPGRID_IMPASSABLE);
+                MapGridSetMetatileIdAt(6 + MAP_OFFSET, 26 + MAP_OFFSET, METATILE_Cave_Rock_2 | MAPGRID_IMPASSABLE);
+                MapGridSetMetatileIdAt(26 + MAP_OFFSET, 24 + MAP_OFFSET, METATILE_Cave_Rock_2 | MAPGRID_IMPASSABLE);
+                MapGridSetMetatileIdAt(27 + MAP_OFFSET, 25 + MAP_OFFSET, METATILE_Cave_Rock_1 | MAPGRID_IMPASSABLE);
+                MapGridSetMetatileIdAt(28 + MAP_OFFSET, 26 + MAP_OFFSET, METATILE_Cave_Rock_2 | MAPGRID_IMPASSABLE);
+                MapGridSetMetatileIdAt(16 + MAP_OFFSET, 33 + MAP_OFFSET, METATILE_Cave_Rock_2 | MAPGRID_IMPASSABLE);
+            }
+            else
+            {
+                MapGridSetMetatileIdAt(5 + MAP_OFFSET, 25 + MAP_OFFSET, METATILE_Cave_FloorSmooth);
+                MapGridSetMetatileIdAt(6 + MAP_OFFSET, 26 + MAP_OFFSET, METATILE_Cave_FloorSmooth);
+                MapGridSetMetatileIdAt(26 + MAP_OFFSET, 24 + MAP_OFFSET, METATILE_Cave_FloorSmooth);
+                MapGridSetMetatileIdAt(27 + MAP_OFFSET, 25 + MAP_OFFSET, METATILE_Cave_FloorSmooth);
+                MapGridSetMetatileIdAt(28 + MAP_OFFSET, 26 + MAP_OFFSET, METATILE_Cave_FloorSmooth);
+                MapGridSetMetatileIdAt(16 + MAP_OFFSET, 33 + MAP_OFFSET, METATILE_Cave_FloorSmooth);
+            }
+            DrawWholeMapView();
+            break;
+        case P2_CMD_PLAY_SE:
+            PlaySE(arg1);
+            break;
+        case P2_CMD_PLAY_BGM:
+            PlayNewMapMusic(arg1);
+            break;
+        case P2_CMD_FADE_DEFAULT_BGM:
+            Overworld_ChangeMusicToDefault();
+            break;
+        case P2_CMD_SHAKE_SCREEN:
+            gSpecialVar_0x8004 = 0;
+            gSpecialVar_0x8005 = arg1;
+            gSpecialVar_0x8006 = arg2;
+            gSpecialVar_0x8007 = arg3;
+            ShakeScreen();
             break;
         default:
             break;
