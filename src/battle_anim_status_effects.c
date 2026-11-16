@@ -567,7 +567,7 @@ void AnimTask_StatsChange(u8 taskId)
     case STAT_ANIM_MULTIPLE_MINUS2: goesDown = TRUE;   animStatId = STAT_ANIM_PAL_MULTIPLE;  sharply = TRUE;   break;
 
     default:
-        if (gBattleTypeFlags & BATTLE_TYPE_LEGENDARY && gBattleStruct->eventState.beforeFirstTurn != 0)
+        if (gBattleTypeFlags & BATTLE_TYPE_LEGENDARY && !(gFieldStatuses & STATUS_FIELD_TERRAIN_ANY))
         {
             goesDown = TRUE;   animStatId = STAT_ANIM_PAL_MULTIPLE;  sharply = FALSE;
         }

@@ -13483,6 +13483,10 @@ void BS_ShowAbilityPopup(void)
 {
     NATIVE_ARGS();
     CreateAbilityPopUp(gBattlerAbility, gBattleMons[gBattlerAbility].ability, (IsDoubleBattle()) != 0);
+
+    BtlController_EmitShowAbilityPopUp(gBattlerAbility, B_COMM_TO_CONTROLLER);
+    MarkBattlerForControllerExec(gBattlerAbility);
+
     gBattlescriptCurrInstr = cmd->nextInstr;
 }
 

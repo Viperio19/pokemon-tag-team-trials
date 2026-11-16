@@ -1221,16 +1221,14 @@ static void UNUSED BtlController_EmitPlayBGM(enum BattlerId battler, u32 bufferI
     PrepareBufferDataTransfer(battler, bufferId, gBattleResources->transferBuffer, songId + 3);
 }
 
-static void UNUSED BtlController_EmitCmd32(enum BattlerId battler, u32 bufferId, u16 size, void *data)
+void BtlController_EmitShowAbilityPopUp(enum BattlerId battler, u32 bufferId)
 {
-    s32 i;
-
-    gBattleResources->transferBuffer[0] = CONTROLLER_32;
-    gBattleResources->transferBuffer[1] = size;
-    gBattleResources->transferBuffer[2] = (size & 0xFF00) >> 8;
-    for (i = 0; i < size; i++)
-        gBattleResources->transferBuffer[3 + i] = *(u8 *)(data++);
-    PrepareBufferDataTransfer(battler, bufferId, gBattleResources->transferBuffer, size + 3);
+    gBattleResources->transferBuffer[0] = CONTROLLER_SHOWABILITYPOPUP;
+    gBattleResources->transferBuffer[1] = gBattlerAbility;
+    gBattleResources->transferBuffer[2] = gBattleMons[gBattlerAbility].ability;
+    gBattleResources->transferBuffer[3] = (gBattleMons[gBattlerAbility].ability & 0xFF00) >> 8;
+    gBattleResources->transferBuffer[4] = IsDoubleBattle() != 0;
+    PrepareBufferDataTransfer(battler, bufferId, gBattleResources->transferBuffer, 5);
 }
 
 void BtlController_EmitTwoReturnValues(enum BattlerId battler, u32 bufferId, u8 ret8, u32 ret32)
@@ -3029,6 +3027,12 @@ void BtlController_HandleBattleAnimation(enum BattlerId battler)
         u8 animationId = gBattleResources->bufferA[battler][1];
         u16 argument = gBattleResources->bufferA[battler][2] | (gBattleResources->bufferA[battler][3] << 8);
 
+        if (animationId == B_ANIM_RESTORE_BG)
+        {
+            gFieldStatuses &= ~STATUS_FIELD_TERRAIN_ANY;
+            gFieldStatuses |= STATUS_FIELD_MISTY_TERRAIN;
+        }
+
         gAnimDisableStructPtr = (struct LinkBattleAnim *)&gBattleResources->bufferA[battler][4];
 
         if (TryHandleLaunchBattleTableAnimation(battler, battler, battler, animationId, argument))
@@ -3039,6 +3043,16 @@ void BtlController_HandleBattleAnimation(enum BattlerId battler)
         if (ShouldUpdateTvData(battler))
             BattleTv_SetDataBasedOnAnimation(animationId);
     }
+}
+
+void BtlController_HandleShowAbilityPopUp(enum BattlerId battler)
+{
+    u8 abilityBattler = gBattleResources->bufferA[battler][1];
+    u16 ability = gBattleResources->bufferA[battler][2] | (gBattleResources->bufferA[battler][3] << 8);
+    bool8 isDoubleBattle = gBattleResources->bufferA[battler][4];
+
+    CreateAbilityPopUp(abilityBattler, ability, isDoubleBattle);
+    BtlController_Complete(battler);
 }
 
 void AnimateMonAfterPokeBallFail(enum BattlerId battler)

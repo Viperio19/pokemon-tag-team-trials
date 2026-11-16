@@ -1077,8 +1077,6 @@ static void CB2_HandleStartMultiPartnerBattle(void)
     gBattleScripting.multiplayerId = playerMultiplayerId;
     partnerMultiplayerId = playerMultiplayerId ^ BIT_SIDE;
 
-    DebugPrintf("CB2_HandleStartMultiPartnerBattle state = %d", gBattleCommunication[MULTIUSE_STATE]);
-
     switch (gBattleCommunication[MULTIUSE_STATE])
     {
     case 0:
@@ -1381,8 +1379,6 @@ static void CB2_PreInitMultiBattle(void)
     u8 blockMask = 0xF;
     u32 *savedBattleTypeFlags;
     void (**savedCallback)(void);
-
-    DebugPrintf("CB2_PreInitMultiBattle state = %d", gBattleCommunication[MULTIUSE_STATE]);
 
     if (gBattleTypeFlags & BATTLE_TYPE_TOWER_OR_LINK_MULTI)
     {
@@ -5388,7 +5384,6 @@ static void HandleEndTurn_FinishBattle(void)
 
 static void FreeResetData_ReturnToOvOrDoEvolutions(void)
 {
-    DebugPrintf("FreeResetData_ReturnToOvOrDoEvolutions");
     if (!gPaletteFade.active)
     {
         gIsFishingEncounter = FALSE;

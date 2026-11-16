@@ -318,7 +318,7 @@ void BattleAI_SetupFlags(void)
         return;
     }
 
-    if (IsWildMonSmart() && !(gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_TRAINER)))
+    if (IsWildMonSmart() && !(gBattleTypeFlags & BATTLE_TYPE_TRAINER))
     {
         // smart wild AI
         gAiThinkingStruct->aiFlags[B_BATTLER_1] = GetAiFlags(0xFFFF, B_BATTLER_1);
@@ -2276,6 +2276,10 @@ static s32 AI_CheckBadMove(enum BattlerId battlerAtk, enum BattlerId battlerDef,
         break;
     case EFFECT_PROTECT:
         {
+            if (aiData->items[battlerAtk] != ITEM_NONE && weather & B_WEATHER_SUN)
+            {
+                ADJUST_SCORE(-10);
+            }
             bool32 decreased = FALSE;
             enum ProtectMethod protectMethod = GetMoveProtectMethod(move);
             switch (protectMethod)

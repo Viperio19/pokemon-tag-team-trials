@@ -83,7 +83,7 @@ static const u8 sText_DroppedRod[] = _("Dropped rod{PAUSE_UNTIL_PRESS}");
 static const u8 sText_FishingBad[] = _(
 	"TABITHA'S words echo in your head…\p"
 	"“If I catch any of you even THINKING\n"
-	"about adding a WATER-TYPE POKéMON to\l"
+	"about adding a WATER-type POKéMON to\l"
 	"your team, you'll be fired faster than\l"
 	"a gas station owned by a CAMERUPT!!”\p"
 	"…maybe it's best not to fish here\n"

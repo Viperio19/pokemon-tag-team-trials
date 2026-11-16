@@ -3540,7 +3540,10 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
     case P2_CMD_ADD_OBJECT:
         TrySpawnObjectEvent(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup);
         if (arg2 != 0 && arg3 != 0)
+        {
             TryMoveObjectEventToMapCoords(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, arg2, arg3);
+            SetObjEventTemplateCoords(arg1, arg2, arg3);
+        }
         break;
     case P2_CMD_APPLY_MOVEMENT:
         ScriptMovement_StartObjectMovementScript(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, sPlayer2MovementIdToScript[arg2]);
