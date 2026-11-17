@@ -729,7 +729,7 @@ VolcanionCave_1F_EventScript_TryStartGolemMultiplayerBattle::
 	callnative IsMultiplayer
 	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_1F_EventScript_GetReadyForGolemMultiBattle
 	setwildbattle SPECIES_GOLEM_ALOLA, 35, TRUE
-	goto Player2_EventScript_DoLinkBossBattle
+	goto Player2_EventScript_DoLinkMultiWildBoss
 	end
 
 VolcanionCave_1F_EventScript_GetReadyForGolemMultiBattle::

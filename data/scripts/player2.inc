@@ -393,28 +393,55 @@ Player2Aqua_Text_Cancel::
 Player2Magma_Text_Cancel::
 	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}Alright, let's go.$"
 
-Player2_EventScript_DoLinkBossBattle::
+Player2_EventScript_DoLinkMultiWildBoss::
+	setvar VAR_CONTINUE_SCRIPT_AFTER_BATTLE, 1
+	goto Player2_EventScript_DoLinkMulti
+Player2_EventScript_DoLinkMultiTrainer::
+	setvar VAR_CONTINUE_SCRIPT_AFTER_BATTLE, 2
+Player2_EventScript_DoLinkMulti::
 	closemessage
 	delay 10
+	message gText_PleaseWaitForLink
+	waitmessage
+	enqueueplayer2command P2_CMD_CONTROL_FLAG, FLAG_PLAYER_2_READY_TO_BATTLE_TOGETHER, TRUE
+	waitflagorbbutton FLAG_PLAYER_2_READY_TO_BATTLE_TOGETHER
+	goto_if_unset FLAG_PLAYER_2_READY_TO_BATTLE_TOGETHER, Player2_EventScript_CancelLinkBossBattle
+	clearflag FLAG_PLAYER_2_READY_TO_BATTLE_TOGETHER
 	setvar VAR_ACTION_ON_FRAME, 2
 	setflag FLAG_DONT_FADE_IN_MAP
-	setflag FLAG_CONTINUE_SCRIPT_AFTER_BATTLE
 	callnative UpdatePlayer2Pos
 	callnative SavePlayerBag
 	special ColosseumPlayerSpotTriggered
 	end
 
-Player2_EventScript_HandlePostBattleScript::
+Player2_EventScript_CancelLinkBossBattle::
+	enqueueplayer2command P2_CMD_CONTROL_FLAG, FLAG_PLAYER_2_READY_TO_BATTLE_TOGETHER, FALSE
+	closemessage
+	release
+	end
+
+Player2_EventScript_HandlePostWildBattleScript::
 	tower_closelink
 	callnative LoadPlayerBag
 	setflag FLAG_DONT_FADE_OUT_MAP
 	clearflag FLAG_DONT_FADE_IN_MAP
-	clearflag FLAG_CONTINUE_SCRIPT_AFTER_BATTLE
+	setvar VAR_CONTINUE_SCRIPT_AFTER_BATTLE, 0
 	goto_if_eq VAR_VOLCANION_CAVE_3F_STATE, 1, Player2_EventScript_3FIntro
 	specialvar VAR_RESULT, GetBattleOutcome
 	goto_if_ne VAR_RESULT, B_OUTCOME_WON, Player2_EventScript_BattleLost
 	goto_if_unset FLAG_DEFEATED_VOLCANION_CAVE_1F_GOLEM, Player2_EventScript_DefeatedGolem
 	goto Player2_EventScript_DefeatedVolcanion
+	return
+
+Player2_EventScript_HandlePostTrainerBattleScript::
+	tower_closelink
+	callnative LoadPlayerBag
+	setflag FLAG_DONT_FADE_OUT_MAP
+	clearflag FLAG_DONT_FADE_IN_MAP
+	setvar VAR_CONTINUE_SCRIPT_AFTER_BATTLE, 0
+	specialvar VAR_RESULT, GetBattleOutcome
+	goto_if_ne VAR_RESULT, B_OUTCOME_WON, Player2_EventScript_BattleLost
+	goto Player2_EventScript_DefeatedTeamRocket
 	return
 
 Player2_EventScript_3FIntro::
@@ -444,12 +471,17 @@ Player2_EventScript_SetPlayer2DefeatedVolcanion::
 	setobjectxy LOCALID_PLAYER, 17, 22
 	return
 
+Player2_EventScript_DefeatedTeamRocket::
+	setvar VAR_VOLCANION_CAVE_3F_STATE, 6
+	return
+
 Player2_EventScript_Reconnect::
 	closemessage
 	delay 10
 	setvar VAR_ACTION_ON_FRAME, 0
 	setflag FLAG_DO_QUICK_CONNECTION
-	call_if_set FLAG_CONTINUE_SCRIPT_AFTER_BATTLE, Player2_EventScript_HandlePostBattleScript
+	call_if_eq VAR_CONTINUE_SCRIPT_AFTER_BATTLE, 1, Player2_EventScript_HandlePostWildBattleScript
+	call_if_eq VAR_CONTINUE_SCRIPT_AFTER_BATTLE, 2, Player2_EventScript_HandlePostTrainerBattleScript
 	goto EventScript_Player2_TryTradeLinkup
 
 EventScript_Player2_Connect::
@@ -661,7 +693,7 @@ EventScript_Player2_TrySaveAndDisconnect::
 Player2_EventScript_StartSaveAndDisconnect::
 	message Player2_Text_WaitingForOtherPlayerSave
 	waitmessage
-	enqueueplayer2command P2_CMD_CONTROL_FLAG, FLAG_PLAYER_2_IS_SAVING, 1
+	enqueueplayer2command P2_CMD_CONTROL_FLAG, FLAG_PLAYER_2_IS_SAVING, TRUE
 	waitflagorbbutton FLAG_PLAYER_2_IS_SAVING
 	goto_if_unset FLAG_PLAYER_2_IS_SAVING, Player2_EventScript_CancelSaveAndDisconnect
 	clearflag FLAG_PLAYER_2_IS_SAVING
@@ -673,7 +705,7 @@ Player2_EventScript_StartSaveAndDisconnect::
 	end
 
 Player2_EventScript_CancelSaveAndDisconnect::
-	enqueueplayer2command P2_CMD_CONTROL_FLAG, FLAG_PLAYER_2_IS_SAVING, 0
+	enqueueplayer2command P2_CMD_CONTROL_FLAG, FLAG_PLAYER_2_IS_SAVING, FALSE
 	release
 	end
 
@@ -737,7 +769,7 @@ Player2_Text_EndOfDemo::
 	.string "Thanks for playing!\p$"
 
 EventScript_Player2_Warp::
-	message gText_PleaseWaitForLink
+	message gText_PleaseWaitNoCancel
 	waitmessage
 	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 10
 Player2_EventScript_WaitForWarp::

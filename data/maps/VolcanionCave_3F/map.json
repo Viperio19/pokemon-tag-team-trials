@@ -765,7 +765,7 @@
       "elevation": 3,
       "var": "VAR_VOLCANION_CAVE_3F_PIKACHU_STATE",
       "var_value": "99",
-      "script": "VolcanionCave_3F_EventScript_CramorantEatPikachu"
+      "script": "VolcanionCave_3F_EventScript_CramorantTrigger"
     },
     {
       "type": "trigger",
@@ -1170,7 +1170,7 @@
       "elevation": 3,
       "var": "VAR_VOLCANION_CAVE_3F_TEAM_ROCKET_STATE",
       "var_value": "0",
-      "script": "VolcanionCave_3F_EventScript_TeamRocketMotto"
+      "script": "VolcanionCave_3F_EventScript_TeamRocketTrigger"
     },
     {
       "type": "trigger",
@@ -1179,7 +1179,7 @@
       "elevation": 3,
       "var": "VAR_VOLCANION_CAVE_3F_TEAM_ROCKET_STATE",
       "var_value": "0",
-      "script": "VolcanionCave_3F_EventScript_TeamRocketMotto"
+      "script": "VolcanionCave_3F_EventScript_TeamRocketTrigger"
     },
     {
       "type": "trigger",
@@ -1188,7 +1188,7 @@
       "elevation": 3,
       "var": "VAR_VOLCANION_CAVE_3F_TEAM_ROCKET_STATE",
       "var_value": "0",
-      "script": "VolcanionCave_3F_EventScript_TeamRocketMotto"
+      "script": "VolcanionCave_3F_EventScript_TeamRocketTrigger"
     },
     {
       "type": "trigger",
@@ -1197,7 +1197,7 @@
       "elevation": 3,
       "var": "VAR_VOLCANION_CAVE_3F_TEAM_ROCKET_STATE",
       "var_value": "0",
-      "script": "VolcanionCave_3F_EventScript_TeamRocketMotto"
+      "script": "VolcanionCave_3F_EventScript_TeamRocketTrigger"
     }
   ],
   "bg_events": [

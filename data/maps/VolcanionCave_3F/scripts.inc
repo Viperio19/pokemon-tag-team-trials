@@ -80,11 +80,14 @@ VolcanionCave_3F_OnFrame:
 	map_script_2 VAR_P2_INTERACTION_STATE, 10, EventScript_Player2_Warp
 	map_script_2 VAR_P2_INTERACTION_STATE, 15, VolcanionCave_3F_EventScript_DiglettPlayer2
 	map_script_2 VAR_P2_INTERACTION_STATE, 16, VolcanionCave_3F_EventScript_ZinniaPlayer2
+	map_script_2 VAR_P2_INTERACTION_STATE, 17, VolcanionCave_3F_EventScript_TeamRocketPlayer2
+	map_script_2 VAR_P2_INTERACTION_STATE, 18, VolcanionCave_3F_EventScript_CramorantPlayer2
 	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 0, VolcanionCave_3F_EventScript_EnterCave
 	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 1, VolcanionCave_3F_EventScript_EnterCaveMultiplayer
 	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 2, VolcanionCave_3F_EventScript_IntroPostBattle
 	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 4, VolcanionCave_3F_EventScript_DefeatedVolcanion
-	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 6, VolcanionCave_3F_EventScript_CreditsSequence
+	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 6, VolcanionCave_3F_EventScript_DefeatedTeamRocket
+	map_script_2 VAR_VOLCANION_CAVE_3F_STATE, 8, VolcanionCave_3F_EventScript_CreditsSequence
 	.2byte 0
 
 #define LOCALID_PLAYER_AQUA  VAR_0x800A
@@ -163,7 +166,7 @@ VolcanionCave_3F_EventScript_Intro::
 	special RemoveCameraObject
 	@ Multiplayer battle
 	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
-	goto_if_eq VAR_RESULT, TRUE, Player2_EventScript_DoLinkBossBattle
+	goto_if_eq VAR_RESULT, TRUE, Player2_EventScript_DoLinkMultiWildBoss
 	@ Singleplayer battle
 	multi_fixed_players_vs_wild PARTNER_PLAYER_2
 	specialvar VAR_RESULT, GetBattleOutcome
@@ -774,7 +777,7 @@ VolcanionCave_3F_EventScript_Volcanion::
 	closemessage
 	setwildbattle SPECIES_VOLCANION, 40, TRUE
 	callnative IsMultiplayer
-	goto_if_eq VAR_RESULT, TRUE, Player2_EventScript_DoLinkBossBattle
+	goto_if_eq VAR_RESULT, TRUE, Player2_EventScript_DoLinkMultiWildBoss
 	goto_if_unset FLAG_PLAYER_2_READY_TO_BATTLE_TOGETHER, VolcanionCave_3F_EventScript_AskVolcanionMultiBattle
 	clearflag FLAG_PLAYER_2_READY_TO_BATTLE_TOGETHER
 	getplayerxy VAR_0x8008, VAR_0x8009
@@ -1222,12 +1225,13 @@ VolcanionCave_3F_EventScript_ZinniaTrigger::
 	end
 
 VolcanionCave_3F_EventScript_ZinniaMultiplayer::
-	message gText_PleaseWaitForLink
+	message gText_PleaseWaitNoCancel
 	waitmessage
 	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 16
 VolcanionCave_3F_EventScript_ZinniaWaitForPlayer2::
 	delay 1
 	goto_if_ne VAR_P2_INTERACTION_STATE, 16, VolcanionCave_3F_EventScript_ZinniaWaitForPlayer2
+	closemessage
 	setvar VAR_P2_INTERACTION_STATE, 0
 	setvar VAR_SHARED_CUTSCENE_STATE, 1
 
@@ -1245,7 +1249,6 @@ VolcanionCave_3F_EventScript_ZinniaWaitForPlayer2::
 VolcanionCave_3F_EventScript_ZinniaPlayer2::
 	lock
 	setvar VAR_P2_INTERACTION_STATE, 0
-	setvar VAR_SHARED_CUTSCENE_STATE, 2
 	getplayerxy VAR_0x8002, VAR_0x8003
 
 	@ Move to other player position
@@ -1267,6 +1270,7 @@ VolcanionCave_3F_EventScript_ZinniaPlayer2::
 
 	@ Start cutscene for both players
 	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 16
+	setvar VAR_SHARED_CUTSCENE_STATE, 2
 	goto VolcanionCave_3F_EventScript_ZinniaEnter
 	end
 
@@ -2694,12 +2698,13 @@ VolcanionCave_3F_EventScript_Diglett::
 	end
 
 VolcanionCave_3F_EventScript_DiglettMultiplayer::
-	message gText_PleaseWaitForLink
+	message gText_PleaseWaitNoCancel
 	waitmessage
 	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 15
 VolcanionCave_3F_EventScript_DiglettWaitForPlayer2::
 	delay 1
 	goto_if_ne VAR_P2_INTERACTION_STATE, 15, VolcanionCave_3F_EventScript_DiglettWaitForPlayer2
+	closemessage
 	setvar VAR_P2_INTERACTION_STATE, 0
 	setvar VAR_SHARED_CUTSCENE_STATE, 1
 
@@ -2717,7 +2722,6 @@ VolcanionCave_3F_EventScript_DiglettWaitForPlayer2::
 VolcanionCave_3F_EventScript_DiglettPlayer2::
 	lock
 	setvar VAR_P2_INTERACTION_STATE, 0
-	setvar VAR_SHARED_CUTSCENE_STATE, 2
 	getplayerxy VAR_0x8002, VAR_0x8003
 
 	@ Move to other player position
@@ -2736,6 +2740,7 @@ VolcanionCave_3F_EventScript_DiglettPlayer2::
 
 	@ Start cutscene for both players
 	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 15
+	setvar VAR_SHARED_CUTSCENE_STATE, 2
 	callnative IsPlayerOne
 	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_3F_EventScript_DiglettAqua
 	goto VolcanionCave_3F_EventScript_DiglettMagma
@@ -3231,8 +3236,11 @@ VolcanionCave_3F_EventScript_CramorantStillLookingForFood::
 	release
 	end
 
-VolcanionCave_3F_EventScript_CramorantEatPikachu::
+VolcanionCave_3F_EventScript_CramorantTrigger::
 	lock
+	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
+	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_3F_EventScript_CramorantMultiplayer
+VolcanionCave_3F_EventScript_CramorantEatPikachu::
 	setvar VAR_VOLCANION_CAVE_3F_PIKACHU_STATE, 100
 	special SpawnCameraObject
 	applymovement LOCALID_CAMERA, VolcanionCave_3F_Movement_CameraMoveToCramorant
@@ -3325,7 +3333,52 @@ VolcanionCave_3F_EventScript_CramorantEatPikachu::
 	applymovement LOCALID_CAMERA, VolcanionCave_3F_Movement_CameraMoveBackUpFromCramorant
 	waitmovement 0
 	special RemoveCameraObject
+
+	setvar VAR_P2_INTERACTION_STATE, 0
+	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 0
+	goto_if_eq VAR_SHARED_CUTSCENE_STATE, 2, VolcanionCave_3F_EventScript_Player2CutsceneEnd
+	setvar VAR_SHARED_CUTSCENE_STATE, 0
 	release
+	end
+
+VolcanionCave_3F_EventScript_CramorantMultiplayer::
+	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 1
+	callnative IsPlayerOne
+	call_if_eq VAR_RESULT, FALSE, VolcanionCave_3F_EventScript_CramorantPlayer2
+	message gText_PleaseWaitNoCancel
+	waitmessage
+	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 18
+VolcanionCave_3F_EventScript_CramorantWaitForPlayer2::
+	delay 1
+	goto_if_ne VAR_P2_INTERACTION_STATE, 18, VolcanionCave_3F_EventScript_CramorantWaitForPlayer2
+	closemessage
+	setvar VAR_P2_INTERACTION_STATE, 0
+	setvar VAR_SHARED_CUTSCENE_STATE, 1
+
+	@ Start cutscene for both players
+	goto VolcanionCave_3F_EventScript_CramorantEatPikachu
+	end
+
+VolcanionCave_3F_EventScript_CramorantPlayer2::
+	lock
+	setvar VAR_P2_INTERACTION_STATE, 0
+	getplayerxy VAR_0x8002, VAR_0x8003
+
+	@ Move to other player position
+	special SpawnCameraObject
+	fadescreen FADE_TO_BLACK
+	getobjectcurrentxy LOCALID_PLAYER_2, CURRENT_POSITION, VAR_0x8004, VAR_0x8005
+	setobjectxy LOCALID_CAMERA, VAR_0x8004, VAR_0x8005
+	fadescreen FADE_FROM_BLACK
+	callnative UpdateSaveBlockPosToCamera
+	special DrawWholeMapView
+	special RemoveCameraObject
+	delay 30
+
+	@ Start cutscene for both players
+	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 18
+	setvar VAR_SHARED_CUTSCENE_STATE, 2
+	goto VolcanionCave_3F_EventScript_CramorantEatPikachu
 	end
 
 VolcanionCave_3F_EventScript_CramorantCry::
@@ -3463,6 +3516,7 @@ VolcanionCave_3F_EventScript_AskResetPikachu::
 
 VolcanionCave_3F_EventScript_ResetPikachu::
 	fadescreen FADE_TO_BLACK
+	enqueueplayer2command P2_CMD_MOVE_OBJECT, LOCALID_3F_PIKACHU, 27, 5
 	setobjectxyperm LOCALID_3F_PIKACHU, 27, 5
 	setobjectxy LOCALID_3F_PIKACHU, 27, 5
 	turnobject LOCALID_3F_PIKACHU, DIR_SOUTH
@@ -3535,15 +3589,19 @@ VolcanionCave_3F_EventScript_Meowth::
 	msgbox VolcanionCave_3F_Text_MeowthBattleIntro, MSGBOX_DEFAULT
 	goto VolcanionCave_3F_EventScript_BattleTeamRocket
 
-VolcanionCave_3F_EventScript_TeamRocketMotto::
+VolcanionCave_3F_EventScript_TeamRocketTrigger::
 	lock
+	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
+	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_3F_EventScript_TeamRocketMultiplayer
+	setvar LOCALID_CUTSCENE_PLAYER LOCALID_PLAYER
+VolcanionCave_3F_EventScript_TeamRocketMotto::
 	setvar VAR_VOLCANION_CAVE_3F_TEAM_ROCKET_STATE, 1
 	setflag FLAG_SPAWN_VOLCANION_CAVE_3F_TEAM_ROCKET
 	playbgm MUS_ENCOUNTER_SUSPICIOUS, FALSE
 	message VolcanionCave_3F_Text_RocketMottoStart
 	delay 30
 	playse SE_M_DIZZY_PUNCH
-	applymovement LOCALID_PLAYER, Common_Movement_QuestionMark
+	applymovement LOCALID_CUTSCENE_PLAYER, Common_Movement_QuestionMark
 	waitmessage
 	playse SE_FALL
 	addobject LOCALID_3F_JESSIE
@@ -3552,7 +3610,7 @@ VolcanionCave_3F_EventScript_TeamRocketMotto::
 	applymovement LOCALID_3F_JESSIE, VolcanionCave_3F_Movement_TeamRocketFallDown
 	delay 30
 	playse SE_PIN
-	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
+	applymovement LOCALID_CUTSCENE_PLAYER, Common_Movement_ExclamationMark
 	waitmovement 0
 	playse SE_M_STRENGTH
 	message VolcanionCave_3F_Text_RocketMottoJessieEnter
@@ -3579,7 +3637,12 @@ VolcanionCave_3F_EventScript_TeamRocketMotto::
 	message VolcanionCave_3F_Text_RocketMottoRest
 	waitmessage
 	closemessage
+	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 0
+	goto_if_eq VAR_SHARED_CUTSCENE_STATE, 2, VolcanionCave_3F_EventScript_Player2CutsceneEnd
+	setvar VAR_SHARED_CUTSCENE_STATE, 0
 VolcanionCave_3F_EventScript_BattleTeamRocket::
+	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
+	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_3F_EventScript_BattleTeamRocketMultiplayer
 	trainerbattle_no_intro TRAINER_TEAM_ROCKET_DUO_VC_3F, VolcanionCave_3F_Text_RocketDefeat
 	goto_if_eq VAR_RESULT, B_OUTCOME_WON, VolcanionCave_3F_EventScript_DefeatedTeamRocket
 	message VolcanionCave_3F_Text_ThatsRight
@@ -3588,7 +3651,62 @@ VolcanionCave_3F_EventScript_BattleTeamRocket::
 	release
 	end
 
+VolcanionCave_3F_EventScript_BattleTeamRocketMultiplayer::
+	setwildbattle SPECIES_WOBBUFFET, 10, TRUE
+	goto Player2_EventScript_DoLinkMultiTrainer
+	end
+
+VolcanionCave_3F_EventScript_TeamRocketMultiplayer::
+	message gText_PleaseWaitNoCancel
+	waitmessage
+	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 17
+VolcanionCave_3F_EventScript_TeamRocketWaitForPlayer2::
+	delay 1
+	goto_if_ne VAR_P2_INTERACTION_STATE, 17, VolcanionCave_3F_EventScript_TeamRocketWaitForPlayer2
+	setvar VAR_P2_INTERACTION_STATE, 0
+	setvar VAR_SHARED_CUTSCENE_STATE, 1
+
+	@ Set current player in control of text
+	callnative IsPlayerOne
+	call_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_SetP1ControlsText
+	call_if_eq VAR_RESULT, FALSE, Player2_Multiplayer_SetP2ControlsText
+	setvar LOCALID_CUTSCENE_PLAYER LOCALID_PLAYER
+
+	@ Start cutscene for both players
+	goto VolcanionCave_3F_EventScript_TeamRocketMotto
+	end
+
+VolcanionCave_3F_EventScript_TeamRocketPlayer2::
+	lock
+	setvar VAR_P2_INTERACTION_STATE, 0
+	getplayerxy VAR_0x8002, VAR_0x8003
+
+	@ Move to other player position
+	special SpawnCameraObject
+	fadescreen FADE_TO_BLACK
+	getobjectcurrentxy LOCALID_PLAYER_2, CURRENT_POSITION, VAR_0x8004, VAR_0x8005
+	setobjectxy LOCALID_CAMERA, VAR_0x8004, VAR_0x8005
+	fadescreen FADE_FROM_BLACK
+	callnative UpdateSaveBlockPosToCamera
+	special DrawWholeMapView
+	special RemoveCameraObject
+	delay 10
+
+	@ Set other player in control of text
+	callnative IsPlayerOne
+	call_if_eq VAR_RESULT, TRUE, Player2_Multiplayer_SetP2ControlsText
+	call_if_eq VAR_RESULT, FALSE, Player2_Multiplayer_SetP1ControlsText
+	setvar LOCALID_CUTSCENE_PLAYER LOCALID_PLAYER_2
+
+	@ Start cutscene for both players
+	enqueueplayer2varcommand P2_CMD_SET_VAR, VAR_P2_INTERACTION_STATE, 17
+	setvar VAR_SHARED_CUTSCENE_STATE, 2
+	goto VolcanionCave_3F_EventScript_TeamRocketMotto
+	end
+
 VolcanionCave_3F_EventScript_DefeatedTeamRocket::
+	setvar VAR_VOLCANION_CAVE_3F_STATE, 7
+	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 1
 	delay 20
 	playse SE_M_EXPLOSION
 	setvar VAR_0x8004, 0  @ Vertical pan
@@ -3619,6 +3737,7 @@ VolcanionCave_3F_EventScript_DefeatedTeamRocket::
 	msgbox VolcanionCave_3F_Text_PikachuFainted
 	clearflag FLAG_SPAWN_VOLCANION_CAVE_3F_TEAM_ROCKET
 	setflag FLAG_TEAM_ROCKET_KNOCKED_OUT_PIKACHU
+	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 0
 	release
 	end
 
@@ -3842,7 +3961,7 @@ VolcanionCave_3F_EventScript_Credits::
 	callnative IsMultiplayer
 	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_3F_EventScript_CreditsSequence
 VolcanionCave_3F_EventScript_CreditsDisconnect::
-	setvar VAR_VOLCANION_CAVE_3F_STATE, 6
+	setvar VAR_VOLCANION_CAVE_3F_STATE, 8
 	setvar VAR_ONE_PLAYER_CONTROLS_TEXT, 0
 	callnative SetWarpCurrentPosition
 	setflag FLAG_DONT_FADE_IN_MAP
@@ -3850,7 +3969,7 @@ VolcanionCave_3F_EventScript_CreditsDisconnect::
 	end
 
 VolcanionCave_3F_EventScript_CreditsSequence::
-	setvar VAR_VOLCANION_CAVE_3F_STATE, 7
+	setvar VAR_VOLCANION_CAVE_3F_STATE, 9
 	setflag FLAG_DO_CREDITS_TITLE
 	creditsmessage Credits_TagTeamTrials, Credits_Credits
 	clearflag FLAG_DO_CREDITS_TITLE

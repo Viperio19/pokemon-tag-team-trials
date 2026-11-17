@@ -1072,7 +1072,6 @@ static void Task_EnterCableClubSeat(u8 taskId)
     switch (task->tState)
     {
     case 0:
-        ShowFieldMessage(gText_PleaseWaitForLink);
         task->tState = 1;
         break;
     case 1:

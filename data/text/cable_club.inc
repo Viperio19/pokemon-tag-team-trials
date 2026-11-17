@@ -40,6 +40,9 @@ gText_PleaseWaitForLink::
 	.string "Please wait.\n"
 	.string "… … B Button: Cancel$"
 
+gText_PleaseWaitNoCancel::
+	.string "Please wait…$"
+
 gText_ConfirmLinkWhenPlayersReady::
 	.string "When all players are ready…\n"
 	.string "A Button: Confirm\l"
