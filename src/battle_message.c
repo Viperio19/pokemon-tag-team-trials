@@ -2456,7 +2456,14 @@ void BufferStringBattle(enum StringID stringID, enum BattlerId battler)
         {
             if (gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_RECORDED_LINK))
             {
-                if (gBattleTypeFlags & BATTLE_TYPE_TOWER_LINK_MULTI)
+                if (gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER)
+                {
+                    if (TRAINER_BATTLE_PARAM.opponentB == 0xFFFF)
+                        stringPtr = sText_Trainer1WantsToBattle;
+                    else
+                        stringPtr = sText_TwoTrainersWantToBattle;
+                }
+                else if (gBattleTypeFlags & BATTLE_TYPE_TOWER_LINK_MULTI)
                 {
                     stringPtr = sText_TwoTrainersWantToBattle;
                 }
@@ -2560,7 +2567,9 @@ void BufferStringBattle(enum StringID stringID, enum BattlerId battler)
         {
             if (IsDoubleBattle() && IsValidForBattle(GetBattlerMon(BATTLE_PARTNER(battler))))
             {
-                if (gBattleTypeFlags & BATTLE_TYPE_RECORDED_LINK && BATTLE_TWO_VS_ONE_OPPONENT)
+                if (gBattleTypeFlags & (BATTLE_TYPE_MULTIPLAYER | BATTLE_TYPE_TRAINER))
+                    stringPtr = sText_Trainer1SentOutTwoPkmn;
+                else if (gBattleTypeFlags & BATTLE_TYPE_RECORDED_LINK && BATTLE_TWO_VS_ONE_OPPONENT)
                     stringPtr = sText_LinkTrainerSentOutTwoPkmn;
                 else if (BATTLE_TWO_VS_ONE_OPPONENT)
                     stringPtr = sText_Trainer1SentOutTwoPkmn;

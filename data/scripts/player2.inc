@@ -394,9 +394,11 @@ Player2Magma_Text_Cancel::
 	.string "{SPEAKER NAME_PLAYER_MAGMA COLOR_MAGMA}Alright, let's go.$"
 
 Player2_EventScript_DoLinkMultiWildBoss::
+	clearflag FLAG_LINK_MULTI_TRAINER_BATTLE
 	setvar VAR_CONTINUE_SCRIPT_AFTER_BATTLE, 1
 	goto Player2_EventScript_DoLinkMulti
 Player2_EventScript_DoLinkMultiTrainer::
+	setflag FLAG_LINK_MULTI_TRAINER_BATTLE
 	setvar VAR_CONTINUE_SCRIPT_AFTER_BATTLE, 2
 Player2_EventScript_DoLinkMulti::
 	closemessage

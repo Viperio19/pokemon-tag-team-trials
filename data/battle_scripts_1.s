@@ -2990,8 +2990,20 @@ BattleScript_FrontierLinkBattleLostEnd::
 	end2
 
 BattleScript_LinkMultiBattleWonOrLost::
+	jumpifbattletype BATTLE_TYPE_TRAINER, BattleScript_FrontierLinkBattleLostEnd
+BattleScript_LinkMultiEndLinkBattle::
 	endlinkbattle
 	end2
+
+BattleScript_LinkMultiTrainerDefeated::
+	printstring STRINGID_PLAYERDEFEATEDTRAINER1
+	trainerslidein BS_OPPONENT1
+	waitstate
+	printstring STRINGID_TRAINER1LOSETEXT
+	getmoneyreward
+	printstring STRINGID_PLAYERGOTMONEY
+	waitmessage B_WAIT_TIME_LONG
+	goto BattleScript_LinkMultiEndLinkBattle
 
 BattleScript_LinkBattleWonOrLost::
 	jumpifbattletype BATTLE_TYPE_BATTLE_TOWER, BattleScript_TowerLinkBattleWon

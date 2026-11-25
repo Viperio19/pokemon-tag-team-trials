@@ -191,7 +191,7 @@ static void Intro_TryShinyAnimShowHealthbox(enum BattlerId battler)
     {
         if (!gBattleSpritesDataPtr->healthBoxesData[battler].healthboxSlideInStarted)
         {
-            if (IsDoubleBattle() && !(gBattleTypeFlags & BATTLE_TYPE_MULTI))
+            if (IsDoubleBattle() && (!(gBattleTypeFlags & BATTLE_TYPE_MULTI) || (BATTLE_TYPE_MULTIPLAYER_2_VS_1 && gBattleTypeFlags & BATTLE_TYPE_TRAINER)))
             {
                 UpdateHealthboxAttribute(gHealthboxSpriteIds[BATTLE_PARTNER(battler)], GetBattlerMon(BATTLE_PARTNER(battler)), HEALTHBOX_ALL);
                 StartHealthboxSlideIn(BATTLE_PARTNER(battler));
@@ -281,12 +281,28 @@ static void LinkOpponentHandleDrawTrainerPic(enum BattlerId battler)
 
     if (gBattleTypeFlags & BATTLE_TYPE_MULTI)
     {
-        if ((position & BIT_FLANK) != 0) // second mon
+        if (gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER && !(gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS))
+            xPos = 176;
+        else if ((position & BIT_FLANK) != 0) // second mon
             xPos = 152;
         else // first mon
             xPos = 200;
 
-        if (gBattleTypeFlags & BATTLE_TYPE_BATTLE_TOWER)
+        if (gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER)
+        {
+            if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS)
+            {
+                if (position == B_POSITION_OPPONENT_LEFT)
+                    trainerPicId = GetTrainerPicFromId(TRAINER_BATTLE_PARAM.opponentA);
+                else
+                    trainerPicId = GetTrainerPicFromId(TRAINER_BATTLE_PARAM.opponentB);
+            }
+            else
+            {
+                trainerPicId = GetTrainerPicFromId(TRAINER_BATTLE_PARAM.opponentA);
+            }
+        }
+        else if (gBattleTypeFlags & BATTLE_TYPE_BATTLE_TOWER)
         {
             if (position == B_POSITION_OPPONENT_LEFT)
                 trainerPicId = GetFrontierTrainerFrontSpriteId(TRAINER_BATTLE_PARAM.opponentA);
@@ -353,10 +369,25 @@ static void LinkOpponentHandleTrainerSlide(enum BattlerId battler)
 {
     enum TrainerPicID trainerPicId;
 
-    if (GetBattlerPosition(battler) == B_POSITION_OPPONENT_LEFT)
-        trainerPicId = GetFrontierTrainerFrontSpriteId(TRAINER_BATTLE_PARAM.opponentA);
+    if (gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER)
+    {
+        if (gBattleTypeFlags & BATTLE_TYPE_TWO_OPPONENTS)
+        {
+            if (GetBattlerPosition(battler) == B_POSITION_OPPONENT_LEFT)
+                trainerPicId = GetTrainerPicFromId(TRAINER_BATTLE_PARAM.opponentA);
+            else
+                trainerPicId = GetTrainerPicFromId(TRAINER_BATTLE_PARAM.opponentB);
+        }
+        else
+            trainerPicId = GetTrainerPicFromId(TRAINER_BATTLE_PARAM.opponentA);
+    }
     else
-        trainerPicId = GetFrontierTrainerFrontSpriteId(TRAINER_BATTLE_PARAM.opponentB);
+    {
+        if (GetBattlerPosition(battler) == B_POSITION_OPPONENT_LEFT)
+            trainerPicId = GetFrontierTrainerFrontSpriteId(TRAINER_BATTLE_PARAM.opponentA);
+        else
+            trainerPicId = GetFrontierTrainerFrontSpriteId(TRAINER_BATTLE_PARAM.opponentB);
+    }
 
     BtlController_HandleTrainerSlide(battler, trainerPicId);
     BtlController_Complete(battler); // Possibly a bug, because execution should be completed after the slide in finishes. See Controller_WaitForTrainerPic.

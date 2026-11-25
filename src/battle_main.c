@@ -1184,10 +1184,10 @@ static void CB2_HandleStartMultiPartnerBattle(void)
             ResetBlockReceivedFlags();
             memcpy(&gParties[B_TRAINER_PLAYER][2], gBlockRecvBuffer[playerMultiplayerId], sizeof(struct Pokemon));
             memcpy(&gParties[B_TRAINER_PARTNER][2], gBlockRecvBuffer[partnerMultiplayerId], sizeof(struct Pokemon));
-            if (gBattleTypeFlags & BATTLE_TYPE_TRAINER)
-                gBattleCommunication[MULTIUSE_STATE]++;
-            else
-                gBattleCommunication[MULTIUSE_STATE] = 19;
+            // if (gBattleTypeFlags & BATTLE_TYPE_TRAINER)
+            //     gBattleCommunication[MULTIUSE_STATE]++;
+            // else
+            gBattleCommunication[MULTIUSE_STATE] = 19;
         }
         break;
     case 7:
@@ -3290,7 +3290,7 @@ static void DoBattleIntro(void)
 
             for (enum BattlerPosition position = B_POSITION_PLAYER_LEFT; position < MAX_POSITION_COUNT; position++)
             {
-                if (gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER)
+                if (!(gBattleTypeFlags & BATTLE_TYPE_TRAINER))
                     continue;
                 if (position > B_POSITION_OPPONENT_LEFT && !BattleSideHasTwoTrainers(position & BIT_SIDE))
                     continue;
@@ -3314,7 +3314,7 @@ static void DoBattleIntro(void)
         }
         break;
     case BATTLE_INTRO_STATE_WAIT_FOR_INTRO_TEXT:
-        if (!IsBattlerMarkedForControllerExec(GetBattlerAtPosition(B_POSITION_PLAYER_LEFT)))
+        if (!gBattleControllerExecFlags)
         {
             if (gBattleTypeFlags & BATTLE_TYPE_TRAINER)
             {
@@ -3330,11 +3330,14 @@ static void DoBattleIntro(void)
         }
         break;
     case BATTLE_INTRO_STATE_TRAINER_SEND_OUT_TEXT:
-        if (gBattleTypeFlags & BATTLE_TYPE_RECORDED_LINK && !(gBattleTypeFlags & BATTLE_TYPE_RECORDED_IS_MASTER))
-            PrepareStringBattle(STRINGID_INTROSENDOUT, GetBattlerAtPosition(B_POSITION_PLAYER_LEFT));
-        else
-            PrepareStringBattle(STRINGID_INTROSENDOUT, GetBattlerAtPosition(B_POSITION_OPPONENT_LEFT));
-        gBattleStruct->eventState.battleIntro++;
+        if (!gBattleControllerExecFlags)
+        {
+            if (gBattleTypeFlags & BATTLE_TYPE_RECORDED_LINK && !(gBattleTypeFlags & BATTLE_TYPE_RECORDED_IS_MASTER))
+                PrepareStringBattle(STRINGID_INTROSENDOUT, GetBattlerAtPosition(B_POSITION_PLAYER_LEFT));
+            else
+                PrepareStringBattle(STRINGID_INTROSENDOUT, GetBattlerAtPosition(B_POSITION_OPPONENT_LEFT));
+            gBattleStruct->eventState.battleIntro++;
+        }
         break;
     case BATTLE_INTRO_STATE_WAIT_FOR_TRAINER_SEND_OUT_TEXT:
         if (!gBattleControllerExecFlags)
@@ -5121,8 +5124,41 @@ static void HandleEndTurn_BattleWon(void)
 
     if (gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER)
     {
-        gSpecialVar_Result = gBattleOutcome;
-        gBattlescriptCurrInstr = BattleScript_LinkMultiBattleWonOrLost;
+        if (gBattleTypeFlags & BATTLE_TYPE_TRAINER)
+        {
+            BattleStopLowHpSound();
+            gSpecialVar_Result = gBattleOutcome;
+            gBattleTextBuff1[0] = gBattleOutcome;
+            gBattlerAttacker = GetBattlerAtPosition(B_POSITION_PLAYER_LEFT);
+            gBattlescriptCurrInstr = BattleScript_LinkMultiBattleWonOrLost;
+
+            switch (GetTrainerClassFromId(TRAINER_BATTLE_PARAM.opponentA))
+            {
+            case TRAINER_CLASS_ELITE_FOUR:
+            case TRAINER_CLASS_CHAMPION:
+                PlayBGM(MUS_VICTORY_LEAGUE);
+                break;
+            case TRAINER_CLASS_TEAM_AQUA:
+            case TRAINER_CLASS_TEAM_MAGMA:
+            case TRAINER_CLASS_AQUA_ADMIN:
+            case TRAINER_CLASS_AQUA_LEADER:
+            case TRAINER_CLASS_MAGMA_ADMIN:
+            case TRAINER_CLASS_MAGMA_LEADER:
+                PlayBGM(MUS_VICTORY_AQUA_MAGMA);
+                break;
+            case TRAINER_CLASS_LEADER:
+                PlayBGM(MUS_VICTORY_GYM_LEADER);
+                break;
+            default:
+                PlayBGM(MUS_VICTORY_TRAINER);
+                break;
+            }
+        }
+        else
+        {
+            gSpecialVar_Result = gBattleOutcome;
+            gBattlescriptCurrInstr = BattleScript_LinkMultiBattleWonOrLost;
+        }
     }
     else if (gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_RECORDED_LINK))
     {

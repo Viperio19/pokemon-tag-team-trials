@@ -860,10 +860,20 @@ static void Task_StartWiredCableClubBattle(u8 taskId)
     switch (task->tState)
     {
     case 0:
-        gBattleTypeFlags = BATTLE_TYPE_WILD_BOSS | BATTLE_TYPE_DOUBLE | BATTLE_TYPE_LINK | BATTLE_TYPE_MULTI | BATTLE_TYPE_TOWER_LINK_MULTI | BATTLE_TYPE_MULTIPLAYER;
+        gBattleTypeFlags = BATTLE_TYPE_DOUBLE | BATTLE_TYPE_LINK | BATTLE_TYPE_MULTI | BATTLE_TYPE_TOWER_LINK_MULTI | BATTLE_TYPE_MULTIPLAYER;
 
-        TRAINER_BATTLE_PARAM.opponentA = TRAINER_MAY_LILYCOVE_TORCHIC;
+        TRAINER_BATTLE_PARAM.opponentA = TRAINER_TEAM_ROCKET_DUO_VC_3F;
         TRAINER_BATTLE_PARAM.opponentB = 0xFFFF;
+
+        if (FlagGet(FLAG_LINK_MULTI_TRAINER_BATTLE))
+        {
+            gBattleTypeFlags |= BATTLE_TYPE_TRAINER;
+            CreateNPCTrainerParty(&gParties[B_TRAINER_OPPONENT_A][0], TRAINER_BATTLE_PARAM.opponentA);
+        }
+        else
+        {
+            gBattleTypeFlags |= BATTLE_TYPE_WILD_BOSS;
+        }
         
         if (GetMonData(&gParties[B_TRAINER_OPPONENT_A][0], MON_DATA_SPECIES) == SPECIES_VOLCANION)
         {

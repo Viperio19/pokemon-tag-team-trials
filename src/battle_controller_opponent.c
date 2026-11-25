@@ -399,9 +399,11 @@ static void OpponentHandleDrawTrainerPic(enum BattlerId battler)
 
         if (gBattleTypeFlags & (BATTLE_TYPE_MULTI | BATTLE_TYPE_TWO_OPPONENTS) && !BATTLE_TWO_VS_ONE_OPPONENT)
         {
-            if ((GetBattlerPosition(battler) & BIT_FLANK) != 0) // second mon
+            if (gBattleTypeFlags & BATTLE_TYPE_MULTIPLAYER)
+                xPos = 176;
+            else if ((GetBattlerPosition(battler) & BIT_FLANK) != 0) // second mon
                 xPos = 152;
-           else // first mon
+            else // first mon
                 xPos = 200;
         }
         else

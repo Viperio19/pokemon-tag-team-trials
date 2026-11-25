@@ -162,18 +162,21 @@ void Controller_PlayerPartnerShowIntroHealthbox(enum BattlerId battler)
         gBattleSpritesDataPtr->healthBoxesData[battler].introEndDelay = 0;
         TryShinyAnimation(battler, GetBattlerMon(battler));
 
-        if (IsDoubleBattle() && !(gBattleTypeFlags & BATTLE_TYPE_MULTI))
-        {
-            DestroySprite(&gSprites[gBattleControllerData[BATTLE_PARTNER(battler)]]);
-            UpdateHealthboxAttribute(gHealthboxSpriteIds[BATTLE_PARTNER(battler)], GetBattlerMon(BATTLE_PARTNER(battler)), HEALTHBOX_ALL);
-            StartHealthboxSlideIn(BATTLE_PARTNER(battler));
-            SetHealthboxSpriteVisible(gHealthboxSpriteIds[BATTLE_PARTNER(battler)]);
-        }
+        // This is already handled by the main player, that way it is in sync 
 
-        DestroySprite(&gSprites[gBattleControllerData[battler]]);
-        UpdateHealthboxAttribute(gHealthboxSpriteIds[battler], GetBattlerMon(battler), HEALTHBOX_ALL);
-        StartHealthboxSlideIn(battler);
-        SetHealthboxSpriteVisible(gHealthboxSpriteIds[battler]);
+        // if (IsDoubleBattle() && !(gBattleTypeFlags & BATTLE_TYPE_MULTI))
+        // {
+        //     DebugPrintf("second healthbox");
+        //     DestroySprite(&gSprites[gBattleControllerData[BATTLE_PARTNER(battler)]]);
+        //     UpdateHealthboxAttribute(gHealthboxSpriteIds[BATTLE_PARTNER(battler)], GetBattlerMon(BATTLE_PARTNER(battler)), HEALTHBOX_ALL);
+        //     StartHealthboxSlideIn(BATTLE_PARTNER(battler));
+        //     SetHealthboxSpriteVisible(gHealthboxSpriteIds[BATTLE_PARTNER(battler)]);
+        // }
+
+        // DestroySprite(&gSprites[gBattleControllerData[battler]]);
+        // UpdateHealthboxAttribute(gHealthboxSpriteIds[battler], GetBattlerMon(battler), HEALTHBOX_ALL);
+        // StartHealthboxSlideIn(battler);
+        // SetHealthboxSpriteVisible(gHealthboxSpriteIds[battler]);
 
         gBattleSpritesDataPtr->animationData->introAnimActive = FALSE;
 
