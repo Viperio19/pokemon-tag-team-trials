@@ -2990,7 +2990,7 @@ BattleScript_FrontierLinkBattleLostEnd::
 	end2
 
 BattleScript_LinkMultiBattleWonOrLost::
-	jumpifbattletype BATTLE_TYPE_TRAINER, BattleScript_FrontierLinkBattleLostEnd
+	jumpifbattletype BATTLE_TYPE_TRAINER, BattleScript_LinkMultiTrainerDefeated
 BattleScript_LinkMultiEndLinkBattle::
 	endlinkbattle
 	end2

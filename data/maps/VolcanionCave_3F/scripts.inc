@@ -3652,7 +3652,7 @@ VolcanionCave_3F_EventScript_BattleTeamRocket::
 	end
 
 VolcanionCave_3F_EventScript_BattleTeamRocketMultiplayer::
-	setwildbattle SPECIES_WOBBUFFET, 10, TRUE
+	setmultitrainerbattle TRAINER_TEAM_ROCKET_DUO_VC_3F, VolcanionCave_3F_Text_RocketDefeat, TRAINER_NONE, NULL
 	goto Player2_EventScript_DoLinkMultiTrainer
 	end
 
