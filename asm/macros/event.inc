@@ -770,7 +770,7 @@
 	.macro turnobject localId:req, direction:req
 	.byte SCR_OP_TURNOBJECT
 	.2byte \localId
-	.byte \direction
+	.2byte \direction
 	.endm
 
 	NULL = 0

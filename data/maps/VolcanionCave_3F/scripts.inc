@@ -3568,24 +3568,40 @@ VolcanionCave_3F_Text_PikachuMovedBack:
 	.string "You moved PIKACHU back\n"
 	.string "to it's original place!$"
 
+VolcanionCave_3F_EventScript_TeamRocketFacePlayer::
+	getplayerxy VAR_0x8008, VAR_0x8009
+	call_if_lt VAR_0x8009, 4, VolcanionCave_3F_EventScript_SetTeamRocketDirectionNorth
+	call_if_gt VAR_0x8009, 4, VolcanionCave_3F_EventScript_SetTeamRocketDirectionSouth
+	call_if_eq VAR_0x8009, 4, VolcanionCave_3F_EventScript_SetTeamRocketDirectionWest
+	turnobject LOCALID_3F_JESSIE, VAR_0x8007
+	turnobject LOCALID_3F_JAMES, VAR_0x8007
+	turnobject LOCALID_3F_MEOWTH, VAR_0x8007
+	return
+
+VolcanionCave_3F_EventScript_SetTeamRocketDirectionNorth::
+	setvar VAR_0x8007, DIR_NORTH
+	return
+
+VolcanionCave_3F_EventScript_SetTeamRocketDirectionSouth::
+	setvar VAR_0x8007, DIR_SOUTH
+	return
+
+VolcanionCave_3F_EventScript_SetTeamRocketDirectionWest::
+	setvar VAR_0x8007, DIR_WEST
+	return
+
 VolcanionCave_3F_EventScript_Jessie::
-	applymovement LOCALID_3F_JESSIE, Common_Movement_FacePlayer
-	applymovement LOCALID_3F_JAMES, Common_Movement_FacePlayer
-	applymovement LOCALID_3F_MEOWTH, Common_Movement_FacePlayer
+	call VolcanionCave_3F_EventScript_TeamRocketFacePlayer
 	msgbox VolcanionCave_3F_Text_JessieBattleIntro, MSGBOX_DEFAULT
 	goto VolcanionCave_3F_EventScript_BattleTeamRocket
 
 VolcanionCave_3F_EventScript_James::
-	applymovement LOCALID_3F_JESSIE, Common_Movement_FacePlayer
-	applymovement LOCALID_3F_JAMES, Common_Movement_FacePlayer
-	applymovement LOCALID_3F_MEOWTH, Common_Movement_FacePlayer
+	call VolcanionCave_3F_EventScript_TeamRocketFacePlayer
 	msgbox VolcanionCave_3F_Text_JamesBattleIntro, MSGBOX_DEFAULT
 	goto VolcanionCave_3F_EventScript_BattleTeamRocket
 
 VolcanionCave_3F_EventScript_Meowth::
-	applymovement LOCALID_3F_JESSIE, Common_Movement_FacePlayer
-	applymovement LOCALID_3F_JAMES, Common_Movement_FacePlayer
-	applymovement LOCALID_3F_MEOWTH, Common_Movement_FacePlayer
+	call VolcanionCave_3F_EventScript_TeamRocketFacePlayer
 	msgbox VolcanionCave_3F_Text_MeowthBattleIntro, MSGBOX_DEFAULT
 	goto VolcanionCave_3F_EventScript_BattleTeamRocket
 
@@ -3642,18 +3658,13 @@ VolcanionCave_3F_EventScript_TeamRocketMotto::
 	setvar VAR_SHARED_CUTSCENE_STATE, 0
 VolcanionCave_3F_EventScript_BattleTeamRocket::
 	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
-	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_3F_EventScript_BattleTeamRocketMultiplayer
+	goto_if_eq VAR_RESULT, TRUE, Player2_EventScript_DoLinkMultiTrainer
 	trainerbattle_no_intro TRAINER_TEAM_ROCKET_DUO_VC_3F, VolcanionCave_3F_Text_RocketDefeat
 	goto_if_eq VAR_RESULT, B_OUTCOME_WON, VolcanionCave_3F_EventScript_DefeatedTeamRocket
 	message VolcanionCave_3F_Text_ThatsRight
 	waitmessage
 	closemessage
 	release
-	end
-
-VolcanionCave_3F_EventScript_BattleTeamRocketMultiplayer::
-	setmultitrainerbattle TRAINER_TEAM_ROCKET_DUO_VC_3F, VolcanionCave_3F_Text_RocketDefeat, TRAINER_NONE, NULL
-	goto Player2_EventScript_DoLinkMultiTrainer
 	end
 
 VolcanionCave_3F_EventScript_TeamRocketMultiplayer::

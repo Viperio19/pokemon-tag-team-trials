@@ -11,6 +11,7 @@ extern const u8 EventScript_Player2_PleaseDontLeave[];
 extern const u8 EventScript_Player2_TryResetMap[];
 extern const u8 EventScript_Player2_EndOfDemo[];
 extern const u8 EventScript_Player2_Warp[];
+extern const u8 EventScript_Player2_Resync[];
 
 extern const u8 EventScript_VolcanionCave_3F_Dig[];
 

@@ -3299,7 +3299,8 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
             EnqueuePlayer2CommandToSend(P2_CMD_UPDATE_POSITION, gSaveBlock1Ptr->pos.x, gSaveBlock1Ptr->pos.y, gObjectEvents[gPlayerAvatar.objectEventId].facingDirection);
             break;
         case P2_CMD_UPDATE_POSITION:
-            FlagSet(FLAG_RETURNING_TO_FIELD_LINK);
+            if (!FlagGet(FLAG_WAIT_FOR_UPDATE_POSITION))
+                FlagSet(FLAG_RETURNING_TO_FIELD_LINK);
 
             TryMoveObjectEventToMapCoords(OBJ_EVENT_ID_PLAYER_2, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, arg1, arg2);
             ObjectEventTurn(objEvent, arg3);
@@ -3322,6 +3323,7 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
                 ObjectEventSetGraphicsId(objEvent, GetPlayer2AvatarGraphicsIdByStateIdAndGender(PLAYER_AVATAR_STATE_NORMAL, gSaveBlock2Ptr->player2Gender));
 
             ObjectEventClearHeldMovementIfActive(objEvent);
+            FlagClear(FLAG_WAIT_FOR_UPDATE_POSITION);
             break;
         case P2_CMD_CONTROL_FLAG:
             if (arg2)
@@ -3544,6 +3546,9 @@ static void UpdateAllLinkPlayers(u16 *keys, s32 selfId)
             TryMoveObjectEventToMapCoords(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, arg2, arg3);
             SetObjEventTemplateCoords(arg1, arg2, arg3);
         }
+        break;
+    case P2_CMD_TURN_OBJECT:
+        ObjectEventTurnByLocalIdAndMap(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, arg2);
         break;
     case P2_CMD_APPLY_MOVEMENT:
         ScriptMovement_StartObjectMovementScript(arg1, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, sPlayer2MovementIdToScript[arg2]);

@@ -127,8 +127,8 @@
 #define FLAG_DONT_FADE_IN_MAP                      0x28E
 #define FLAG_DONT_FADE_OUT_MAP                     0x28F
 #define FLAG_LINK_MULTI_TRAINER_BATTLE             0x290
+#define FLAG_WAIT_FOR_UPDATE_POSITION              0x291
 
-#define FLAG_UNUSED_0x291  0x291 // Unused Flag
 #define FLAG_UNUSED_0x292  0x292 // Unused Flag
 #define FLAG_UNUSED_0x293  0x293 // Unused Flag
 #define FLAG_UNUSED_0x294  0x294 // Unused Flag

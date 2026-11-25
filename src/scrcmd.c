@@ -1604,11 +1604,12 @@ bool8 ScrCmd_faceplayer(struct ScriptContext *ctx)
 bool8 ScrCmd_turnobject(struct ScriptContext *ctx)
 {
     u16 localId = VarGet(ScriptReadHalfword(ctx));
-    enum Direction direction = ScriptReadByte(ctx);
+    enum Direction direction = VarGet(ScriptReadHalfword(ctx));
 
     Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
 
     ObjectEventTurnByLocalIdAndMap(localId, gSaveBlock1Ptr->location.mapNum, gSaveBlock1Ptr->location.mapGroup, direction);
+    EnqueuePlayer2CommandToSend(P2_CMD_TURN_OBJECT, localId, direction, 0);
     return FALSE;
 }
 

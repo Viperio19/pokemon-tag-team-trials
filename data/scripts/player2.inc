@@ -824,3 +824,15 @@ Player2_EventScript_Warp2F::
 	setwarp MAP_VOLCANION_CAVE_2F, 22, 77
 	special CloseLinkAndWarp
 	end
+
+EventScript_Player2_Resync::
+	lock
+	fadescreen FADE_TO_BLACK
+	setflag FLAG_WAIT_FOR_UPDATE_POSITION
+	enqueueplayer2command P2_CMD_REQUEST_POSITION
+EventScript_Player2_WaitResync::
+	delay 1
+	goto_if_set FLAG_WAIT_FOR_UPDATE_POSITION, EventScript_Player2_WaitResync
+	fadescreen FADE_FROM_BLACK
+	release
+	end

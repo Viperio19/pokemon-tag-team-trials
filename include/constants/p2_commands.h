@@ -32,6 +32,7 @@ enum Player2Command
     P2_CMD_JUMP_2,
     P2_CMD_RIDE_WATER_CURRENT,
     P2_CMD_ADD_OBJECT,
+    P2_CMD_TURN_OBJECT,
     P2_CMD_APPLY_MOVEMENT,
     // instant commands
     P2_CMD_INSTANT_COMMANDS_START,

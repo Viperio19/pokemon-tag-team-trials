@@ -458,18 +458,27 @@ int ProcessPlayerFieldInput(struct FieldInput *input)
     if (VarGet(VAR_GOLEM_ROCK_SLIDE_STATE) != 1 && input->pressedSelectButton && UseRegisteredKeyItemOnField() == TRUE)
         return TRUE;
 
-    // TARC - Switch characters when pressing R
-    if (VarGet(VAR_GOLEM_ROCK_SLIDE_STATE) != 1 && input->pressedRButton && !(IS_MULTIPLAYER) && !FlagGet(FLAG_DOING_CREDITS))
+    // TARC - Switch characters (singleplayer) or resync (multiplayer) when pressing R
+    if (input->pressedRButton)
     {
-        if (FlagGet(FLAG_PLAYER_2_READY_TO_BATTLE_TOGETHER))
+        if (IS_MULTIPLAYER)
         {
-            ScriptContext_SetupScript(EventScript_Player2_ReadyToBattle);
-            return TRUE;
-        }
-        else
+            if (IsTagTeamTrialsLinkActive())
+            {
+                ScriptContext_SetupScript(EventScript_Player2_Resync);
+            }
+        } else if (VarGet(VAR_GOLEM_ROCK_SLIDE_STATE) != 1 && !FlagGet(FLAG_DOING_CREDITS))
         {
-            SwitchCharacters();
-            return TRUE;
+            if (FlagGet(FLAG_PLAYER_2_READY_TO_BATTLE_TOGETHER))
+            {
+                ScriptContext_SetupScript(EventScript_Player2_ReadyToBattle);
+                return TRUE;
+            }
+            else
+            {
+                SwitchCharacters();
+                return TRUE;
+            }
         }
     }
 
