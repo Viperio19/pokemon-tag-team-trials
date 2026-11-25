@@ -1317,6 +1317,9 @@ static s32 AI_CheckBadMove(enum BattlerId battlerAtk, enum BattlerId battlerDef,
     if (effectiveness == UQ_4_12(0.0))
         RETURN_SCORE_MINUS(20);
 
+    if (effectiveness < UQ_4_12(1.0))
+        ADJUST_SCORE(-5);
+
     if (DoesBattlerIgnoreAbilityChecks(battlerAtk, abilityAtk, move))
         abilityDef = ABILITY_NONE;
 
