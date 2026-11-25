@@ -259,6 +259,8 @@ u8 MovementAction_AcroEndWheelieMoveRight_Step1(struct ObjectEvent *, struct Spr
 u8 MovementAction_Levitate_Step0(struct ObjectEvent *, struct Sprite *);
 u8 MovementAction_StopLevitate_Step0(struct ObjectEvent *, struct Sprite *);
 u8 MovementAction_StopLevitateAtTop_Step0(struct ObjectEvent *, struct Sprite *);
+u8 MovementAction_Shake_Step0(struct ObjectEvent *, struct Sprite *);
+u8 MovementAction_StopShake_Step0(struct ObjectEvent *, struct Sprite *);
 u8 MovementAction_LockAnim_Step0(struct ObjectEvent *, struct Sprite *);
 u8 MovementAction_Finish(struct ObjectEvent *, struct Sprite *);
 u8 MovementAction_UnlockAnim_Step0(struct ObjectEvent *, struct Sprite *);
@@ -462,6 +464,8 @@ u8 (*const gMovementActionFuncs_WalkRightAffine[])(struct ObjectEvent *, struct 
 u8 (*const gMovementActionFuncs_Levitate[])(struct ObjectEvent *, struct Sprite *);
 u8 (*const gMovementActionFuncs_StopLevitate[])(struct ObjectEvent *, struct Sprite *);
 u8 (*const gMovementActionFuncs_StopLevitateAtTop[])(struct ObjectEvent *, struct Sprite *);
+u8 (*const gMovementActionFuncs_Shake[])(struct ObjectEvent *, struct Sprite *);
+u8 (*const gMovementActionFuncs_StopShake[])(struct ObjectEvent *, struct Sprite *);
 u8 (*const gMovementActionFuncs_Figure8[])(struct ObjectEvent *, struct Sprite *);
 u8 (*const gMovementActionFuncs_FlyUp[])(struct ObjectEvent *, struct Sprite *);
 u8 (*const gMovementActionFuncs_FlyDown[])(struct ObjectEvent *, struct Sprite *);
@@ -647,6 +651,8 @@ u8 (*const *const gMovementActionFuncs[])(struct ObjectEvent *, struct Sprite *)
     [MOVEMENT_ACTION_LEVITATE] = gMovementActionFuncs_Levitate,
     [MOVEMENT_ACTION_STOP_LEVITATE] = gMovementActionFuncs_StopLevitate,
     [MOVEMENT_ACTION_STOP_LEVITATE_AT_TOP] = gMovementActionFuncs_StopLevitateAtTop,
+    [MOVEMENT_ACTION_SHAKE] = gMovementActionFuncs_Shake,
+    [MOVEMENT_ACTION_STOP_SHAKE] = gMovementActionFuncs_StopShake,
     [MOVEMENT_ACTION_FIGURE_8] = gMovementActionFuncs_Figure8,
     [MOVEMENT_ACTION_FLY_UP] = gMovementActionFuncs_FlyUp,
     [MOVEMENT_ACTION_FLY_DOWN] = gMovementActionFuncs_FlyDown,
@@ -1629,6 +1635,16 @@ u8 (*const gMovementActionFuncs_StopLevitate[])(struct ObjectEvent *, struct Spr
 
 u8 (*const gMovementActionFuncs_StopLevitateAtTop[])(struct ObjectEvent *, struct Sprite *) = {
     MovementAction_StopLevitateAtTop_Step0,
+    MovementAction_Finish,
+};
+
+u8 (*const gMovementActionFuncs_Shake[])(struct ObjectEvent *, struct Sprite *) = {
+    MovementAction_Shake_Step0,
+    MovementAction_Finish,
+};
+
+u8 (*const gMovementActionFuncs_StopShake[])(struct ObjectEvent *, struct Sprite *) = {
+    MovementAction_StopShake_Step0,
     MovementAction_Finish,
 };
 

@@ -277,6 +277,8 @@
 #define MOVEMENT_ACTION_SPIN_LEFT                       0xB4
 #define MOVEMENT_ACTION_SPIN_RIGHT                      0xB5
 #define MOVEMENT_ACTION_FACE_PLAYER_2                   0xB6
+#define MOVEMENT_ACTION_SHAKE                           0xB7
+#define MOVEMENT_ACTION_STOP_SHAKE                   	0xB8
 
 #define MOVEMENT_ACTION_STEP_END 0xFE
 #define MOVEMENT_ACTION_NONE     0xFF

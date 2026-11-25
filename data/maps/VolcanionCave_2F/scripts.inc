@@ -255,6 +255,7 @@ VolcanionCave_2F_EventScript_OldRodCurrentsY24::
 	end
 
 VolcanionCave_2F_Movement_OldRodFloatY24::
+	levitate
 	walk_left
 	walk_left
 	walk_left
@@ -271,6 +272,7 @@ VolcanionCave_2F_Movement_OldRodFloatY24::
 	step_end
 
 VolcanionCave_2F_Movement_OldRodJumpY24::
+	stop_levitate
 	jump_right
 	step_end
 
@@ -307,6 +309,7 @@ VolcanionCave_2F_EventScript_OldRodCurrentsY26::
 	end
 
 VolcanionCave_2F_Movement_OldRodFloatY26::
+	levitate
 	walk_left
 	walk_left
 	walk_left
@@ -325,6 +328,7 @@ VolcanionCave_2F_Movement_OldRodFloatY26::
 	step_end
 
 VolcanionCave_2F_Movement_OldRodJumpY26::
+	stop_levitate
 	jump_left
 	step_end
 
@@ -365,6 +369,7 @@ VolcanionCave_2F_EventScript_OldRodCurrentsY27::
 	end
 
 VolcanionCave_2F_Movement_OldRodFloatY27::
+	levitate
 	walk_left
 	walk_down
 	walk_fast_down

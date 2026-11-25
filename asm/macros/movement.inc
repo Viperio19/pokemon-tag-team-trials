@@ -160,6 +160,8 @@
 	create_movement_action levitate, MOVEMENT_ACTION_LEVITATE
 	create_movement_action stop_levitate, MOVEMENT_ACTION_STOP_LEVITATE
 	create_movement_action destroy_extra_task, MOVEMENT_ACTION_STOP_LEVITATE_AT_TOP
+	create_movement_action shake, MOVEMENT_ACTION_SHAKE
+	create_movement_action stop_shake, MOVEMENT_ACTION_STOP_SHAKE
 	create_movement_action figure_8, MOVEMENT_ACTION_FIGURE_8
 	create_movement_action fly_up, MOVEMENT_ACTION_FLY_UP
 	create_movement_action fly_down, MOVEMENT_ACTION_FLY_DOWN

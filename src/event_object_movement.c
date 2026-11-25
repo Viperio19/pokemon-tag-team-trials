@@ -170,6 +170,7 @@ static void DoGroundEffects_OnBeginStep(struct ObjectEvent *, struct Sprite *);
 static void DoGroundEffects_OnFinishStep(struct ObjectEvent *, struct Sprite *);
 static void VirtualObject_UpdateAnim(struct Sprite *);
 static void ApplyLevitateMovement(u8);
+static void ApplyShakeMovement(u8);
 static bool8 MovementType_Disguise_Callback(struct ObjectEvent *, struct Sprite *);
 static bool8 MovementType_Buried_Callback(struct ObjectEvent *, struct Sprite *);
 static void CreateReflectionEffectSprites(void);
@@ -211,6 +212,8 @@ static u8 DoJumpSpriteMovement(struct Sprite *);
 static u8 DoJumpSpecialSpriteMovement(struct Sprite *);
 static void CreateLevitateMovementTask(struct ObjectEvent *);
 static void DestroyLevitateMovementTask(u8);
+static void CreateShakeMovementTask(struct ObjectEvent *);
+static void DestroyShakeMovementTask(u8);
 const struct ObjectEventGraphicsInfo *SpeciesToGraphicsInfo(enum Species species, bool32 shiny, bool32 female);
 static bool8 NpcTakeStep(struct Sprite *);
 static void CopyObjectGraphicsInfoToSpriteTemplate_WithMovementType(u16 graphicsId, u16 movementType, struct SpriteTemplate *spriteTemplate, const struct SubspriteTable **subspriteTables);
@@ -9570,6 +9573,21 @@ bool8 MovementAction_StopLevitateAtTop_Step0(struct ObjectEvent *objectEvent, st
     return FALSE;
 }
 
+bool8 MovementAction_Shake_Step0(struct ObjectEvent *objectEvent, struct Sprite *sprite)
+{
+    CreateShakeMovementTask(objectEvent);
+    sprite->sActionFuncId = 1;
+    return TRUE;
+}
+
+bool8 MovementAction_StopShake_Step0(struct ObjectEvent *objectEvent, struct Sprite *sprite)
+{
+    DestroyShakeMovementTask(objectEvent->warpArrowSpriteId);
+    sprite->x2 = 0;
+    sprite->sActionFuncId = 1;
+    return TRUE;
+}
+
 u8 MovementAction_Finish(struct ObjectEvent *objectEvent, struct Sprite *sprite)
 {
     return TRUE;
@@ -11337,6 +11355,43 @@ static void ApplyLevitateMovement(u8 taskId)
     LoadWordFromTwoHalfwords((u16*) &task->data[0], (u32 *)&objectEvent); // load the map object pointer.
     sprite = &gSprites[objectEvent->spriteId];
 
+    if(!(task->data[2] & 3))
+        sprite->y2 += task->data[3];
+
+    if(!(task->data[2] & 15))
+        task->data[3] = -task->data[3];
+
+    task->data[2]++;
+}
+
+static void DestroyLevitateMovementTask(u8 taskId)
+{
+    struct ObjectEvent *objectEvent;
+    struct Task *task = &gTasks[taskId];
+
+    LoadWordFromTwoHalfwords((u16*) &task->data[0], (u32 *)&objectEvent); // unused objectEvent
+    DestroyTask(taskId);
+}
+
+static void CreateShakeMovementTask(struct ObjectEvent *objectEvent)
+{
+    u8 taskId = CreateTask(ApplyShakeMovement, 0xFF);
+    struct Task *task = &gTasks[taskId];
+
+    StoreWordInTwoHalfwords((u16*) &task->data[0], (u32)objectEvent);
+    objectEvent->warpArrowSpriteId = taskId;
+    task->data[3] = 0xFFFF;
+}
+
+static void ApplyShakeMovement(u8 taskId)
+{
+    struct ObjectEvent *objectEvent;
+    struct Sprite *sprite;
+    struct Task *task = &gTasks[taskId];
+
+    LoadWordFromTwoHalfwords((u16*) &task->data[0], (u32 *)&objectEvent); // load the map object pointer.
+    sprite = &gSprites[objectEvent->spriteId];
+
     if (!(task->data[2] & 3))
         sprite->x2 += task->data[3] * 2;
 
@@ -11346,7 +11401,7 @@ static void ApplyLevitateMovement(u8 taskId)
     task->data[2]++;
 }
 
-static void DestroyLevitateMovementTask(u8 taskId)
+static void DestroyShakeMovementTask(u8 taskId)
 {
     struct ObjectEvent *objectEvent;
     struct Task *task = &gTasks[taskId];

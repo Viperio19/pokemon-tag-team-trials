@@ -1051,9 +1051,9 @@ VolcanionCave_3F_Movement_DiglettThrowJailCell::
 	step_end
 
 VolcanionCave_3F_Movement_JailCellShake::
-	levitate
+	shake
 	delay_16
-	stop_levitate
+	stop_shake
 	delay_16
 	delay_16
 	step_end
@@ -3400,9 +3400,9 @@ VolcanionCave_3F_Movement_CramorantEatPikachu::
 	step_end
 
 VolcanionCave_3F_Movement_CramorantShake::
-	levitate
+	shake
 	walk_in_place_left
-	stop_levitate
+	stop_shake
 	step_end
 
 VolcanionCave_3F_Movement_CramorantLaunchPikachu::
@@ -3437,10 +3437,10 @@ VolcanionCave_3F_Movement_CameraFollowPikachuFly::
 	step_end
 
 VolcanionCave_3F_Movement_VolcanionShake::
-	levitate
+	shake
 	delay_16
 	delay_16
-	stop_levitate
+	stop_shake
 	step_end
 
 VolcanionCave_3F_Movement_CameraMoveBackToCramorant::
