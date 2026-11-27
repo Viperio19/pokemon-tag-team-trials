@@ -282,3 +282,11 @@ Common_Movement_JumpRight::
 Common_Movement_RockSmashBreak::
 	rock_smash_break
 	step_end
+
+Common_Movement_Levitate::
+	levitate
+	step_end
+
+Common_Movement_StopLevitate::
+	stop_levitate
+	step_end

@@ -685,12 +685,12 @@ VolcanionCave_1F_EventScript_Golem::
 	message VolcanionCave_1F_Text_GolemCry
 	waitmoncry
 	waitmessage
+	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
+	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_1F_EventScript_AskGolemMultiBattle
 	goto_if_set FLAG_PLAYER_2_READY_TO_BATTLE_TOGETHER, VolcanionCave_1F_EventScript_DoGolemMultiBattle
 	goto_if_unset FLAG_HIDE_VOLCANION_CAVE_1F_BREAKABLE_ROCK, VolcanionCave_1F_EventScript_DoGolemSingleBattle
 	callnative IsMultiplayer
-	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_1F_EventScript_AskGolemMultiBattle
-	specialvar VAR_RESULT, IsTagTeamTrialsLinkActive
-	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_1F_EventScript_DoGolemSingleBattle
+	goto_if_eq VAR_RESULT, TRUE, VolcanionCave_1F_EventScript_DoGolemSingleBattle
 VolcanionCave_1F_EventScript_AskGolemMultiBattle::
 	callnative IsPlayerOne
 	goto_if_eq VAR_RESULT, FALSE, VolcanionCave_1F_EventScript_BattleTogetherMagma

@@ -747,6 +747,8 @@ extern const u8 Common_Movement_JumpLeft[];
 extern const u8 Common_Movement_ExclamationMark[];
 extern const u8 Common_Movement_RockSmashBreak[];
 extern const u8 Common_Movement_FacePlayer2[];
+extern const u8 Common_Movement_Levitate[];
+extern const u8 Common_Movement_StopLevitate[];
 
 extern const u8 VolcanionCave_1F_Movement_DiglettDigDown[];
 extern const u8 VolcanionCave_1F_Movement_MagmaGruntMConfused[];

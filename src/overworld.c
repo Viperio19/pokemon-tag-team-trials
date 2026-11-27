@@ -3163,6 +3163,8 @@ static const u8 *const sPlayer2CommandToMovement[][4] =
 static const u8 *const sPlayer2MovementIdToScript[] =
 {
     [P2_MOVEMENT_FACE_PLAYER_2] = Common_Movement_FacePlayer2,
+    [P2_MOVEMENT_LEVITATE] = Common_Movement_Levitate,
+    [P2_MOVEMENT_STOP_LEVITATE] = Common_Movement_StopLevitate,
     // room 1
     [P2_MOVEMENT_DIGLETT_DIG_DOWN] = VolcanionCave_1F_Movement_DiglettDigDown,
     [P2_MOVEMENT_MAGMA_GRUNT_M_CONFUSED] = VolcanionCave_1F_Movement_MagmaGruntMConfused,

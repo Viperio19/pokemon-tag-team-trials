@@ -329,6 +329,7 @@ void ScriptContext_Stop(void)
 // Puts the script into running mode.
 void ScriptContext_Enable(void)
 {
+    DebugPrintf("ScriptContext_Enable");
     sGlobalScriptContextStatus = CONTEXT_RUNNING;
     LockPlayerFieldControls();
 }
